@@ -1,1 +1,60 @@
 package groups
+
+
+
+import "fmt"
+
+type group struct{
+	ID         		int        `json:"id"`
+	Name       		string     `json:"name"`
+	Description     string     `json:"description"`
+	Owner		    int        `json:"owner"`
+}
+
+func NewGroup(_name,_description string,_owner int) *group{
+	return &group{
+		ID : -1,
+		Name : _name,
+		Description : _description,
+		Owner : _owner,
+	}
+}
+
+func GetGroups() []group {
+	groupsLists := make([]group, 0);
+	groups_dataLists := getAllGroups();
+	for _, g_data := range groups_dataLists {
+		groupsLists = append(groupsLists,*convert(g_data));
+	}
+	return groupsLists;
+}
+
+func PrintGroupsData()  {
+	groups := GetGroups();
+	for _, g := range groups {
+		fmt.Printf("ID 			: %d\n",g.ID);
+		fmt.Printf("Name 		: %s\n",g.Name);
+		fmt.Printf("Description : %s\n",g.Description);
+		fmt.Printf("Owner		: %d\n",g.Owner);
+	}
+}
+
+// this function will call createGroup function 
+// you can add any condition in this function without changing the 'createGroup' function
+// example :
+// if you want One user can only create five groups at most you can update just in function bellow 
+func (g *group) Create() bool {
+	g.ID = createGroup(g.Name,g.Description,g.Owner);
+	return g.ID != -1;
+}
+
+// this is a private function that convert group_data received from database to busnnes group
+
+func convert(g_data group_data) *group {
+	return &group{
+		ID : g_data.ID,
+		Name : g_data.Name,
+		Description : g_data.Description,
+		Owner : g_data.Owner,
+	}
+}

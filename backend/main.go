@@ -4,11 +4,22 @@ import (
 	"fmt"
 	"net/http"
 	"socialNetwork/database"
+	"socialNetwork/Groups"
+
 )
 
 func main() {
 	database.CreateDatabase() // temporary 
-
+	/*myGroup := groups.NewGroup("myTeam5","for learning 5",1);
+	result := myGroup.Create();
+	if result {
+		fmt.Printf("group %d is created \n",myGroup.ID);
+		groups.PrintGroupsData();
+		return 
+	}else{
+		fmt.Println("Error");
+		return ;
+	}*/
 	mux := http.NewServeMux()
 	mux.HandleFunc("/public/", handleStaticFile)
 
