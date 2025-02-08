@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // ----------------------------------------------------------------------------------
@@ -190,6 +191,7 @@ func UploadImage(formFieldName string, w http.ResponseWriter, r *http.Request) *
 	return &dbPath
 }
 
+// simple insert new user with check if email already exists.
 func InsertUser(u User, w http.ResponseWriter) error {
 	Query := `
 	INSERT INTO
@@ -228,14 +230,17 @@ func InsertUser(u User, w http.ResponseWriter) error {
 }
 
 // ----------------------------------------------------------------------------------
-// -------------------------------logout---------------------------------------------
+// -------------------------------Reset / Update UUID -------------------------------
 
 func ResetUuidToNull(uuid string) error {
 	_, err := database.ExecQuery("UPDATE users SET uuid = NULL WHERE uuid = ?", uuid)
-	if err != nil {
-		return fmt.Errorf("error find user %v", err)
-	}
-	return nil
+	return err
+}
+
+func UpdateUuidExp(uuid, email string, exp time.Time) error {
+	_, err := database.ExecQuery("UPDATE users SET uuid = ?,exp = ? WHERE email = ?",
+		uuid, exp, email)
+	return err
 }
 
 // ----------------------------------------------------------------------------------
@@ -275,4 +280,64 @@ func IsLoggedIn(req *http.Request, sessionName string) (int, error) {
 	}
 
 	return userID, nil
+}
+
+// ----------------------------------------------------------------------------------
+// -------------------------------check login is correct---------------------------------------
+
+// LoginCheck verifies if the given email and password match a record in the database.
+//
+// Parameters:
+// - l (Login): A struct containing the user's email and password.
+//
+// Returns:
+// - int: HTTP status code (e.g., 200 for success, 401 for unauthorized, 500 for server errors).
+// - error: Nil if authentication is successful; otherwise, an error indicating the issue.
+func LoginCheck(l Login) (int, error) {
+	row, err := database.SelectOneRow("SELECT password FROM users WHERE email = ?", l.Email)
+	if err != nil {
+		return http.StatusInternalServerError, fmt.Errorf("database error: %v", err)
+	}
+
+	var hashPass string
+	if err := row.Scan(&hashPass); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return http.StatusUnauthorized, fmt.Errorf("user does not exist")
+		}
+		return http.StatusInternalServerError, fmt.Errorf("failed to retrieve password: %v", err)
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(hashPass), []byte(l.Password)); err != nil {
+		return http.StatusUnauthorized, fmt.Errorf("incorrect password")
+	}
+
+	return http.StatusOK, nil
+}
+
+// AddUuidAndCookie generates a UUID, updates it in the database with an expiration, and sets a secure HTTP-only cookie.
+// Returns 200 OK on success or 500 Internal Server Error if UUID generation or database update fails.
+// Ensures security with HttpOnly, Secure, and SameSiteStrictMode to prevent CSRF.
+func AddUuidAndCookie(email string, w http.ResponseWriter) (int, error) {
+	uuid, err := uuid.NewV4()
+	if err != nil {
+		return http.StatusInternalServerError, fmt.Errorf("failed to update UUID in database: %v", err)
+	}
+
+	exp := time.Now().Add(72 * time.Hour)
+
+	if err := UpdateUuidExp(uuid.String(), email, exp); err != nil {
+		return http.StatusInternalServerError, err
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "token",
+		Value:    uuid.String(),
+		Expires:  exp,
+		HttpOnly: true,
+		Path:     "/",
+		Secure:   true,
+		SameSite: http.SameSiteDefaultMode, // CSRF
+	})
+
+	return http.StatusOK, nil
 }

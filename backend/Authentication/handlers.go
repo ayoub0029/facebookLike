@@ -56,6 +56,34 @@ func signUp(w http.ResponseWriter, r *http.Request) {
 }
 
 func logIn(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		global.JsonResponse(w, http.StatusMethodNotAllowed, "Method not allowed")
+		return
+	}
+
+	login := Login{
+		Email:    r.FormValue("email"),
+		Password: r.FormValue("password"),
+	}
+
+	if len(login.Email) < 5 || len(login.Password) < 5 || len(login.Email) > 50 || len(login.Password) > 50 {
+		global.JsonResponse(w, http.StatusBadRequest, "invalid email or password")
+		return
+	}
+
+	httpStatus, err := LoginCheck(login)
+	if err != nil {
+		global.JsonResponse(w, httpStatus, err.Error())
+		return
+	}
+
+	httpStatus, err = AddUuidAndCookie(login.Email, w)
+	if err != nil {
+		global.JsonResponse(w, httpStatus, err.Error())
+		return
+	}
+
+	global.JsonResponse(w, http.StatusOK, "Login successful")
 }
 
 func logOut(w http.ResponseWriter, r *http.Request) {
