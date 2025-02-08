@@ -2,27 +2,47 @@ package chats
 
 import (
 	"fmt"
+	"log"
 	"net/http"
-	"strconv"
+	global "socialNetwork/Global"
+
+	"github.com/gorilla/websocket"
 )
+
+type Client struct {
+	UserId int `json:"id"`
+	State bool `json:"state"`
+	Conn *websocket.Conn
+}
 
 func Routes(mux *http.ServeMux) {
 	mux.HandleFunc("/chats/private", privateChat)
+	mux.HandleFunc("/ws", wsHandling)
 	mux.HandleFunc("/chats/group", groupChat)
 }
 
 func privateChat(w http.ResponseWriter, r *http.Request) {
-	receiverID, err := strconv.Atoi(r.URL.Query().Get("receiver_id"))
+	message, err := getAllMessages(r)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	pageNum, err := strconv.Atoi(r.URL.Query().Get("page"))
-	if err != nil {
-		fmt.Println(err)
+	global.JsonResponse(w, 200, message)
+}
+
+var upgrader = websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
+}
+
+func wsHandling(w http.ResponseWriter, r *http.Request) {
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err!=nil {
+		log.Fatal(err)
 		return
 	}
-	fmt.Println(receiverID, pageNum)
+	
 }
 
 func groupChat(w http.ResponseWriter, r *http.Request) {
