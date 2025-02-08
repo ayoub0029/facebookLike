@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	auth "socialNetwork/Authentication"
-	"socialNetwork/database"
+	database "socialNetwork/Database"
 )
 
 func main() {
@@ -19,8 +19,8 @@ func main() {
 	auth.Routes(mux)
 	// posts.Routes(mux)  example
 	// ...
-	
-	mux.HandleFunc("/" , home)
+
+	mux.HandleFunc("/", home)
 	port := ":8080"
 	fmt.Println("Server running on", port)
 	err := http.ListenAndServe(port, mux)
@@ -34,6 +34,6 @@ func handleStaticFile(res http.ResponseWriter, req *http.Request) {
 }
 
 func home(w http.ResponseWriter, r *http.Request) {
-	// home handler 
+	// home handler
 	// check here paths and 404
 }
