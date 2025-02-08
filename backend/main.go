@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"net/http"
-	chats "socialNetwork/Chats"
-	"socialNetwork/database"
+	auth "socialNetwork/Authentication"
+	database "socialNetwork/Database"
 )
 
 func main() {
@@ -16,11 +16,11 @@ func main() {
 	// ayoub---
 	// can here add conditions for routes authorization
 
-	// auth.Routes(mux)  example
+	auth.Routes(mux)
 	// posts.Routes(mux)  example
-	chats.Routes(mux)
 	// ...
 
+	mux.HandleFunc("/", home)
 	port := ":8080"
 	fmt.Println("Server running on", port)
 	err := http.ListenAndServe(port, mux)
@@ -31,4 +31,9 @@ func main() {
 
 func handleStaticFile(res http.ResponseWriter, req *http.Request) {
 	// check file if exist and serve the file
+}
+
+func home(w http.ResponseWriter, r *http.Request) {
+	// home handler
+	// check here paths and 404
 }

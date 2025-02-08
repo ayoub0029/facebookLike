@@ -10,9 +10,9 @@ import (
 )
 
 type Client struct {
-	UserId int `json:"id"`
-	State bool `json:"state"`
-	Conn *websocket.Conn
+	UserId int  `json:"id"`
+	State  bool `json:"state"`
+	Conn   *websocket.Conn
 }
 
 func Routes(mux *http.ServeMux) {
@@ -38,11 +38,11 @@ var upgrader = websocket.Upgrader{
 
 func wsHandling(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
-	if err!=nil {
+	if err != nil {
 		log.Fatal(err)
 		return
 	}
-	
+
 }
 
 func groupChat(w http.ResponseWriter, r *http.Request) {
