@@ -181,43 +181,42 @@ func CreateDatabase() {
 	fmt.Println("Database and tables created successfully")
 }
 
-
 // for to many rows
-// func SelectQuery(query string, args ...any) (*sql.Rows, error) {
-// 	db, err := sql.Open("sqlite3", "./database/socialNetwork.db")
-// 	if err != nil {
-// 		return nil, fmt.Errorf("OPEN ERROR: %v", err)
-// 	}
-// 	rows, er := db.Query(query, args...)
-// 	if er != nil {
-// 		return nil, fmt.Errorf("QUERY ERROR: %v", er)
-// 	}
-// 	db.Close()
-// 	return rows, nil
-// }
+func SelectQuery(query string, args ...any) (*sql.Rows, error) {
+	db, err := sql.Open("sqlite3", "./database/socialNetwork.db")
+	if err != nil {
+		return nil, fmt.Errorf("OPEN ERROR: %v", err)
+	}
+	rows, er := db.Query(query, args...)
+	if er != nil {
+		return nil, fmt.Errorf("QUERY ERROR: %v", er)
+	}
+	db.Close()
+	return rows, nil
+}
 
 // // for single row
-// func SelectOneRow(query string, args ...any) (*sql.Row, error) {
-// 	db, err := sql.Open("sqlite3", "./database/socialNetwork.db")
-// 	if err != nil {
-// 		return nil, fmt.Errorf("OPEN ERROR: %v", err)
-// 	}
-// 	row := db.QueryRow(query, args...)
-// 	db.Close()
-// 	return row, nil
-// }
+func SelectOneRow(query string, args ...any) (*sql.Row, error) {
+	db, err := sql.Open("sqlite3", "./database/socialNetwork.db")
+	if err != nil {
+		return nil, fmt.Errorf("OPEN ERROR: %v", err)
+	}
+	row := db.QueryRow(query, args...)
+	db.Close()
+	return row, nil
+}
 
 // // for run query
-// func ExecQuery(query string, args ...any) (sql.Result, error) {
-// 	db, err := sql.Open("sqlite3", "./database/socialNetwork.db")
-// 	if err != nil {
-// 		return nil, fmt.Errorf("OPEN ERROR: %v", err)
-// 	}
-// 	defer db.Close()
+func ExecQuery(query string, args ...any) (sql.Result, error) {
+	db, err := sql.Open("sqlite3", "./database/socialNetwork.db")
+	if err != nil {
+		return nil, fmt.Errorf("OPEN ERROR: %v", err)
+	}
+	defer db.Close()
 
-// 	rs, err := db.Exec(query, args...)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("EXEC ERROR: %v", err)
-// 	}
-// 	return rs, nil
-// }
+	rs, err := db.Exec(query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("EXEC ERROR: %v", err)
+	}
+	return rs, nil
+}

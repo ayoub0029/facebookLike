@@ -3,15 +3,17 @@ package main
 import (
 	"fmt"
 	"net/http"
+
+	profiles "socialNetwork/Profiles"
 	"socialNetwork/database"
 )
 
 func main() {
-	database.CreateDatabase() // temporary 
+	database.CreateDatabase() // temporary
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/public/", handleStaticFile)
-
+	profiles.Routes(mux)
 	// ayoub---
 	// can here add conditions for routes authorization
 
