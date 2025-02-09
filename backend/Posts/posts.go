@@ -98,19 +98,6 @@ func InsertPost(userID string, content string, image string, createdAt time.Time
 	return nil
 }
 
-func get_userID_from_user_name(username string) (int, error) {
-	var user_id int
-	row, err := database.SelectQuery("SELECT id FROM users WHERE username = $1", username)
-	if err != nil {
-		return 0, err
-	}
-	err = row.Scan(&user_id)
-	if err != nil {
-		return 0, err
-	}
-	return user_id, nil
-}
-
 func get_userID(r *http.Request) (int, error) {
 	uuid,err  := r.Cookie("token")
 	if err != nil {

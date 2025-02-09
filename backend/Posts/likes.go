@@ -6,12 +6,6 @@ import (
 	"socialNetwork/database"
 )
 
-type Like struct {
-	ID        int `json:"id"`
-	ItemID    int `json:"item_id"` // post_id or comment_id
-	LikeValue int `json:"like"`
-}
-
 // status like 1 add like 0 for remove like
 func LikePost(postID int, userID int, statuslike int) error {
 	if statuslike < 0 || statuslike > 1 {

@@ -84,10 +84,9 @@ func UserProfilePosts(w http.ResponseWriter, r *http.Request) {
 
 	page, pageErr := strconv.Atoi(r.FormValue("page"))
 
-	user := r.FormValue("username")
+	userProfileID, _ := strconv.Atoi(r.FormValue("user_id"))
 
-	userProfileID, err := get_userID_from_user_name(user)
-	if pageErr != nil || user == "" || err != nil {
+	if pageErr != nil || userProfileID <= 0 {
 		jsonResponse(w, http.StatusBadRequest, "Invalid data provided")
 		return
 	}
@@ -111,7 +110,7 @@ func UserProfilePosts(w http.ResponseWriter, r *http.Request) {
 	    LEFT JOIN post_visibility AS pv ON pv.post_id = p.id AND pv.user_id = $1
 		LEFT JOIN followers AS f ON f.followed_id = u.id AND f.status != 'pending' AND f.follower_id = $1
 	WHERE
-		P.user_id = $2 AND
+		p.user_id = $2 AND
 		p.group_id IS NULL AND(
 	    p.privacy = 'public' 
 		OR (p.privacy = 'almost private' AND f.followed_id IS NOT NULL) 
