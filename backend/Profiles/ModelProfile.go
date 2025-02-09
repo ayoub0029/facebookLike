@@ -1,4 +1,4 @@
-package profiles
+package Profiles
 
 import (
 	"fmt"
@@ -6,31 +6,10 @@ import (
 	"socialNetwork/database"
 )
 
-type Following struct {
-	Id       int
-	Nickname string
-	Avatar   string
-}
-
-type Followers struct {
-	Id       int
-	Nickname string
-	Avatar   string
-}
-
 type Profile struct {
 	Id          int
 	ProfileData ProfileData
 }
-
-var (
-	ProfileStatus         = [2]string{"private", "public"}
-	FollowerStatus        = [2]string{"pending", "accept"}
-	Profile_Private  int8 = 0
-	Profile_Public   int8 = 1
-	Follower_Pending int8 = 0
-	Follower_Accept  int8 = 1
-)
 
 type ProfileData struct {
 	ProfileStatus string
@@ -41,9 +20,14 @@ type ProfileData struct {
 	AboutMe       string
 	Email         string
 	DOB           string
-	Following     []Following
-	Followers     []Followers
+	Created_at    string
 }
+
+var (
+	ProfileStatus        = [2]string{"private", "public"}
+	Profile_Private int8 = 0 // Index Of Privat in ProfileStatus Array
+	Profile_Public  int8 = 1 // Index Of Public in ProfileStatus Array
+)
 
 func NewProfile(Id int) (*Profile, error) {
 	if !UserExists(Id) {
@@ -65,7 +49,8 @@ func (p *Profile) GetProfileInfo() error {
 		last_name,
 		about_me,
 		email,
-		date_of_birth
+		date_of_birth,
+		Created_at
 	FROM users 
 	WHERE id = ?
 	`
@@ -82,11 +67,16 @@ func (p *Profile) GetProfileInfo() error {
 		&p.ProfileData.AboutMe,
 		&p.ProfileData.Email,
 		&p.ProfileData.DOB,
+		&p.ProfileData.Created_at,
 	)
 	if err != nil {
 		fmt.Println(err)
 		return err
 	}
 
+	return nil
+}
+
+func (p *ProfileData) UpdateProfileInfo() error {
 	return nil
 }
