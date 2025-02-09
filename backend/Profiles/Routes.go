@@ -12,6 +12,6 @@ func Routes(mux *http.ServeMux) {
 	mux.HandleFunc("/profiles/follow/accept", AcceptFollowRequest)
 	mux.HandleFunc("/profiles/follow/reject", RejectFollowRequest)
 	mux.HandleFunc("/profiles/follow/status", CheckFollowStatus)
-	// mux.HandleFunc("/profiles/followers", GetFollowers)
-	// mux.HandleFunc("/profiles/following", GetFollowing)
+	mux.HandleFunc("/profiles/followers", GetFollowers)
+	mux.HandleFunc("/profiles/following", GetFollowing)
 }

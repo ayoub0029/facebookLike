@@ -279,18 +279,78 @@ func CheckFollowStatus(w http.ResponseWriter, r *http.Request) {
 	global.JsonResponse(w, http.StatusOK, map[string]string{"Status": Status})
 }
 
-// // GET /profiles/followers?user_id=123&page=1 → Get followers of a user
-// func GetFollowers(w http.ResponseWriter, r *http.Request) {
-// 	if r.Method != http.MethodGet {
-// 		global.JsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"Error": global.ErrMethod.Error()})
-// 		return
-// 	}
-// }
+// GET /profiles/followers?user_id=123&page=1 → Get followers of a user
+func GetFollowers(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		global.JsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"Error": global.ErrMethod.Error()})
+		return
+	}
 
-// // GET /profiles/following?user_id=123&page=1 → Get users the user follows
-// func GetFollowing(w http.ResponseWriter, r *http.Request) {
-// 	if r.Method != http.MethodGet {
-// 		global.JsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"Error": global.ErrMethod.Error()})
-// 		return
-// 	}
-// }
+	Param1 := r.FormValue("page")
+	Param2 := r.FormValue("user_id")
+	Page, err := strconv.Atoi(Param1)
+	if err != nil {
+		global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": global.ErrInvalidRequest.Error()})
+		return
+	}
+	UserID, err := strconv.Atoi(Param2)
+	if err != nil {
+		global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": global.ErrInvalidRequest.Error()})
+		return
+	}
+
+	NewFollowersParam := &FollowersParams{
+		UserID:  UserID,
+		Page:    Page,
+		PerPage: 10,
+	}
+
+	Followers, err := NewFollowersParam.GetFollowers()
+	if err != nil {
+		if err == ErrUnauthorized {
+			global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": err.Error()})
+			return
+		}
+		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": global.ErrInvalidRequest.Error()})
+		return
+	}
+	global.JsonResponse(w, http.StatusOK, Followers)
+}
+
+// GET /profiles/following?user_id=123&page=1 → Get users the user follows
+func GetFollowing(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		global.JsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"Error": global.ErrMethod.Error()})
+		return
+	}
+
+	Param1 := r.FormValue("page")
+	Param2 := r.FormValue("user_id")
+	Page, err := strconv.Atoi(Param1)
+	if err != nil {
+		global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": global.ErrInvalidRequest.Error()})
+		return
+	}
+	UserID, err := strconv.Atoi(Param2)
+	if err != nil {
+		global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": global.ErrInvalidRequest.Error()})
+		return
+	}
+
+	NewFollowersParam := &FollowersParams{
+		UserID:  UserID,
+		Page:    Page,
+		PerPage: 10,
+	}
+
+	Following, err := NewFollowersParam.GetFollowing()
+	if err != nil {
+		if err == ErrUnauthorized {
+			global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": err.Error()})
+			return
+		}
+		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": global.ErrInvalidRequest.Error()})
+		return
+	}
+	global.JsonResponse(w, http.StatusOK, Following)
+}

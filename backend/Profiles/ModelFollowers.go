@@ -25,6 +25,12 @@ type Followers struct {
 	Avatar   string
 }
 
+type FollowersParams struct {
+	UserID  int
+	Page    int
+	PerPage uint8
+}
+
 var (
 	FollowerStatus        = [2]string{"pending", "accept"}
 	Follower_Pending int8 = 0 // Index Of pending in FollowerStatus Array
@@ -193,34 +199,32 @@ func (req *Follow_Request) RejectRequest() (int, error) {
 	return http.StatusOK, nil
 }
 
-func (f *Following) GetFollowing(req *http.Request, page int, perPage uint8) ([]Following, error) {
-	userID, err := GetUserID(req)
-	if err != nil {
-		return nil, err
-	}
-	if page < 1 {
-		page = 1
+func (Params *FollowersParams) GetFollowing() ([]Following, error) {
+	if Params.Page < 1 {
+		Params.Page = 1
 	}
 
-	offset := (page - 1) * int(perPage)
+	offset := (Params.Page - 1) * int(Params.PerPage)
 	query := `
 	SELECT u.id, u.nickname, u.avatar 
 	FROM users u
 	JOIN followers f ON u.id = f.followed_id
-	WHERE f.follower_id = ? AND f.status = 'accepted'
+	WHERE f.follower_id = ? AND f.status = 'accept'
 	LIMIT ? OFFSET ?;
 	`
 
-	rows, err := database.SelectQuery(query, userID, perPage, offset)
+	rows, err := database.SelectQuery(query, Params.UserID, Params.PerPage, offset)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch following: %w", err)
 	}
 	defer rows.Close()
 
 	var followings []Following
+
 	for rows.Next() {
 		var following Following
 		if err := rows.Scan(&following.Id, &following.Nickname, &following.Avatar); err != nil {
+			fmt.Println(following)
 			return nil, fmt.Errorf("failed to scan following user: %w", err)
 		}
 		followings = append(followings, following)
@@ -229,25 +233,21 @@ func (f *Following) GetFollowing(req *http.Request, page int, perPage uint8) ([]
 	return followings, nil
 }
 
-func (f *Followers) GetFollowers(req *http.Request, page int, perPage uint8) ([]Followers, error) {
-	userID, err := GetUserID(req)
-	if err != nil {
-		return nil, err
-	}
-	if page < 1 {
-		page = 1
+func (Params *FollowersParams) GetFollowers() ([]Followers, error) {
+	if Params.Page < 1 {
+		Params.Page = 1
 	}
 
-	offset := (page - 1) * int(perPage)
+	offset := (Params.Page - 1) * int(Params.PerPage)
 	query := `
 	SELECT u.id, u.nickname, u.avatar 
 	FROM users u
 	JOIN followers f ON u.id = f.follower_id
-	WHERE f.followed_id = ? AND f.status = 'accepted'
+	WHERE f.followed_id = ? AND f.status = 'accept'
 	LIMIT ? OFFSET ?;
 	`
 
-	rows, err := database.SelectQuery(query, userID, perPage, offset)
+	rows, err := database.SelectQuery(query, Params.UserID, Params.PerPage, offset)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch followers: %w", err)
 	}
