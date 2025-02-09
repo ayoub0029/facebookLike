@@ -3,10 +3,10 @@ package auth
 import "net/http"
 
 func Routes(mux *http.ServeMux) {
-	mux.HandleFunc("/auth/signup", signUp)
-	mux.HandleFunc("/auth/login", logIn)
-	mux.HandleFunc("/auth/logout", logOut)
-	mux.HandleFunc("/auth/status", status)
-	mux.HandleFunc("/auth/callback", callBack)
-	mux.HandleFunc("/auth/github/callback", githubCallBack)
+	mux.HandleFunc("POST /auth/signup", signUp)
+	mux.HandleFunc("POST /auth/login", logIn)
+	mux.HandleFunc("POST /auth/logout", logOut)
+	mux.HandleFunc("GET /auth/status", status)
+	mux.HandleFunc("GET /auth/callback", callBack)
+	mux.HandleFunc("GET /auth/github/callback", githubCallBack)
 }

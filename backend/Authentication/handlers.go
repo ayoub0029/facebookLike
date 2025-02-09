@@ -11,11 +11,6 @@ import (
 )
 
 func signUp(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		global.JsonResponse(w, http.StatusMethodNotAllowed, "Method not allowed")
-		return
-	}
-
 	ParseFormSize(w, r)
 
 	newUser := User{
@@ -56,11 +51,6 @@ func signUp(w http.ResponseWriter, r *http.Request) {
 }
 
 func logIn(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		global.JsonResponse(w, http.StatusMethodNotAllowed, "Method not allowed")
-		return
-	}
-
 	login := Login{
 		Email:    r.FormValue("email"),
 		Password: r.FormValue("password"),

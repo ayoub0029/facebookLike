@@ -13,10 +13,3 @@ func JsonResponse(w http.ResponseWriter, status int, message any) {
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(message)
 }
-
-func StringPtr(s string) *string {
-	if s == "" {
-		return nil
-	}
-	return &s
-}
