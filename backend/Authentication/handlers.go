@@ -7,25 +7,30 @@ import (
 	"net/http"
 	"net/url"
 	global "socialNetwork/Global"
+	"strconv"
 	"strings"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
-// signUp handles user registration by validating input, hashing passwords,  
-// storing user data, and handling avatar uploads.  
+// signUp handles user registration by validating input, hashing passwords,
+// storing user data, and handling avatar uploads.
 func signUp(w http.ResponseWriter, r *http.Request) {
 	ParseFormSize(w, r)
+
+	githubID, _ := strconv.Atoi(r.FormValue("githubid"))
 
 	newUser := User{
 		Email:     r.FormValue("email"),
 		Password:  r.FormValue("password"),
 		FirstName: html.EscapeString(r.FormValue("firstName")),
 		LastName:  html.EscapeString(r.FormValue("lastName")),
+		Avatar:    r.FormValue("avatar"), // for completing Oauth
 		DateOB:    html.EscapeString(r.FormValue("dateob")),
 		Nickname:  html.EscapeString(r.FormValue("nickname")),
 		AboutMe:   html.EscapeString(r.FormValue("aboutMe")),
+		GithubID:  githubID, // for completing Oauth
 	}
 
 	if err := ValidateUser(newUser); err != nil {
@@ -40,12 +45,13 @@ func signUp(w http.ResponseWriter, r *http.Request) {
 	}
 	newUser.Password = string(hashPass)
 
-	resultPath := UploadImage("avatar", w, r)
-	// return nil pointer if fail upload otherwise return path
-	if resultPath == nil {
-		return
+	if newUser.Avatar == "" {
+		resultPath := UploadImage("avatar", w, r)
+		if resultPath == nil {
+			return
+		}
+		newUser.Avatar = *resultPath
 	}
-	newUser.Avatar = *resultPath
 
 	if err := InsertUser(newUser, w); err != nil {
 		return
@@ -54,7 +60,7 @@ func signUp(w http.ResponseWriter, r *http.Request) {
 	global.JsonResponse(w, http.StatusOK, "")
 }
 
-// logIn authenticates users by validating credentials,  
+// logIn authenticates users by validating credentials,
 // checking the database, and setting a session token.
 func logIn(w http.ResponseWriter, r *http.Request) {
 	login := Login{
@@ -80,8 +86,8 @@ func logIn(w http.ResponseWriter, r *http.Request) {
 	global.JsonResponse(w, http.StatusOK, "Login successful")
 }
 
-// logOut logs out the user by clearing session cookies  
-// and resetting the uuid token in the database.  
+// logOut logs out the user by clearing session cookies
+// and resetting the uuid token in the database.
 func logOut(w http.ResponseWriter, r *http.Request) {
 	uuidCookie, err := r.Cookie("token")
 	if errors.Is(err, http.ErrNoCookie) {
@@ -107,8 +113,8 @@ func logOut(w http.ResponseWriter, r *http.Request) {
 	global.JsonResponse(w, http.StatusOK, "You have been logged out successfully")
 }
 
-// status checks if a user is logged in by verifying their session token  
-// and returns the user's ID or an authentication failure message. 
+// status checks if a user is logged in by verifying their session token
+// and returns the user's ID or NULL or an authentication failure message.
 func status(w http.ResponseWriter, r *http.Request) {
 	userID, errLogin := IsLoggedIn(r, "token")
 
@@ -125,7 +131,7 @@ func status(w http.ResponseWriter, r *http.Request) {
 	global.JsonResponse(w, http.StatusOK, userID)
 }
 
-// GithubLogin redirects users to GitHub's OAuth login page  
+// GithubLogin redirects users to GitHub's OAuth login page
 // to authenticate via their GitHub account.
 func GithubLogin(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "no-store")
@@ -139,8 +145,8 @@ func GithubLogin(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, authURL, http.StatusSeeOther)
 }
 
-// githubCallBack handles the OAuth callback from GitHub,  
-// retrieves user info, and completes or logs in the user.  
+// githubCallBack handles the OAuth callback from GitHub,
+// retrieves user info, and completes or logs in the user.
 func githubCallBack(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "no-store")
 
