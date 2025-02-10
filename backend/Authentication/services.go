@@ -2,11 +2,13 @@ package auth
 
 import (
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"image"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"regexp"
 	database "socialNetwork/Database"
@@ -203,10 +205,11 @@ func InsertUser(u User, w http.ResponseWriter) error {
         date_of_birth,
         avatar,
         nickname,
-        about_me
+        about_me,
+		github_id
     )
 	VALUES
-		(?, ?, ?, ?, ?, ?, ?, ?)
+		(?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`
 	_, err := database.ExecQuery(Query,
 		u.FirstName,
@@ -216,7 +219,8 @@ func InsertUser(u User, w http.ResponseWriter) error {
 		u.DateOB,
 		u.Avatar,
 		u.Nickname,
-		u.AboutMe)
+		u.AboutMe,
+		u.GithubID)
 
 	if err != nil {
 		if err.Error() == "EXEC ERROR: UNIQUE constraint failed: users.email" {
@@ -237,9 +241,9 @@ func ResetUuidToNull(uuid string) error {
 	return err
 }
 
-func UpdateUuidExp(uuid, email string, exp time.Time) error {
-	_, err := database.ExecQuery("UPDATE users SET uuid = ?,exp = ? WHERE email = ?",
-		uuid, exp, email)
+func UpdateUuidExp(uuid, emailOrGithubID string, exp time.Time) error {
+	_, err := database.ExecQuery("UPDATE users SET uuid = $1,exp = $2 WHERE email = $3 OR github_id = $3",
+		uuid, exp, emailOrGithubID)
 	return err
 }
 
@@ -317,7 +321,7 @@ func LoginCheck(l Login) (int, error) {
 // AddUuidAndCookie generates a UUID, updates it in the database with an expiration, and sets a secure HTTP-only cookie.
 // Returns 200 OK on success or 500 Internal Server Error if UUID generation or database update fails.
 // Ensures security with HttpOnly, Secure, and SameSiteStrictMode to prevent CSRF.
-func AddUuidAndCookie(email string, w http.ResponseWriter) (int, error) {
+func AddUuidAndCookie(emailOrGithubID string, w http.ResponseWriter) (int, error) {
 	uuid, err := uuid.NewV4()
 	if err != nil {
 		return http.StatusInternalServerError, fmt.Errorf("failed to update UUID in database: %v", err)
@@ -325,7 +329,7 @@ func AddUuidAndCookie(email string, w http.ResponseWriter) (int, error) {
 
 	exp := time.Now().Add(72 * time.Hour)
 
-	if err := UpdateUuidExp(uuid.String(), email, exp); err != nil {
+	if err := UpdateUuidExp(uuid.String(), emailOrGithubID, exp); err != nil {
 		return http.StatusInternalServerError, err
 	}
 
@@ -340,4 +344,77 @@ func AddUuidAndCookie(email string, w http.ResponseWriter) (int, error) {
 	})
 
 	return http.StatusOK, nil
+}
+
+// ----------------------------------------------------------------------------------
+// -------------------------------OAuth Github---------------------------------------
+
+func getGitHubAccessToken(code string) (string, error) {
+	data := url.Values{
+		"client_id":     {clientID},
+		"client_secret": {clientSecret},
+		"code":          {code},
+	}
+
+	req, err := http.NewRequest("POST", "https://github.com/login/oauth/access_token", nil)
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set("Accept", "application/json")
+	req.URL.RawQuery = data.Encode()
+
+	resp, err := (&http.Client{Timeout: 10 * time.Second}).Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	var tokenResponse map[string]any
+	if err := json.NewDecoder(resp.Body).Decode(&tokenResponse); err != nil {
+		return "", err
+	}
+
+	if accessToken, ok := tokenResponse["access_token"].(string); ok {
+		return accessToken, nil
+	}
+	return "", fmt.Errorf("invalid access token response")
+}
+
+func fetchGitHubUserInfo(accessToken string) (GitHubUserInfo, error) {
+	var gitInfo GitHubUserInfo
+	req, err := http.NewRequest("GET", "https://api.github.com/user", nil)
+	if err != nil {
+		return gitInfo, err
+	}
+	req.Header.Set("Authorization", "Bearer "+accessToken)
+
+	client := &http.Client{Timeout: 10 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		return gitInfo, err
+	}
+	defer resp.Body.Close()
+
+	if err := json.NewDecoder(resp.Body).Decode(&gitInfo); err != nil {
+		return gitInfo, err
+	}
+
+	return gitInfo, nil
+}
+
+func FindUserByOAuthID(oauthID string) (bool, error) {
+	var userID string
+	row, err := database.SelectOneRow(`SELECT id FROM users WHERE github_id = ?`, oauthID)
+	if err != nil {
+		return false, nil
+	}
+
+	err = row.Scan(&userID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
 }
