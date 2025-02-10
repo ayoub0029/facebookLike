@@ -10,7 +10,7 @@ type message struct {
 }
 
 type ChatMessage struct {
-	SenderID  int       `json:"sender_id"`
+	SenderID  uint64    `json:"senderid"`
 	Message   string    `json:"message"`
 	Timestamp time.Time `json:"timestamp"`
 }

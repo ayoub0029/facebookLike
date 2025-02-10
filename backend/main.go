@@ -3,8 +3,11 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
 	auth "socialNetwork/Authentication"
+	chats "socialNetwork/Chats"
 	database "socialNetwork/Database"
+	socket "socialNetwork/Socket"
 )
 
 func main() {
@@ -17,6 +20,8 @@ func main() {
 	// can here add conditions for routes authorization
 
 	auth.Routes(mux)
+	chats.Routes(mux)
+	socket.Routes(mux)
 	// posts.Routes(mux)  example
 	// ...
 
@@ -29,11 +34,29 @@ func main() {
 	}
 }
 
-func handleStaticFile(res http.ResponseWriter, req *http.Request) {
-	// check file if exist and serve the file
-}
+func handleStaticFile(w http.ResponseWriter, r *http.Request) {
+	// Strip "/public/" from the path
+	filePath := r.URL.Path[len("/public/"):]
 
+	// Construct the full path to the static file
+	fullPath := "static/" + filePath
+
+	// Check if file exists
+	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
+		http.Error(w, "404 File not found", http.StatusNotFound)
+		return
+	}
+
+	// Serve the file
+	http.ServeFile(w, r, fullPath)
+}
 func home(w http.ResponseWriter, r *http.Request) {
-	// home handler
-	// check here paths and 404
+	// Only handle root path in home handler
+	if r.URL.Path != "/" {
+		http.Error(w, "404 Page not found", http.StatusNotFound)
+		return
+	}
+
+	// Serve index.html from static directory
+	http.ServeFile(w, r, "static/index.html")
 }

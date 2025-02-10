@@ -20,12 +20,14 @@ func getMsgFromDB(receiverID, page int, r *http.Request) ([]message, error) {
 				ORDER BY m.created_at DESC LIMIT 10 OFFSET ?;`
 	rows, err := database.SelectQuery(query, userID, receiverID, userID, receiverID, page)
 	if err != nil {
+		log.Println("Getting data from db error: ", err)
 		return []message{}, err
 	}
 	msg := message{}
 	for rows.Next() {
 		err := rows.Scan(&msg.SenderID, &msg.ReceiverID, &msg.Message, &msg.CreatedDate)
 		if err != nil {
+			log.Println("Scan error: ", err)
 			return []message{}, err
 		}
 
@@ -35,4 +37,15 @@ func getMsgFromDB(receiverID, page int, r *http.Request) ([]message, error) {
 		return []message{}, nil
 	}
 	return msgs, nil
+}
+
+func AddmessageToDB(senderId uint64, message string, receiverId uint64) error {
+	query := `INSERT INTO private_chat (sender_id, receiver_id, message, created_at)
+			  VALUES (?,?,?,datetime('now', 'localtime'))`
+	_, err := database.ExecQuery(query, senderId, receiverId, message)
+	if err != nil {
+		log.Println("Exection error: ", err)
+		return err
+	}
+	return nil
 }

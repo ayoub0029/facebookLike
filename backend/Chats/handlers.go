@@ -1,7 +1,7 @@
 package chats
 
 import (
-	"fmt"
+	"log"
 	"net/http"
 	global "socialNetwork/Global"
 )
@@ -9,11 +9,12 @@ import (
 func privateChat(w http.ResponseWriter, r *http.Request) {
 	message, err := getAllMessages(r)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return
 	}
 	global.JsonResponse(w, 200, message)
 }
 
-func groupChat(w http.ResponseWriter, r *http.Request) {
+/* func groupChat(w http.ResponseWriter, r *http.Request) {
 }
+*/
