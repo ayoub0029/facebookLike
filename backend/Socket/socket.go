@@ -25,7 +25,7 @@ var upgrader = websocket.Upgrader{
 func AddClient(client *global.Client) {
 	clientsMutex.Lock()
 	clients[client.UserId] = client
-	defer clientsMutex.Unlock()
+	clientsMutex.Unlock()
 }
 
 // this function will help us to send message
@@ -36,10 +36,13 @@ func SendMessage(client *global.Client, msg any) error {
 }
 
 // removing client from the map
-func Removeclient(clientID uint64) {
+func RemoveClient(clientID uint64) {
 	clientsMutex.Lock()
-	delete(clients, uint64(clientID))
-	defer clientsMutex.Unlock()
+	if client, exists := clients[clientID]; exists {
+		client.Conn.Close()
+		delete(clients, clientID)
+	}
+	clientsMutex.Unlock()
 }
 
 // respond function for updating protocol http
@@ -51,7 +54,7 @@ func WsHandling(w http.ResponseWriter, r *http.Request) {
 	}
 	//senderID, err := auth.IsLoggedIn(r, "token")
 	n, _ := rand.Int(rand.Reader, big.NewInt(1000))
-	
+
 	senderID := n.Uint64() + 1
 	client := &global.Client{
 		UserId: uint64(senderID),
@@ -67,43 +70,61 @@ func WsHandling(w http.ResponseWriter, r *http.Request) {
 	go SocketListner(client, r)
 }
 
+func handlePrvChatMessage(wsMessage WebSocketMessage, receiverID uint64) error {
+	var chatMsg chats.ChatPrvMessage
+	data, err := json.Marshal(wsMessage.Content)
+	if err != nil {
+		return fmt.Errorf("error marshaling message: %v", err)
+	}
+	if err := json.Unmarshal(data, &chatMsg); err != nil {
+		return fmt.Errorf("error unmarshaling chat message: %v", err)
+	}
+	chats.HandleChatPrvMessage(chatMsg, receiverID)
+	if clients[receiverID] != nil {
+		return SendMessage(clients[receiverID], chatMsg)
+	}
+	return nil
+}
+
+func handleGrpChatMessage(wsMessage WebSocketMessage) error {
+	var grpChatMsg chats.ChatGrpMessage
+	data, err := json.Marshal(wsMessage.Content)
+	if err != nil {
+		return fmt.Errorf("error marshaling message: %v", err)
+	}
+	if err := json.Unmarshal(data, &grpChatMsg); err != nil {
+		return fmt.Errorf("error unmarshaling chat message: %v", err)
+	}
+	chats.HandleChatGrpMessage(grpChatMsg)
+	/* grpMembers broadcasting */
+	return nil
+}
+
 // this function will handle two case
 // of real time actions notification and messages
 func SocketListner(client *global.Client, r *http.Request) {
-	for {
-		/* id, err := auth.IsLoggedIn(r, "token")
-		if err != nil || id == 0 {
-			break
-		} */
-		n, _ := rand.Int(rand.Reader, big.NewInt(1000))
 
-		receiveridtmp := n.Uint64() + 1
+	for {
+		//Implement proper authentication
+		n, _ := rand.Int(rand.Reader, big.NewInt(1000))
+		receiverID := n.Uint64() + 1
+
 		var wsMessage WebSocketMessage
-		err := client.Conn.ReadJSON(&wsMessage)
-		if err != nil {
-			log.Printf("Error reading message: %v", err)
+		if err := client.Conn.ReadJSON(&wsMessage); err != nil {
+			log.Println(err)
 			break
 		}
-		if wsMessage.Type == "message" {
-			chatMsg := chats.ChatMessage{}
-			data, err := json.Marshal(wsMessage.Content)
-			if err != nil {
-				log.Printf("Error marshling message: %v\n", err)
-				continue
+		fmt.Println(wsMessage.Type)
+		if wsMessage.Type == "privateChat" {
+			if err := handlePrvChatMessage(wsMessage, receiverID); err != nil {
+				log.Printf("Error handling %s message: %v", wsMessage.Type, err)
 			}
-			err = json.Unmarshal(data, &chatMsg)
-			if err != nil {
-				log.Printf("Error unmarshling chat message: %v\n", err)
-				continue
+		} else if wsMessage.Type == "groupChat" {
+			if err := handleGrpChatMessage(wsMessage); err != nil {
+				log.Printf("Error handling %s message: %v", wsMessage.Type, err)
 			}
-			chats.HandleChatMessage(client, chatMsg, receiveridtmp)
-			if clients[receiveridtmp] != nil {
-				SendMessage(clients[receiveridtmp], chatMsg)
-			}
-		} else {
-			// serraf section
 		}
 	}
 	client.State = false
-	Removeclient(client.UserId)
+	RemoveClient(client.UserId)
 }

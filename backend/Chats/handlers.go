@@ -7,7 +7,7 @@ import (
 )
 
 func privateChat(w http.ResponseWriter, r *http.Request) {
-	message, err := getAllMessages(r)
+	message, err := GetAllPrivateMsg(r)
 	if err != nil {
 		log.Println(err)
 		return
@@ -15,6 +15,11 @@ func privateChat(w http.ResponseWriter, r *http.Request) {
 	global.JsonResponse(w, 200, message)
 }
 
-/* func groupChat(w http.ResponseWriter, r *http.Request) {
+func groupChat(w http.ResponseWriter, r *http.Request) {
+	message, err := GetAllGroupMsg(r)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	global.JsonResponse(w, 200, message)
 }
-*/
