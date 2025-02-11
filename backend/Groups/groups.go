@@ -1,17 +1,15 @@
 package groups
 
-
-
 import "fmt"
 
-type group struct{
+type group struct {
 	ID         		int        `json:"id"`
 	Name       		string     `json:"name"`
 	Description     string     `json:"description"`
 	Owner		    int        `json:"owner"`
 }
 
-func NewGroup(_name,_description string,_owner int) *group{
+func NewGroup(_name,_description string,_owner int) *group {
 	return &group{
 		ID : -1,
 		Name : _name,
@@ -49,7 +47,6 @@ func (g *group) Create() bool {
 }
 
 // this is a private function that convert group_data received from database to busnnes group
-
 func convert(g_data group_data) *group {
 	return &group{
 		ID : g_data.ID,

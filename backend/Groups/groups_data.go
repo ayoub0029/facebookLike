@@ -3,6 +3,7 @@ package groups
 import(
 	"fmt"
 	d "socialNetwork/database"
+	"socialNetwork/Profile"
 )
 
 type group_data struct{
@@ -38,4 +39,12 @@ func getAllGroups() []group_data {
 		groupsList = append(groupsList,MyGroup);
 	}
 	return groupsList;
+}
+
+func IsMember(userId,groupId int) bool {
+	query := ""
+}
+
+func getAllMembers(groupID int) []profiles. {
+	
 }
