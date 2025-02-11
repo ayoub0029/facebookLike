@@ -23,26 +23,26 @@ var upgrader = websocket.Upgrader{
 // we use mutex teo prevent race condition when two values try accessing
 // the same adresse
 func AddClient(client *global.Client) {
-	clientsMutex.Lock()
-	clients[client.UserId] = client
-	clientsMutex.Unlock()
+	ClientsMutex.Lock()
+	Clients[client.UserId] = client
+	ClientsMutex.Unlock()
 }
 
 // this function will help us to send message
 func SendMessage(client *global.Client, msg any) error {
-	clientsMutex.Lock()
-	defer clientsMutex.Unlock()
+	ClientsMutex.Lock()
+	defer ClientsMutex.Unlock()
 	return client.Conn.WriteJSON(msg)
 }
 
 // removing client from the map
 func RemoveClient(clientID uint64) {
-	clientsMutex.Lock()
-	if client, exists := clients[clientID]; exists {
+	ClientsMutex.Lock()
+	if client, exists := Clients[clientID]; exists {
 		client.Conn.Close()
-		delete(clients, clientID)
+		delete(Clients, clientID)
 	}
-	clientsMutex.Unlock()
+	ClientsMutex.Unlock()
 }
 
 // respond function for updating protocol http
@@ -66,7 +66,7 @@ func WsHandling(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	AddClient(client)
-	fmt.Println(clients)
+	fmt.Println(Clients)
 	go SocketListner(client, r)
 }
 
@@ -80,8 +80,8 @@ func handlePrvChatMessage(wsMessage WebSocketMessage, receiverID uint64) error {
 		return fmt.Errorf("error unmarshaling chat message: %v", err)
 	}
 	chats.HandleChatPrvMessage(chatMsg, receiverID)
-	if clients[receiverID] != nil {
-		return SendMessage(clients[receiverID], chatMsg)
+	if Clients[receiverID] != nil {
+		return SendMessage(Clients[receiverID], chatMsg)
 	}
 	return nil
 }

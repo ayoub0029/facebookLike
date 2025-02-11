@@ -11,6 +11,6 @@ type WebSocketMessage struct {
 }
 
 var (
-	clients      = make(map[uint64]*global.Client)
-	clientsMutex sync.RWMutex
+	Clients      = make(map[uint64]*global.Client)
+	ClientsMutex sync.RWMutex
 )
