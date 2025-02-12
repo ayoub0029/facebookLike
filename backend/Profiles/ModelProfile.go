@@ -1,6 +1,7 @@
 package Profiles
 
 import (
+	"errors"
 	"fmt"
 
 	"socialNetwork/database"
@@ -28,6 +29,8 @@ var (
 	Profile_Private int8 = 0 // Index Of Privat in ProfileStatus Array
 	Profile_Public  int8 = 1 // Index Of Public in ProfileStatus Array
 )
+
+var ErrInvalidField = errors.New("disallowed field name")
 
 func NewProfile(Id int) (*Profile, error) {
 	if !UserExists(Id) {
@@ -77,7 +80,7 @@ func (p *Profile) GetProfileInfo() error {
 	return nil
 }
 
-func (p *ProfileData) UpdateProfileInfo(Field, Data string) error {
+func (p *Profile) UpdateProfileInfo(Field, Data string) error {
 	allowedFields := map[string]bool{
 		"first_name":     true,
 		"last_name":      true,
@@ -91,10 +94,10 @@ func (p *ProfileData) UpdateProfileInfo(Field, Data string) error {
 	}
 
 	if !allowedFields[Field] {
-		return fmt.Errorf("disallowed field name: %s", Field)
+		return ErrInvalidField
 	}
-	query := fmt.Sprintf("UPDATE users SET %s = ?", Field)
-	if _, err := database.ExecQuery(query, Data); err != nil {
+	query := fmt.Sprintf("UPDATE users SET %s = ? WHERE id = ?", Field)
+	if _, err := database.ExecQuery(query, Data, p.Id); err != nil {
 		return err
 	}
 	return nil
