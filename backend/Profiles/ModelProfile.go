@@ -77,6 +77,25 @@ func (p *Profile) GetProfileInfo() error {
 	return nil
 }
 
-func (p *ProfileData) UpdateProfileInfo() error {
+func (p *ProfileData) UpdateProfileInfo(Field, Data string) error {
+	allowedFields := map[string]bool{
+		"first_name":     true,
+		"last_name":      true,
+		"email":          true,
+		"password":       true,
+		"date_of_birth":  true,
+		"avatar":         true,
+		"nickname":       true,
+		"about_me":       true,
+		"profile_status": true,
+	}
+
+	if !allowedFields[Field] {
+		return fmt.Errorf("disallowed field name: %s", Field)
+	}
+	query := fmt.Sprintf("UPDATE users SET %s = ?", Field)
+	if _, err := database.ExecQuery(query, Data); err != nil {
+		return err
+	}
 	return nil
 }

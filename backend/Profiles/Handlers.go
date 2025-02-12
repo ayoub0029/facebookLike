@@ -79,6 +79,8 @@ func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		global.JsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"Error": global.ErrMethod.Error()})
 		return
 	}
+
+	global.JsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"Message : ": "Profile Updated Successfully"})
 }
 
 // POST /profiles/follow → Send follow request
@@ -123,10 +125,10 @@ func Follow(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if Public {
-		global.JsonResponse(w, http.StatusOK, map[string]string{"Message": "User Followed Seccusfuly"})
+		global.JsonResponse(w, http.StatusOK, map[string]string{"Message": "User Followed Successfully"})
 		return
 	}
-	global.JsonResponse(w, http.StatusOK, map[string]string{"Message": "Send Follow Request Seccusfuly"})
+	global.JsonResponse(w, http.StatusOK, map[string]string{"Message": "Send Follow Request Successfully"})
 }
 
 // POST /profiles/unfollow → Unfollow a user
@@ -164,7 +166,7 @@ func Unfollow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	global.JsonResponse(w, http.StatusOK, map[string]string{"Message": "User Unfollowed Seccusfuly"})
+	global.JsonResponse(w, http.StatusOK, map[string]string{"Message": "User Unfollowed Successfully"})
 }
 
 // POST /profiles/follow/accept?user_id=123 → Accept follow request
@@ -201,7 +203,7 @@ func AcceptFollowRequest(w http.ResponseWriter, r *http.Request) {
 		global.JsonResponse(w, StatusCode, map[string]string{"Error": err.Error()})
 		return
 	}
-	global.JsonResponse(w, http.StatusOK, map[string]string{"Message": "Follow accepted Seccusfuly"})
+	global.JsonResponse(w, http.StatusOK, map[string]string{"Message": "Follow accepted Successfully"})
 }
 
 // POST /profiles/follow/reject?user_id=123 → reject follow request
@@ -238,7 +240,7 @@ func RejectFollowRequest(w http.ResponseWriter, r *http.Request) {
 		global.JsonResponse(w, StatusCode, map[string]string{"Error": err.Error()})
 		return
 	}
-	global.JsonResponse(w, http.StatusOK, map[string]string{"Message": "Follow Rejected Seccusfuly"})
+	global.JsonResponse(w, http.StatusOK, map[string]string{"Message": "Follow Rejected Successfully"})
 }
 
 // GET /profiles/follow/status?user_id=123 → Check follow status
