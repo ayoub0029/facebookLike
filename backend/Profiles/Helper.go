@@ -16,6 +16,10 @@ type Message struct {
 }
 
 var (
+	ErrMethod         = errors.New("method not allowed")
+	ErrServer         = errors.New("an unexpected error occurred. please try again later")
+	ErrInvalidRequest = errors.New("invalid request")
+
 	ErrUserNotExist    = errors.New("user does not exist")
 	ErrInvalidParams   = errors.New("invalid parameters provided")
 	ErrUserIdMustBeInt = errors.New("user ID must be an integer")

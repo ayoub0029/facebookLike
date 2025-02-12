@@ -11,7 +11,7 @@ import (
 // GET /profiles → Get Your user profile Info
 func GetProfile(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		global.JsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"Error": global.ErrMethod.Error()})
+		global.JsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"Error": ErrMethod.Error()})
 		return
 	}
 	Param := r.FormValue("user_id")
@@ -24,13 +24,13 @@ func GetProfile(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if err != nil {
-			global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": global.ErrServer.Error()})
+			global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": ErrServer.Error()})
 			return
 		}
 		NewProfile, _ := NewProfile(UserID)
 
 		if err := NewProfile.GetProfileInfo(); err != nil {
-			global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": global.ErrServer.Error()})
+			global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": ErrServer.Error()})
 			return
 		}
 
@@ -51,7 +51,7 @@ func GetProfile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := NewProfile.GetProfileInfo(); err != nil {
-		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": global.ErrServer.Error()})
+		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": ErrServer.Error()})
 		return
 	}
 
@@ -76,7 +76,7 @@ func GetProfile(w http.ResponseWriter, r *http.Request) {
 // POST /profiles/update → Update profile details
 func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		global.JsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"Error": global.ErrMethod.Error()})
+		global.JsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"Error": ErrMethod.Error()})
 		return
 	}
 	UserID, err := GetUserID(r)
@@ -102,7 +102,7 @@ func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 // POST /profiles/follow → Send follow request
 func Follow(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		global.JsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"Error": global.ErrMethod.Error()})
+		global.JsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"Error": ErrMethod.Error()})
 		return
 	}
 
@@ -114,7 +114,7 @@ func Follow(w http.ResponseWriter, r *http.Request) {
 
 	FollowedID, err := strconv.Atoi(Param)
 	if err != nil {
-		global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": global.ErrInvalidRequest.Error()})
+		global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": ErrInvalidRequest.Error()})
 		return
 	}
 
@@ -136,7 +136,7 @@ func Follow(w http.ResponseWriter, r *http.Request) {
 
 	Public, err := IsPublic(FollowedID)
 	if err != nil {
-		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": global.ErrServer.Error()})
+		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": ErrServer.Error()})
 		return
 	}
 
@@ -150,7 +150,7 @@ func Follow(w http.ResponseWriter, r *http.Request) {
 // POST /profiles/unfollow → Unfollow a user
 func Unfollow(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		global.JsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"Error": global.ErrMethod.Error()})
+		global.JsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"Error": ErrMethod.Error()})
 		return
 	}
 
@@ -162,7 +162,7 @@ func Unfollow(w http.ResponseWriter, r *http.Request) {
 
 	FollowedID, err := strconv.Atoi(Param)
 	if err != nil {
-		global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": global.ErrInvalidRequest.Error()})
+		global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": ErrInvalidRequest.Error()})
 		return
 	}
 
@@ -188,7 +188,7 @@ func Unfollow(w http.ResponseWriter, r *http.Request) {
 // POST /profiles/follow/accept?user_id=123 → Accept follow request
 func AcceptFollowRequest(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		global.JsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"Error": global.ErrMethod.Error()})
+		global.JsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"Error": ErrMethod.Error()})
 		return
 	}
 
@@ -200,7 +200,7 @@ func AcceptFollowRequest(w http.ResponseWriter, r *http.Request) {
 
 	UserID, err := strconv.Atoi(Param)
 	if err != nil {
-		global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": global.ErrInvalidRequest.Error()})
+		global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": ErrInvalidRequest.Error()})
 		return
 	}
 
@@ -225,7 +225,7 @@ func AcceptFollowRequest(w http.ResponseWriter, r *http.Request) {
 // POST /profiles/follow/reject?user_id=123 → reject follow request
 func RejectFollowRequest(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		global.JsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"Error": global.ErrMethod.Error()})
+		global.JsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"Error": ErrMethod.Error()})
 		return
 	}
 
@@ -237,7 +237,7 @@ func RejectFollowRequest(w http.ResponseWriter, r *http.Request) {
 
 	FollowedID, err := strconv.Atoi(Param)
 	if err != nil {
-		global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": global.ErrInvalidRequest.Error()})
+		global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": ErrInvalidRequest.Error()})
 		return
 	}
 
@@ -262,7 +262,7 @@ func RejectFollowRequest(w http.ResponseWriter, r *http.Request) {
 // GET /profiles/follow/status?user_id=123 → Check follow status
 func CheckFollowStatus(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		global.JsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"Error": global.ErrMethod.Error()})
+		global.JsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"Error": ErrMethod.Error()})
 		return
 	}
 
@@ -274,7 +274,7 @@ func CheckFollowStatus(w http.ResponseWriter, r *http.Request) {
 
 	FollowedID, err := strconv.Atoi(Param)
 	if err != nil {
-		global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": global.ErrInvalidRequest.Error()})
+		global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": ErrInvalidRequest.Error()})
 		return
 	}
 
@@ -300,7 +300,7 @@ func CheckFollowStatus(w http.ResponseWriter, r *http.Request) {
 // GET /profiles/followers?user_id=123&page=1 → Get followers of a user
 func GetFollowers(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		global.JsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"Error": global.ErrMethod.Error()})
+		global.JsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"Error": ErrMethod.Error()})
 		return
 	}
 
@@ -308,12 +308,12 @@ func GetFollowers(w http.ResponseWriter, r *http.Request) {
 	Param2 := r.FormValue("user_id")
 	Page, err := strconv.Atoi(Param1)
 	if err != nil {
-		global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": global.ErrInvalidRequest.Error()})
+		global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": ErrInvalidRequest.Error()})
 		return
 	}
 	UserID, err := strconv.Atoi(Param2)
 	if err != nil {
-		global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": global.ErrInvalidRequest.Error()})
+		global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": ErrInvalidRequest.Error()})
 		return
 	}
 
@@ -329,7 +329,7 @@ func GetFollowers(w http.ResponseWriter, r *http.Request) {
 			global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": err.Error()})
 			return
 		}
-		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": global.ErrInvalidRequest.Error()})
+		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": ErrInvalidRequest.Error()})
 		return
 	}
 	global.JsonResponse(w, http.StatusOK, Followers)
@@ -338,7 +338,7 @@ func GetFollowers(w http.ResponseWriter, r *http.Request) {
 // GET /profiles/following?user_id=123&page=1 → Get users the user follows
 func GetFollowing(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		global.JsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"Error": global.ErrMethod.Error()})
+		global.JsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"Error": ErrMethod.Error()})
 		return
 	}
 
@@ -346,12 +346,12 @@ func GetFollowing(w http.ResponseWriter, r *http.Request) {
 	Param2 := r.FormValue("user_id")
 	Page, err := strconv.Atoi(Param1)
 	if err != nil {
-		global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": global.ErrInvalidRequest.Error()})
+		global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": ErrInvalidRequest.Error()})
 		return
 	}
 	UserID, err := strconv.Atoi(Param2)
 	if err != nil {
-		global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": global.ErrInvalidRequest.Error()})
+		global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": ErrInvalidRequest.Error()})
 		return
 	}
 
@@ -367,7 +367,7 @@ func GetFollowing(w http.ResponseWriter, r *http.Request) {
 			global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": err.Error()})
 			return
 		}
-		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": global.ErrInvalidRequest.Error()})
+		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": ErrInvalidRequest.Error()})
 		return
 	}
 	global.JsonResponse(w, http.StatusOK, Following)

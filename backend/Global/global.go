@@ -2,17 +2,10 @@ package global
 
 import (
 	"encoding/json"
-	"errors"
 	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
 	"net/http"
-)
-
-var (
-	ErrMethod         = errors.New("method not allowed")
-	ErrServer         = errors.New("an unexpected error occurred. please try again later")
-	ErrInvalidRequest = errors.New("invalid request")
 )
 
 func JsonResponse(w http.ResponseWriter, status int, message any) {
