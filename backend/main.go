@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	auth "socialNetwork/Authentication"
 	profiles "socialNetwork/Profiles"
 	"socialNetwork/database"
 )
@@ -14,10 +15,10 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/public/", handleStaticFile)
 	profiles.Routes(mux)
+	auth.Routes(mux)
 	// ayoub---
 	// can here add conditions for routes authorization
 
-	// auth.Routes(mux)  example
 	// posts.Routes(mux)  example
 	// ...
 
