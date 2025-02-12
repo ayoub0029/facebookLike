@@ -30,6 +30,12 @@ var (
 	Profile_Public  int8 = 1 // Index Of Public in ProfileStatus Array
 )
 
+var AllowedImageExtensions = map[string]bool{
+	".jpeg": true,
+	".png":  true,
+	".gif":  true,
+}
+
 var ErrInvalidField = errors.New("disallowed field name")
 
 func NewProfile(Id int) (*Profile, error) {
@@ -51,7 +57,6 @@ func (p *Profile) GetProfileInfo() error {
 		first_name,
 		last_name,
 		about_me,
-		email,
 		date_of_birth,
 		Created_at
 	FROM users 
@@ -87,7 +92,7 @@ func (p *Profile) UpdateProfileInfo(Field, Data string) error {
 		"email":          true,
 		"password":       true,
 		"date_of_birth":  true,
-		"avatar":         true,
+		// "avatar":         true,
 		"nickname":       true,
 		"about_me":       true,
 		"profile_status": true,
