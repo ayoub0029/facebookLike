@@ -2,6 +2,7 @@ package posts
 
 import (
 	"fmt"
+	"socialNetwork/Profiles"
 	"socialNetwork/database"
 )
 
@@ -20,19 +21,9 @@ func post_owner(postID int) (int, error) {
 	return owner, err
 }
 
-// check if the user have public account
-func isPublic(user_id int) bool {
-	return true
-}
-
 // check if the usesr member of the group
-func isMember(user_id int, group_id int) (bool,error) {
-	return true,nil
-}
-
-// check if A if follow user B
-func isFollowed(A, B int) bool {
-	return true
+func isMember(user_id int, group_id int) (bool, error) {
+	return true, nil
 }
 
 // it's check if user A is can see and interact with user B posts
@@ -41,7 +32,12 @@ func isAuthorized(post_id, user_id int) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	if isPublic(post_owner_id) || isFollowed(user_id, post_owner_id) {
+	isFollow, err := Profiles.IsFollowed(user_id, post_owner_id)
+	isPublic, err2 := Profiles.IsPublic(post_owner_id)
+	if err != nil || err2 != nil {
+		return false, err
+		}
+	if  isFollow != -1 || isPublic{
 		return true, nil
 	}
 	return false, nil
