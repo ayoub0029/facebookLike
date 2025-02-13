@@ -261,7 +261,6 @@ func IsLoggedIn(req *http.Request, sessionName string) (int, error) {
 	} else if err != nil {
 		return 0, err
 	}
-
 	var userID int
 	var exp string
 	row, errQuery := database.SelectOneRow("SELECT id, exp FROM users WHERE uuid = ?", cookie.Value)
@@ -277,11 +276,11 @@ func IsLoggedIn(req *http.Request, sessionName string) (int, error) {
 	}
 
 	// expiration time
-	parsedTime, err := time.Parse("2006-01-02 15:04:05", exp)
-	if err != nil || parsedTime.Before(time.Now()) {
-		ResetUuidToNull(cookie.Value)
-		return 0, nil
-	}
+	// parsedTime, err := time.Parse("2006-01-02 15:04:05", exp)
+	// if err != nil || parsedTime.Before(time.Now()) {
+	// 	ResetUuidToNull(cookie.Value)
+	// 	return 0, nil
+	// }
 
 	return userID, nil
 }

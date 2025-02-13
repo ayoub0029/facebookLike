@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	auth "socialNetwork/Authentication"
 	global "socialNetwork/Global"
 )
 
@@ -14,20 +15,22 @@ func GetProfile(w http.ResponseWriter, r *http.Request) {
 		global.JsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"Error": ErrMethod.Error()})
 		return
 	}
+	CurrentUserID, err := auth.IsLoggedIn(r, "token")
+	if err != nil {
+		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": ErrServer.Error()})
+		return
+	}
+
+	if CurrentUserID == 0 {
+		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": err.Error()})
+		return
+	}
+
 	Param := r.FormValue("user_id")
 
 	// If UserUd param is missing then will give the user his own profile data
 	if Param == "" {
-		UserID, err := GetUserID(r)
-		if err == ErrUnauthorized {
-			global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": err.Error()})
-			return
-		}
-		if err != nil {
-			global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": ErrServer.Error()})
-			return
-		}
-		NewProfile, _ := NewProfile(UserID)
+		NewProfile, _ := NewProfile(CurrentUserID)
 
 		if err := NewProfile.GetProfileInfo(); err != nil {
 			global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": ErrServer.Error()})
@@ -79,18 +82,26 @@ func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		global.JsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"Error": ErrMethod.Error()})
 		return
 	}
+
+	CurrentUserID, err := auth.IsLoggedIn(r, "token")
+	if err != nil {
+		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": ErrServer.Error()})
+		return
+	}
+
+	if CurrentUserID == 0 {
+		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": err.Error()})
+		return
+	}
+
 	var Field, Data string // From request Key = Field , Vale = Updated data
 
 	for Key, Value := range r.URL.Query() {
 		Field, Data = Key, Value[0]
 		break
 	}
-	UserID, err := GetUserID(r)
-	if err != nil {
-		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": ErrUnauthorized.Error()})
-		return
-	}
-	NewProfile, _ := NewProfile(UserID)
+
+	NewProfile, _ := NewProfile(CurrentUserID)
 
 	if NewProfile.UpdateProfileInfo(w, r, Field, Data) {
 		global.JsonResponse(w, http.StatusOK, map[string]string{"Message": "Profile Updated Successfully"})
@@ -101,6 +112,17 @@ func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 func Follow(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		global.JsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"Error": ErrMethod.Error()})
+		return
+	}
+
+	CurrentUserID, err := auth.IsLoggedIn(r, "token")
+	if err != nil {
+		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": ErrServer.Error()})
+		return
+	}
+
+	if CurrentUserID == 0 {
+		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": err.Error()})
 		return
 	}
 
@@ -116,15 +138,7 @@ func Follow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	NewFollowRequest, err := NewFollowRequest(FollowedID, r)
-	if err == ErrUnauthorized {
-		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": err.Error()})
-		return
-	}
-	if err != nil {
-		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": err.Error()})
-		return
-	}
+	NewFollowRequest := NewFollowRequest(CurrentUserID, FollowedID)
 
 	StatusCode, err := NewFollowRequest.Follow()
 	if err != nil {
@@ -152,6 +166,17 @@ func Unfollow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	CurrentUserID, err := auth.IsLoggedIn(r, "token")
+	if err != nil {
+		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": ErrServer.Error()})
+		return
+	}
+
+	if CurrentUserID == 0 {
+		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": err.Error()})
+		return
+	}
+
 	Param := r.FormValue("followedid")
 	if Param == "" {
 		global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": ErrInvalidParams.Error()})
@@ -164,15 +189,7 @@ func Unfollow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	NewFollowRequest, err := NewFollowRequest(FollowedID, r)
-	if err == ErrUnauthorized {
-		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": err.Error()})
-		return
-	}
-	if err != nil {
-		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": err.Error()})
-		return
-	}
+	NewFollowRequest := NewFollowRequest(CurrentUserID, FollowedID)
 
 	StatusCode, err := NewFollowRequest.Unfollow()
 	if err != nil {
@@ -190,6 +207,17 @@ func AcceptFollowRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	CurrentUserID, err := auth.IsLoggedIn(r, "token")
+	if err != nil {
+		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": ErrServer.Error()})
+		return
+	}
+
+	if CurrentUserID == 0 {
+		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": err.Error()})
+		return
+	}
+
 	Param := r.FormValue("user_id")
 	if Param == "" {
 		global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": ErrInvalidParams.Error()})
@@ -202,15 +230,7 @@ func AcceptFollowRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	NewFollowRequest, err := NewFollowRequest(UserID, r)
-	if err == ErrUnauthorized {
-		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": err.Error()})
-		return
-	}
-	if err != nil {
-		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": err.Error()})
-		return
-	}
+	NewFollowRequest := NewFollowRequest(CurrentUserID, UserID)
 
 	StatusCode, err := NewFollowRequest.AccepteRequest()
 	if err != nil {
@@ -227,6 +247,17 @@ func RejectFollowRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	CurrentUserID, err := auth.IsLoggedIn(r, "token")
+	if err != nil {
+		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": ErrServer.Error()})
+		return
+	}
+
+	if CurrentUserID == 0 {
+		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": err.Error()})
+		return
+	}
+
 	Param := r.FormValue("user_id")
 	if Param == "" {
 		global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": ErrInvalidParams.Error()})
@@ -239,15 +270,7 @@ func RejectFollowRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	NewFollowRequest, err := NewFollowRequest(FollowedID, r)
-	if err == ErrUnauthorized {
-		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": err.Error()})
-		return
-	}
-	if err != nil {
-		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": err.Error()})
-		return
-	}
+	NewFollowRequest := NewFollowRequest(CurrentUserID, FollowedID)
 
 	StatusCode, err := NewFollowRequest.RejectRequest()
 	if err != nil {
@@ -264,6 +287,17 @@ func CheckFollowStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	CurrentUserID, err := auth.IsLoggedIn(r, "token")
+	if err != nil {
+		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": ErrServer.Error()})
+		return
+	}
+
+	if CurrentUserID == 0 {
+		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": err.Error()})
+		return
+	}
+
 	Param := r.FormValue("user_id")
 	if Param == "" {
 		global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": ErrInvalidParams.Error()})
@@ -276,15 +310,7 @@ func CheckFollowStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	NewFollowRequest, err := NewFollowRequest(FollowedID, r)
-	if err == ErrUnauthorized {
-		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": err.Error()})
-		return
-	}
-	if err != nil {
-		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": err.Error()})
-		return
-	}
+	NewFollowRequest := NewFollowRequest(CurrentUserID, FollowedID)
 
 	Status, StatusCode, err := NewFollowRequest.CheckFollowStatus()
 	if err != nil {
@@ -302,13 +328,37 @@ func GetFollowers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	CurrentUserID, err := auth.IsLoggedIn(r, "token")
+	if err != nil {
+		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": ErrServer.Error()})
+		return
+	}
+
+	if CurrentUserID == 0 {
+		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": err.Error()})
+		return
+	}
+
 	Param1 := r.FormValue("page")
-	Param2 := r.FormValue("user_id")
 	Page, err := strconv.Atoi(Param1)
 	if err != nil {
 		global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": ErrInvalidRequest.Error()})
 		return
 	}
+
+	Param2 := r.FormValue("user_id")
+
+	LoggedUserId, err := auth.IsLoggedIn(r, "token")
+	if err != nil {
+		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": ErrServer.Error()})
+		return
+	}
+
+	if Param2 == "" && LoggedUserId == 0 {
+		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": ErrUnauthorized.Error()})
+		return
+	}
+
 	UserID, err := strconv.Atoi(Param2)
 	if err != nil {
 		global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": ErrInvalidRequest.Error()})
@@ -337,6 +387,17 @@ func GetFollowers(w http.ResponseWriter, r *http.Request) {
 func GetFollowing(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		global.JsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"Error": ErrMethod.Error()})
+		return
+	}
+
+	CurrentUserID, err := auth.IsLoggedIn(r, "token")
+	if err != nil {
+		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": ErrServer.Error()})
+		return
+	}
+
+	if CurrentUserID == 0 {
+		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": err.Error()})
 		return
 	}
 

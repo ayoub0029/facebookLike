@@ -44,15 +44,11 @@ var (
 	ErrUserAlreadyFollowedYou = errors.New("you have already accepted this user’s follow request")
 )
 
-func NewFollowRequest(FollowedId int, r *http.Request) (*Follow_Request, error) {
-	UserID, err := GetUserID(r)
-	if err != nil {
-		return nil, err
-	}
+func NewFollowRequest(FollowerId, FollowedId int) *Follow_Request {
 	return &Follow_Request{
-		followerId: UserID,
+		followerId: FollowedId,
 		followedId: FollowedId,
-	}, nil
+	}
 }
 
 func (req *Follow_Request) Follow() (int, error) {

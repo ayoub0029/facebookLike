@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"net/http"
 
 	"socialNetwork/database"
 )
@@ -93,25 +92,4 @@ func IsFollowed(a, b int) (int, error) {
 	}
 
 	return FollowId, nil
-}
-
-func GetUserID(Req *http.Request) (int, error) {
-	Token, err := Req.Cookie("token")
-	if err != nil {
-		return -1, ErrUnauthorized
-	}
-	Query := "SELECT id FROM users WHERE uuid = ?"
-	var UserID int
-
-	Row, err := database.SelectOneRow(Query, Token.Value)
-	if err == sql.ErrNoRows {
-		return -1, ErrUnauthorized
-	}
-	if err != nil {
-		return -1, err
-	}
-	if err := Row.Scan(&UserID); err != nil {
-		return -1, err
-	}
-	return UserID, nil
 }
