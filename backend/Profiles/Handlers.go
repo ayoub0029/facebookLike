@@ -79,15 +79,20 @@ func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		global.JsonResponse(w, http.StatusMethodNotAllowed, map[string]string{"Error": ErrMethod.Error()})
 		return
 	}
+	var Field, Data string // From request Key = Field , Vale = Updated data
+
+	for Key, Value := range r.URL.Query() {
+		Field, Data = Key, Value[0]
+		break
+	}
 	UserID, err := GetUserID(r)
 	if err != nil {
 		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": ErrUnauthorized.Error()})
 		return
 	}
-	var key, value string // From request Key = Field , Vale = Updated data
 	NewProfile, _ := NewProfile(UserID)
 
-	if NewProfile.UpdateProfileInfo(w, r, key, value) {
+	if NewProfile.UpdateProfileInfo(w, r, Field, Data) {
 		global.JsonResponse(w, http.StatusOK, map[string]string{"Message": "Profile Updated Successfully"})
 	}
 }

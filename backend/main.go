@@ -12,10 +12,6 @@ import (
 func main() {
 	database.CreateDatabase() // temporary
 
-	NewProfile , _ := profiles.NewProfile(2)
-	NewProfile.GetProfileInfo()
-	fmt.Println(NewProfile)
-
 	mux := http.NewServeMux()
 	mux.HandleFunc("/public/", handleStaticFile)
 	profiles.Routes(mux)
