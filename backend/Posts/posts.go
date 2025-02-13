@@ -2,7 +2,6 @@ package posts
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"html"
 	"image"
@@ -13,6 +12,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	global "socialNetwork/Global"
 	"socialNetwork/database"
 	"strings"
 	"time"
@@ -20,29 +20,19 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-func jsonResponse(w http.ResponseWriter, status int, message any) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	err := json.NewEncoder(w).Encode(message)
-	if err != nil {
-		fmt.Println("ERROR ENCODE DATA : ", err)
-		return
-	}
-}
-
 // recive image as img multipart.File an return the path to it
 func image_handler(w http.ResponseWriter, img multipart.File) (string, error) {
 	imgBytes := make([]byte, 512)
 	_, err := img.Read(imgBytes)
 	if err != nil {
-		jsonResponse(w, http.StatusBadRequest, "Error reading img")
+		global.JsonResponse(w, http.StatusBadRequest, "Error reading img")
 		return "", err
 	}
 
 	imgType := http.DetectContentType(imgBytes)
 
 	if imgType != "image/jpeg" && imgType != "image/gif" && imgType != "image/png" {
-		jsonResponse(w, http.StatusConflict, "Type not supported only : (jpeg, gif, png)")
+		global.JsonResponse(w, http.StatusConflict, "Type not supported only : (jpeg, gif, png)")
 		return "", err
 	}
 
@@ -51,7 +41,7 @@ func image_handler(w http.ResponseWriter, img multipart.File) (string, error) {
 
 	config, _, errConf := image.DecodeConfig(img)
 	if errConf != nil {
-		jsonResponse(w, http.StatusInternalServerError, "Error decoding image")
+		global.JsonResponse(w, http.StatusInternalServerError, "Error decoding image")
 		return "", err
 	}
 
@@ -59,7 +49,7 @@ func image_handler(w http.ResponseWriter, img multipart.File) (string, error) {
 	height := config.Height
 
 	if width < 200 || height < 200 || width*5 < height || height*10 < width {
-		jsonResponse(w, http.StatusConflict, "Image dimensions must be at least 200px by 200px or max WIDTH[5:1] or HEIGHT[1:10]")
+		global.JsonResponse(w, http.StatusConflict, "Image dimensions must be at least 200px by 200px or max WIDTH[5:1] or HEIGHT[1:10]")
 		return "", err
 	}
 
@@ -70,7 +60,7 @@ func image_handler(w http.ResponseWriter, img multipart.File) (string, error) {
 
 	dest, errCreate := os.Create(imagePath)
 	if errCreate != nil {
-		jsonResponse(w, http.StatusInternalServerError, "Something wrong")
+		global.JsonResponse(w, http.StatusInternalServerError, "Something wrong")
 		return "", err
 	}
 
@@ -80,7 +70,7 @@ func image_handler(w http.ResponseWriter, img multipart.File) (string, error) {
 
 	_, err = io.Copy(dest, img)
 	if err != nil {
-		jsonResponse(w, http.StatusInternalServerError, "Error copying img")
+		global.JsonResponse(w, http.StatusInternalServerError, "Error copying img")
 		return "", err
 	}
 
