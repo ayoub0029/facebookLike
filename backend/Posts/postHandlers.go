@@ -1,6 +1,7 @@
 package posts
 
 import (
+	"html"
 	"net/http"
 	"socialNetwork/database"
 	"strconv"
@@ -8,11 +9,14 @@ import (
 )
 
 // this function responsible for post creation work in both the profile or group
+// the user sould be member of the group to post in it
+// link is POST /posts&content=`content`&image=`image`&group_id=`group_id`&privacy=`privacy``
 func CreatePost(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		jsonResponse(w, http.StatusMethodNotAllowed, "method not allowed")
 		return
 	}
+
 	userID, err := get_userID(r)
 	if err != nil {
 		jsonResponse(w, http.StatusUnauthorized, "Unauthorized")
@@ -22,6 +26,13 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	// start handling image
 	imagePublic := "" // image path if exist
 
+	content := r.FormValue("content")
+	content = html.EscapeString(content)
+	if len(content) >= 2500 || len(content) <= 2 {
+		jsonResponse(w, http.StatusBadRequest, "Size of content isn't valid")
+		return
+	}
+
 	// 2500 for content
 	if r.ContentLength > (20*1024*1024)+2500 {
 		jsonResponse(w, http.StatusConflict, "The image is too big, max size is 20 MB")
@@ -29,17 +40,13 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	}
 	img, _, err := r.FormFile("image")
 
-	if err != nil {
-		jsonResponse(w, http.StatusInternalServerError, "Error of server")
-		return
+	if err == nil {
+		imagePublic, err = image_handler(w, img)
+		if err != nil {
+			return
+		}
 	}
 
-	imagePublic, err = image_handler(w, img)
-	if err != nil {
-		return
-	}
-
-	content := r.FormValue("content")
 	groupIdString := r.FormValue("groupId")
 	groupID := 0
 	if groupIdString != "" {
@@ -48,19 +55,25 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 			jsonResponse(w, http.StatusBadRequest, "Bad Request")
 			return
 		}
+
+		IsMember, err := isMember(userID, groupID)
+		if err != nil {
+			jsonResponse(w, http.StatusInternalServerError, "Internal Server Error")
+			return
+		}
+		if !IsMember {
+			jsonResponse(w, http.StatusUnauthorized, "Unauthorized")
+			return
+		}
 	}
 
-	if len(content) >= 2500 {
-		jsonResponse(w, http.StatusBadRequest, "Size of content is too large")
-		return
-	}
 	privacy := r.FormValue("privacy")
 	if privacy != "public" && privacy != "private" && privacy != "almost private" {
 		jsonResponse(w, http.StatusBadRequest, "Privacy is not valid")
 		return
 	}
 
-	err = InsertPost(strconv.Itoa(userID), content, imagePublic, time.Now(), groupID)
+	err = InsertPost(strconv.Itoa(userID), content, imagePublic, groupID, privacy)
 	if err != nil {
 		jsonResponse(w, http.StatusInternalServerError, "Error add post")
 		return
@@ -69,7 +82,8 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	jsonResponse(w, http.StatusOK, "Post created successfully")
 }
 
-// // spesific profile postes
+// spesific profile postes
+// link is GET /posts/profile&user_id=`user_id`&last_id=`last_id`
 func UserProfilePosts(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		jsonResponse(w, http.StatusMethodNotAllowed, "Method Not Allowed")
@@ -82,27 +96,26 @@ func UserProfilePosts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	page, pageErr := strconv.Atoi(r.FormValue("page"))
-
+	lastId, _ := strconv.Atoi(r.URL.Query().Get("last_id"))
 	userProfileID, _ := strconv.Atoi(r.FormValue("user_id"))
 
-	if pageErr != nil || userProfileID <= 0 {
+	if userProfileID <= 0 || lastId <= 0 {
 		jsonResponse(w, http.StatusBadRequest, "Invalid data provided")
 		return
 	}
 
 	myQuery := `
 	SELECT
-	    p.privacy,
-	    u.first_name,
-		u.last_name,
-	    p.id,
+		p.id,
 	    (SELECT COUNT(*) FROM post_reactions AS reaction WHERE reaction.post_id = p.id) AS likes,
 	    (SELECT COUNT(*) FROM comments AS com WHERE com.post_id = p.id) AS comments,
+		u.nickname,
 	    p.content,
 	    p.created_at,
-	    p.updated_at,
 	    p.media,
+	    p.updated_at,
+	    u.first_name,
+		u.last_name,
 	    (SELECT g.name FROM groups AS g WHERE g.id = p.group_id) AS group_name
 	FROM
 	    posts AS p
@@ -115,15 +128,13 @@ func UserProfilePosts(w http.ResponseWriter, r *http.Request) {
 	    p.privacy = 'public' 
 		OR (p.privacy = 'almost private' AND f.followed_id IS NOT NULL) 
 		OR (p.privacy = 'private' AND pv.post_id IS NOT NULL) 
-	    )
+	    ) AND p.id > $3
 	ORDER BY
 	    p.id
 	LIMIT
 		10
-	OFFSET
-		$3
 		`
-	posts, err := database.SelectQuery(myQuery, userID, userProfileID, (page*7)-7)
+	posts, err := database.SelectQuery(myQuery, userID, userProfileID, lastId)
 	if err != nil {
 		jsonResponse(w, http.StatusNotFound, "Not Found")
 		return
@@ -131,13 +142,14 @@ func UserProfilePosts(w http.ResponseWriter, r *http.Request) {
 	var Post PostData
 	var allPosts []PostData
 	for posts.Next() {
-		posts.Scan(&Post.ID, &Post.Likes, &Post.Comments, &Post.Username, &Post.Content, &Post.CreatedAt, &Post.Image)
+		posts.Scan(&Post.ID, &Post.Likes, &Post.Comments, &Post.Username, &Post.Content, &Post.CreatedAt, &Post.Image, &Post.Updated_at, &Post.First_name, &Post.Last_name, &Post.Group_name)
 		allPosts = append(allPosts, Post)
 	}
 	jsonResponse(w, http.StatusOK, allPosts)
 }
 
-// get posts normally to display in the feed
+// get posts to display in the feed
+// link is GET /posts&last_id=`last_id`
 func getPosts(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		jsonResponse(w, http.StatusMethodNotAllowed, "Method Not Allowed")
@@ -148,14 +160,20 @@ func getPosts(w http.ResponseWriter, r *http.Request) {
 		jsonResponse(w, http.StatusUnauthorized, "Unauthorized")
 		return
 	}
+
+
+	lastId, _ := strconv.Atoi(r.URL.Query().Get("last_id"))
+	if lastId <= 0 {
+		jsonResponse(w, http.StatusBadRequest, "Invalid data provided")
+	}
 	query := `
 	SELECT
-	    p.privacy,
-	    u.first_name,
-		u.last_name,
-	    p.id,
+		p.id,
 	    (SELECT COUNT(*) FROM post_reactions AS reaction WHERE reaction.post_id = p.id) AS likes,
 	    (SELECT COUNT(*) FROM comments AS com WHERE com.post_id = p.id) AS comments,
+		u.nickname,
+	    u.first_name,
+		u.last_name,
 	    p.content,
 	    p.created_at,
 	    p.updated_at,
@@ -171,26 +189,28 @@ func getPosts(w http.ResponseWriter, r *http.Request) {
 	    p.privacy = 'public' 
 		OR (p.privacy = 'almost private' AND f.followed_id IS NOT NULL) 
 		OR (p.privacy = 'private' AND pv.post_id IS NOT NULL) 
-	    )
+	    ) AND p.id > $2
 	ORDER BY
 	    p.id
 	LIMIT
 		10
 	`
-	posts, err := database.SelectQuery(query, userID)
+	posts, err := database.SelectQuery(query, userID, lastId)
 	if err != nil {
-		jsonResponse(w, http.StatusInternalServerError, "some thinh where wrong")
+		jsonResponse(w, http.StatusInternalServerError, "some thing was wrong")
+		return
 	}
 	var AllPosts []PostData
 	for posts.Next() {
 		var Post PostData
-		posts.Scan(&Post.Username, &Post.ID, &Post.Likes, &Post.Comments, &Post.Content, &Post.CreatedAt, &Post.Updated_at, &Post.Image, &Post.Group_name)
+		posts.Scan(&Post.ID, &Post.Likes, &Post.Comments, &Post.Username, &Post.First_name, &Post.Last_name, &Post.Content, &Post.CreatedAt, &Post.Updated_at, &Post.Image, &Post.Group_name)
 		AllPosts = append(AllPosts, Post)
 	}
 	jsonResponse(w, http.StatusOK, AllPosts)
 }
 
 // get posts from a specific group
+// link is GET /posts/group&group_id=`group_id`&last_id=`last_id`
 func getPostGroup(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		jsonResponse(w, http.StatusMethodNotAllowed, "Method Not Allowed")
@@ -204,48 +224,61 @@ func getPostGroup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	groupID, _ := strconv.Atoi(r.URL.Query().Get("group_id"))
-	if groupID <= 0 {
+	lastId, _ := strconv.Atoi(r.URL.Query().Get("last_id"))
+	if groupID <= 0 || lastId < 0 {
 		jsonResponse(w, http.StatusBadRequest, "group_id is required")
+		return
+	}
+	isMember, err := isMember(userID, groupID)
+	if err != nil {
+		jsonResponse(w, http.StatusInternalServerError, "some thing was wrong")
+		return
+	}
+	if !isMember {
+		jsonResponse(w, http.StatusUnauthorized, "you are not a member of this group")
 		return
 	}
 
 	query := `
 	SELECT
-	    p.privacy,
-	    u.first_name,
-		u.last_name,
-	    p.id,
+		p.id,
 	    (SELECT COUNT(*) FROM post_reactions AS reaction WHERE reaction.post_id = p.id) AS likes,
 	    (SELECT COUNT(*) FROM comments AS com WHERE com.post_id = p.id) AS comments,
+		u.nickname,
+	    u.first_name,
+		u.last_name,
 	    p.content,
 	    p.created_at,
 	    p.updated_at,
 	    p.media,
+	    p.privacy,
 	    (SELECT g.name FROM groups AS g WHERE g.id = p.group_id) AS group_name
 	FROM
 	    posts AS p
 	    JOIN users AS u ON p.user_id = u.id
 	WHERE
-		p.group_id IS NOT NULL AND p.group_id = $1
+		p.group_id IS NOT NULL AND p.group_id = $1 AND p.id > $2
 	ORDER BY
 	    p.id
 	LIMIT
 		10
 	`
-	posts, err := database.SelectQuery(query, userID)
+	posts, err := database.SelectQuery(query, groupID, lastId)
 	if err != nil {
-		jsonResponse(w, http.StatusInternalServerError, "some thinh where wrong")
+		jsonResponse(w, http.StatusInternalServerError, "some thing was wrong")
+		return
 	}
 	var AllPosts []PostData
 	for posts.Next() {
 		var Post PostData
-		posts.Scan(&Post.Username, &Post.ID, &Post.Likes, &Post.Comments, &Post.Content, &Post.CreatedAt, &Post.Updated_at, &Post.Image, &Post.Group_name)
+		posts.Scan(&Post.ID, &Post.Likes, &Post.Comments, &Post.Username, &Post.First_name, &Post.Last_name, &Post.Content, &Post.CreatedAt, &Post.Updated_at, &Post.Image, &Post.Privacy, &Post.Group_name)
 		AllPosts = append(AllPosts, Post)
 	}
 	jsonResponse(w, http.StatusOK, AllPosts)
 }
 
 // add update exsting post
+// link is PUT /posts/update&post_id=`post_id`&newContent=`newContent`
 func postUpdate(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPut {
 		jsonResponse(w, http.StatusMethodNotAllowed, "Method Not Allowed")
@@ -276,13 +309,14 @@ func postUpdate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	newContent := r.FormValue("newContent")
-	if newContent == "" || len(newContent) > 2500 {
-		jsonResponse(w, http.StatusBadRequest, "Content is required")
+	newContent = html.EscapeString(newContent)
+	if len(newContent) <= 2 || len(newContent) > 2500 {
+		jsonResponse(w, http.StatusBadRequest, "Content length is not valid")
 		return
 	}
 
-	query := "UPDATE posts SET content = ? WHERE id = ?"
-	_, err = database.ExecQuery(query, newContent, postID)
+	query := "UPDATE posts SET content = ?, updated_at = ? WHERE id = ?"
+	_, err = database.ExecQuery(query, newContent, time.Now(), postID)
 	if err != nil {
 		jsonResponse(w, http.StatusInternalServerError, "Error updating post")
 		return
@@ -293,6 +327,7 @@ func postUpdate(w http.ResponseWriter, r *http.Request) {
 }
 
 // delete post
+// likn is DELETE /posts/delete&post_id=`post_id`
 func postDelete(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodDelete {
 		jsonResponse(w, http.StatusMethodNotAllowed, "Method Not Allowed")

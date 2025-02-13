@@ -7,14 +7,7 @@ import (
 
 // get the post id and return the id of post creator
 func post_owner(postID int) (int, error) {
-	row, err := database.SelectQuery(`
-	SELECT
-		user_id,
-	form
-		post,
-	where
-		post.id = ?
-	`, postID)
+	row, err := database.SelectQuery(`SELECT user_id FROM post WHERE post.id = ?`, postID)
 
 	if err != nil {
 		return 0, err
@@ -30,6 +23,11 @@ func post_owner(postID int) (int, error) {
 // check if the user have public account
 func isPublic(user_id int) bool {
 	return true
+}
+
+// check if the usesr member of the group
+func isMember(user_id int, group_id int) (bool,error) {
+	return true,nil
 }
 
 // check if A if follow user B
@@ -59,14 +57,7 @@ func is_user_authorized(user_id int, item_id int, item_type string) (bool, error
 		tableName = "post"
 	}
 
-	cmd := fmt.Sprintf(`
-	SELECT 
-		user.id
-	FROM
-		%v
-    WHERE 
-		%v.id = ?
-	`, tableName, tableName)
+	cmd := fmt.Sprintf(`SELECT user.id FROM %v WHERE  %v.id = ? `, tableName, tableName)
 
 	row_creator_id, err := database.SelectOneRow(cmd, item_id)
 	if err != nil {

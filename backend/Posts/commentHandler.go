@@ -9,6 +9,7 @@ import (
 )
 
 // add comment
+// link: POST /posts/comments&post_id=`id`&content=`content`
 func addComment(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		jsonResponse(w, http.StatusMethodNotAllowed, "Method not allowed")
@@ -21,6 +22,17 @@ func addComment(w http.ResponseWriter, r *http.Request) {
 		jsonResponse(w, http.StatusBadRequest, "postID is invalid")
 		return
 	}
+
+	group_id, err := getGroupOfpost(post_id)
+	if err != nil {
+		jsonResponse(w, http.StatusInternalServerError, "Something wrong")
+		return
+	}
+	if group_id <= 0 {
+		jsonResponse(w, http.StatusUnauthorized, "post is in group that you are not member in")
+		return
+	}
+
 	userID, err := get_userID(r)
 	if err != nil {
 		jsonResponse(w, http.StatusUnauthorized, "Unauthorized")
@@ -36,6 +48,7 @@ func addComment(w http.ResponseWriter, r *http.Request) {
 	}
 	if !ok {
 		jsonResponse(w, http.StatusUnauthorized, "You are not authorized")
+		return
 	}
 
 	if len(content) >= 1100 || len(content) == 0 {
@@ -43,27 +56,22 @@ func addComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if content == "" {
-		jsonResponse(w, http.StatusBadRequest, "Missing required fields")
-		return
-	}
-
 	// -------------------------- check if post id exist
-	var post int
+	post := 0
 	row, err := database.SelectOneRow("SELECT id FROM post WHERE id = ?", post_id)
 	if err != nil {
 		jsonResponse(w, http.StatusInternalServerError, "Something wrong")
 		return
 	}
-	errpost := row.Scan(&post)
-	if errpost != nil {
+	err = row.Scan(&post)
+	if err != nil {
 		jsonResponse(w, http.StatusBadRequest, "post id not exist")
 		return
 	}
 	// --------------------------- inset to the data base
-	cmd := `INSERT INTO comment (user_id, post_id, comment_text, created_at) VALUES(?, ?, ?, ?)`
-	_, errr := database.ExecQuery(cmd, userID, post_id, content, time.Now())
-	if errr != nil {
+	cmd := `INSERT INTO comments (user_id, post_id, comment_text, created_at) VALUES(?, ?, ?, ?)`
+	_, err = database.ExecQuery(cmd, userID, post_id, content, time.Now())
+	if err != nil {
 		jsonResponse(w, http.StatusInternalServerError, "Something wrong")
 		return
 	}
@@ -71,6 +79,7 @@ func addComment(w http.ResponseWriter, r *http.Request) {
 }
 
 // get the comment 10 by 10 in spesific post
+// link: GET /posts/comments&post_id=`id`&last_id=`id`&page=`page`
 func getComments(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		jsonResponse(w, http.StatusMethodNotAllowed, "Method not allowed")
@@ -82,20 +91,31 @@ func getComments(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	postIdString := r.URL.Query().Get("post_id")
-	post_id, _ := strconv.Atoi(postIdString)
-	if post_id <= 0 {
+	postId, _ := strconv.Atoi(r.URL.Query().Get("post_id"))
+	lastId, _ := strconv.Atoi(r.URL.Query().Get("last_id"))
+	if postId <= 0 || lastId <= 0 {
 		jsonResponse(w, http.StatusBadRequest, "postID is invalid")
 		return
 	}
 
-	ok, err := isAuthorized(post_id, userID)
+	group_id, err := getGroupOfpost(postId)
+	if err != nil {
+		jsonResponse(w, http.StatusInternalServerError, "Something wrong")
+		return
+	}
+	if group_id <= 0 {
+		jsonResponse(w, http.StatusUnauthorized, "post is in group that you are not member in")
+		return
+	}
+
+	ok, err := isAuthorized(postId, userID)
 	if err != nil {
 		jsonResponse(w, http.StatusInternalServerError, "Something wrong")
 		return
 	}
 	if !ok {
 		jsonResponse(w, http.StatusUnauthorized, "You are not authorized to react to this post")
+		return
 	}
 
 	page := r.URL.Query().Get("page")
@@ -104,26 +124,25 @@ func getComments(w http.ResponseWriter, r *http.Request) {
 		jsonResponse(w, http.StatusBadRequest, "Something wrong")
 		return
 	}
-	offset := (Page - 1) * 5
+
 	query := `
         SELECT
     		cmt.id,
     		u.username,
-    		cmt.comment_content,
-    		cmt.created_at,
+    		cmt.comment_text,
+    		cmt.created_at
 		FROM
-		    comment AS cmt
+		    comments AS cmt
 		    JOIN user AS u on cmt.user_id = u.id
 		    JOIN post AS p on cmt.post_id = p.id
 
-		WHERE p.id = ?
+		WHERE p.id = ?, cmt.id > ?
 
 		ORDER BY cmt.created_at DESC
-
-		LIMIT 5 OFFSET ?
+		LIMIT 5
 `
 
-	sqlrows, err := database.SelectQuery(query, post_id, offset)
+	sqlrows, err := database.SelectQuery(query, postId, lastId)
 	if err != nil {
 		jsonResponse(w, http.StatusInternalServerError, "Something wrong")
 		return
@@ -148,6 +167,7 @@ func getComments(w http.ResponseWriter, r *http.Request) {
 }
 
 // comment delete handler
+// link DELETE /posts/comments/delete?comment_id=`id`
 func commentDelete(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodDelete {
 		jsonResponse(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -168,16 +188,16 @@ func commentDelete(w http.ResponseWriter, r *http.Request) {
 
 	isauthorized, err := is_user_authorized(userID, comment_id, "comment")
 	if err != nil {
-		jsonResponse(w, http.StatusInternalServerError, "Something wrong")
+		jsonResponse(w, http.StatusInternalServerError, "something wrong")
 		return
 	}
 
 	if !isauthorized {
-		jsonResponse(w, http.StatusUnauthorized, "Something wrong")
+		jsonResponse(w, http.StatusUnauthorized, "Unauthorized")
 		return
 	}
 
-	query := `DELETE FROM comment WHERE id=?`
+	query := `DELETE FROM comments WHERE id=?`
 	_, err = database.ExecQuery(query, comment_id)
 	if err != nil {
 		jsonResponse(w, http.StatusInternalServerError, "Something wrong")
@@ -188,6 +208,7 @@ func commentDelete(w http.ResponseWriter, r *http.Request) {
 }
 
 // comment update handler
+// link PUT /posts/comments/update?comment_id=`id`
 func commentUpdate(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPut {
 		jsonResponse(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -201,7 +222,6 @@ func commentUpdate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	comment_id, _ := strconv.Atoi(r.FormValue("comment_id"))
-
 	if comment_id <= 0 {
 		jsonResponse(w, http.StatusInternalServerError, "Something wrong")
 		return
@@ -214,7 +234,7 @@ func commentUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !isAuthorized {
-		jsonResponse(w, http.StatusUnauthorized, "Something wrong")
+		jsonResponse(w, http.StatusUnauthorized, "Unauthorized")
 		return
 	}
 
@@ -225,7 +245,7 @@ func commentUpdate(w http.ResponseWriter, r *http.Request) {
 	}
 	comment_content = html.EscapeString(comment_content)
 
-	query := `UPDATE comment SET comment_content = ? WHERE id = ?`
+	query := `UPDATE comments SET comment_text = ? WHERE id = ?`
 
 	_, err = database.ExecQuery(query, comment_content, comment_id)
 	if err != nil {

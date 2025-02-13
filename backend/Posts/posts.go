@@ -1,6 +1,7 @@
 package posts
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"html"
@@ -28,6 +29,7 @@ func jsonResponse(w http.ResponseWriter, status int, message any) {
 		return
 	}
 }
+
 // recive image as img multipart.File an return the path to it
 func image_handler(w http.ResponseWriter, img multipart.File) (string, error) {
 	imgBytes := make([]byte, 512)
@@ -87,10 +89,10 @@ func image_handler(w http.ResponseWriter, img multipart.File) (string, error) {
 }
 
 // add post to database with the provided params
-func InsertPost(userID string, content string, image string, createdAt time.Time, groupID int) error {
+func InsertPost(userID string, content string, image string, groupID int, privacy string) error {
 	content = html.EscapeString(content)
 
-	_, err := database.ExecQuery("INSERT INTO post (user_id, content, media, created_at, group_id) VALUES (?, ?, ? ,?, ?, ?)", userID, content, image, time.Now(), groupID)
+	_, err := database.ExecQuery("INSERT INTO post (user_id, content, media, created_at, group_id, pricacy) VALUES (?, ?, ? ,?, ?, ?)", userID, content, image, time.Now(), groupID, privacy)
 	if err != nil {
 		return err
 	}
@@ -98,8 +100,9 @@ func InsertPost(userID string, content string, image string, createdAt time.Time
 	return nil
 }
 
+// get user id from the token
 func get_userID(r *http.Request) (int, error) {
-	uuid,err  := r.Cookie("token")
+	uuid, err := r.Cookie("token")
 	if err != nil {
 		return 0, err
 	}
@@ -111,5 +114,24 @@ func get_userID(r *http.Request) (int, error) {
 	var userID int
 	row.Scan(&userID)
 	return userID, nil
-	
+
+}
+
+// get group id from post id
+func getGroupOfpost(postID int) (int, error) {
+	query := `SELECT group_id FROM posts WHERE id = ?`
+	var groupID sql.NullInt64
+	row, err := database.SelectOneRow(query, postID)
+	if err != nil {
+		return -1, err
+	}
+	err = row.Scan(&groupID)
+	if err != nil {
+		return -1, err
+	}
+	if groupID.Valid {
+		gID := int(groupID.Int64)
+		return gID, nil
+	}
+	return -1, nil
 }
