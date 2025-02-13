@@ -103,7 +103,7 @@ func (p *Profile) UpdateProfileInfo(w http.ResponseWriter, r *http.Request, Fiel
 		"profile_status": true,
 	}
 
-	Value = strings.TrimSpace(Value)
+	Value, Field = strings.TrimSpace(Value), strings.TrimSpace(Field)
 	if !allowedFields[Field] {
 		global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": ErrInvalidField.Error()})
 		return false
@@ -161,7 +161,7 @@ func (p *Profile) UpdateProfileInfo(w http.ResponseWriter, r *http.Request, Fiel
 			return false
 		}
 	case "avatar":
-		resultPath := auth.UploadImage("avatar", w, r)
+		resultPath := auth.UploadImage(Field, w, r)
 		if resultPath == nil {
 			return false
 		}
