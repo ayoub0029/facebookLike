@@ -53,6 +53,20 @@ func NewProfile(Id int) (*Profile, error) {
 	}, nil
 }
 
+// Security Note: Directly injecting user input into SQL queries can lead to SQL injection vulnerabilities.
+func (p *Profile) GetUserField(Field string) (any, error) {
+	var Data any
+	query := fmt.Sprintf("SELECT %s FROM users WHERE id = ?", Field)
+	Row, err := database.SelectOneRow(query, p.Id)
+	if err != nil {
+		return Data, err
+	}
+	if err := Row.Scan(&Data); err != nil {
+		return Data, err
+	}
+	return Data, nil
+}
+
 func (p *Profile) GetProfileInfo() error {
 	Query := `
 	SELECT 
@@ -62,6 +76,7 @@ func (p *Profile) GetProfileInfo() error {
 		first_name,
 		last_name,
 		about_me,
+		email,
 		date_of_birth,
 		Created_at
 	FROM users 
