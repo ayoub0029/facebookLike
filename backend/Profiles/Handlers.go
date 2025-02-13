@@ -87,16 +87,9 @@ func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	var key, value string // From request Key = Field , Vale = Updated data
 	NewProfile, _ := NewProfile(UserID)
 
-	if err := NewProfile.UpdateProfileInfo(key, value); err != nil {
-		if err == ErrInvalidField {
-			global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": ErrUnauthorized.Error()})
-			return
-		}
-		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": ErrUnauthorized.Error()})
-		return
+	if NewProfile.UpdateProfileInfo(w, r, key, value) {
+		global.JsonResponse(w, http.StatusOK, map[string]string{"Message": "Profile Updated Successfully"})
 	}
-
-	global.JsonResponse(w, http.StatusOK, map[string]string{"Message": "Profile Updated Successfully"})
 }
 
 // POST /profiles/follow → Send follow request
