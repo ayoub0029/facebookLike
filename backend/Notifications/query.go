@@ -6,11 +6,12 @@ import (
 	database "socialNetwork/Database"
 )
 
-type DataNotif struct{
-	Id uint64 `json:"id"`
-	Sender string `json:"seneder"`
-	Type string `json:"type"`
-	Message string `json:"message"`
+type DataNotif struct {
+	Id        uint64 `json:"id"`
+	Sender    string `json:"seneder"`
+	Type      string `json:"type"`
+	Message   string `json:"message"`
+	CreatedAt string `json:"creatat"`
 }
 
 func Savenotifications(nf NotifServes) error {
@@ -59,50 +60,50 @@ func getIdsUsersOfGroup(groupId uint64) ([]uint64, error) {
 	return ids, nil
 }
 
-func selectNotifas(user, lastNotif string) error {
+func selectNotifas(user, lastNotif string) ([]DataNotif, error) {
 	where := ""
 	if lastNotif != "" {
-		where = "AND id > ?"
+		where = "AND id > "
 	}
 
 	query := fmt.Sprintf(`SELECT
-    	id,
-    	sender_id,
-    	content,
-    	type,
-    	created_at
+    	notifications.id,
+    	users.nickname,
+    	notifications.content,
+    	notifications.type,
+    	notifications.created_at
 	FROM
     	notifications
+    	LEFT JOIN users ON notifications.sender_id = users.id
 	WHERE
-    	user_id = ?
-    	%v
+    	user_id = ? %v
 	ORDER BY
-    	id DESC;`,where)
+    	notifications.id DESC
+	LIMIT 10;`, where)
 
-// 		SELECT
-//     notifications.id,
-//     users.nickname,
-//     notifications.content,
-//     notifications.type,
-//     notifications.created_at
-// FROM
-//     notifications
-//     LEFT JOIN users ON notifications.sender_id = users.id
-// WHERE
-//     user_id = 1
-// ORDER BY
-//     notifications.id DESC
-// LIMIT 10;
-	rows, err := database.SelectQuery(query,user,lastNotif)
-	if(err != nil){
-		return nil
+	rows, err := database.SelectQuery(query, user, lastNotif)
+	if err != nil {
+		return nil, err
 	}
-	for rows.Next(){
+	var nf DataNotif
+	var notifications []DataNotif
 
+	for rows.Next() {
+		err = rows.Scan(
+			&nf.Id,
+			&nf.Sender,
+			&nf.Type,
+			&nf.CreatedAt,
+		)
+		if err != nil {
+			return nil,err
+		}
+
+		notifications = append(notifications, nf)
 	}
 
 	if err = rows.Err(); err != nil {
-		return err
+		return nil,err
 	}
-	return nil
+	return notifications, nil
 }

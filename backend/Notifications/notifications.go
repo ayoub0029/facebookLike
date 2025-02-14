@@ -73,6 +73,7 @@ func sendAndSave(Nf NotifServes) error {
 	val, ok := socket.Clients[Nf.ReceverId]
 	if ok {
 		socket.SendMessage(val, Nf.Message)
+		// add sen
 	}
 	err := Savenotifications(Nf)
 	if err != nil {

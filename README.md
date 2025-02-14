@@ -58,10 +58,11 @@
 ---
 
 ## Notifications
-- `GET /notifications?user_id=123&page=1` → Get user notifications  
+- `GET /notifications?user_id=123&last_notif_id=10` → Get user notifications  
 - `POST /notifications/seen` → Mark a notification as seen  
 - `WS /notifications` → Real-time notifications via WebSocket  
 
 ## Search
-- `GET /search/usersGroups?query=john&page=1` → Search for users and groups  
+- `GET /search/Groups?query=john&page=1` → Search for users and groups  
+- `GET /search/users?query=john&page=1` → Search for users and groups  
 ---
