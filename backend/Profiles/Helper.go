@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"regexp"
 
 	"socialNetwork/database"
 )
@@ -78,4 +79,40 @@ func IsFollowed(a, b int) (int, error) {
 	}
 
 	return RelationID, nil
+}
+
+func NameValidation(Value string) bool {
+	if len(Value) < 3 || len(Value) > 20 {
+		return false
+	}
+	return true
+}
+
+func EmailValidation(Value string) bool {
+	validEmail, err := regexp.MatchString(`^[A-Za-z0-9._+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,40}$`, Value)
+	if !validEmail || err != nil {
+		return false
+	}
+	return true
+}
+
+func PasswordValidation(Value string) bool {
+	if len(Value) < 5 || len(Value) > 35 {
+		return false
+	}
+	return true
+}
+
+func BioValidatiob(Value string) bool {
+	if len(Value) < 5 || len(Value) > 200 {
+		return false
+	}
+	return true
+}
+
+func ProfileStatusValidation(Value string) bool {
+	if Value != ProfileStatus[Profile_Private] && Value != ProfileStatus[Profile_Public] {
+		return false
+	}
+	return true
 }

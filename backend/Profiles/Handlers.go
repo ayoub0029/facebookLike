@@ -25,7 +25,7 @@ func GetProfile(w http.ResponseWriter, r *http.Request) {
 
 	Param := r.FormValue("user_id")
 
-	// If UserUd param is missing then will give the user his own profile data
+	// If UserId param is missing then will give the user his own profile data
 	if Param == "" {
 		NewProfile, _ := NewProfile(CurrentUserID)
 

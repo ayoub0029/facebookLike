@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"regexp"
 	"strings"
 
 	auth "socialNetwork/Authentication"
@@ -102,6 +101,7 @@ func (p *Profile) GetProfileInfo() error {
 
 // Return True If the Field Is Allowed And The Data is valid
 func (p *Profile) UpdateProfileInfo(w http.ResponseWriter, r *http.Request, Field, Value string) bool {
+	// For Avoid Sql Injection
 	allowedFields := map[string]bool{
 		"first_name":     true,
 		"last_name":      true,
@@ -115,6 +115,7 @@ func (p *Profile) UpdateProfileInfo(w http.ResponseWriter, r *http.Request, Fiel
 	}
 
 	Value, Field = strings.TrimSpace(Value), strings.TrimSpace(Field)
+
 	if !allowedFields[Field] {
 		global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": ErrInvalidField.Error()})
 		return false
@@ -126,29 +127,23 @@ func (p *Profile) UpdateProfileInfo(w http.ResponseWriter, r *http.Request, Fiel
 
 	switch Field {
 	case "first_name":
-		if len(Value) < 2 || len(Value) > 20 {
-			global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": "first name must be between 2 and 20 characters"})
+		if !NameValidation(Value) {
+			global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": "first name must be between 3 and 20 characters"})
 			return false
 		}
 	case "last_name":
-		if len(Value) < 2 || len(Value) > 20 {
-			global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": "last name must be between 2 and 20 characters"})
+		if !NameValidation(Value) {
+			global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": "last name must be between 3 and 20 characters"})
 			return false
 		}
 	case "email":
-		validEmail, err := regexp.MatchString(`^[A-Za-z0-9._+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,40}$`, Value)
-		if err != nil {
-			global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": "error validating email"})
-			return false
-		}
-		if !validEmail {
+		if !EmailValidation(Value) {
 			global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": "invalid email format"})
 			return false
 		}
 	case "password":
-		if len(Value) < 5 || len(Value) > 35 {
+		if !PasswordValidation(Value) {
 			global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": "password must be between 5 and 35 characters"})
-
 			return false
 		}
 	case "date_of_birth":
@@ -157,17 +152,17 @@ func (p *Profile) UpdateProfileInfo(w http.ResponseWriter, r *http.Request, Fiel
 			return false
 		}
 	case "nickname":
-		if len(Value) < 3 || len(Value) > 20 {
+		if !NameValidation(Value) {
 			global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": "nickname must be 3 to 20 characters"})
 			return false
 		}
 	case "about_me":
-		if len(Value) > 200 {
+		if !BioValidatiob(Value) {
 			global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": "about me must be under 200 characters"})
 			return false
 		}
 	case "profile_status":
-		if ProfileStatus[Profile_Public] != Value && ProfileStatus[Profile_Private] != Value {
+		if !ProfileStatusValidation(Value) {
 			global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": "undefinded Profile Status"})
 			return false
 		}

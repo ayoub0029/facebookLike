@@ -57,6 +57,7 @@ func NewFollowRequest(FollowerId, FollowedId int) *Follow_Request {
 // Verify if the user's account is private and if a follow request needs to be sent.
 // Return the status code and any relevant error code.
 func (req *Follow_Request) Follow() (int, error) {
+	// Check If The user Already Followed The target User
 	Id, err := IsFollowed(req.followerId, req.followedId)
 
 	if err == ErrFollowYourself || err == ErrUserNotExist {
@@ -72,10 +73,12 @@ func (req *Follow_Request) Follow() (int, error) {
 		return http.StatusInternalServerError, err
 	}
 
+	// If Id != -1, it means this user has already followed the target user.
 	if Id != -1 {
 		return http.StatusBadRequest, ErrAlreadyFollowed
 	}
 
+	// If the account is public, set the follow status to "accepted". Otherwise, set it to "pending".
 	if Public {
 		Query := "INSERT INTO followers (follower_id, followed_id , status) VALUES (?, ?, ?)"
 		_, err = database.ExecQuery(Query, req.followerId, req.followedId, FollowerStatus[Follower_Accept])
@@ -85,6 +88,8 @@ func (req *Follow_Request) Follow() (int, error) {
 		return http.StatusOK, nil
 	}
 
+	// For a private profile, insert the follow request with the default status (pending).
+	// The follow status is set to pending by default, so we don't need to specify it explicitly.
 	Query := "INSERT INTO followers (follower_id, followed_id) VALUES (?, ?)"
 	_, err = database.ExecQuery(Query, req.followerId, req.followedId)
 	if err != nil {
@@ -97,6 +102,7 @@ func (req *Follow_Request) Follow() (int, error) {
 // Unfollow the user by checking if they are already following you, and remove them from the database.
 // Return the status code and any relevant error code.
 func (req *Follow_Request) Unfollow() (int, error) {
+	// Check if the user is following the target user.
 	Id, err := IsFollowed(req.followerId, req.followedId)
 
 	if err == ErrFollowYourself || err == ErrUserNotExist || err == ErrCantFindRelationId {
@@ -120,6 +126,7 @@ func (req *Follow_Request) Unfollow() (int, error) {
 // Return the status, status code, and any error encountered.
 func (req *Follow_Request) CheckFollowStatus() (string, int, error) {
 	_, err := IsFollowed(req.followedId, req.followerId)
+
 	if err == ErrFollowYourself || err == ErrUserNotExist || err == ErrCantFindRelationId {
 		return "", http.StatusBadRequest, err
 	}
@@ -133,7 +140,8 @@ func (req *Follow_Request) CheckFollowStatus() (string, int, error) {
 		return "", http.StatusInternalServerError, err
 	}
 
-	Status := ""
+	var Status string
+
 	if err := Row.Scan(&Status); err != nil {
 		return "", http.StatusInternalServerError, err
 	}
@@ -186,10 +194,11 @@ func (req *Follow_Request) RejectRequest() (int, error) {
 		return http.StatusInternalServerError, err
 	}
 
+	// Reverse the followerID and followedID to check the follow status and determine if the user has followed you.
 	NewRequest := &Follow_Request{req.followedId, req.followerId}
-	Status, _, err := NewRequest.CheckFollowStatus()
+	Status, StatusCode, err := NewRequest.CheckFollowStatus()
 	if err != nil {
-		return http.StatusInternalServerError, err
+		return StatusCode, err
 	}
 
 	if Status != FollowerStatus[Follower_Pending] {
