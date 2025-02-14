@@ -206,6 +206,10 @@ body {
     position: relative;
 }
 
+.directMessages h3 , .groupMessages h3 {
+    margin-bottom: 20px;
+}
+
 .status {
     position: absolute;
     padding: 6px;
