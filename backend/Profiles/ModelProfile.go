@@ -35,12 +35,6 @@ var (
 	Profile_Public  int8 = 1 // Index Of Public in ProfileStatus Array
 )
 
-var AllowedImageExtensions = map[string]bool{
-	".jpeg": true,
-	".png":  true,
-	".gif":  true,
-}
-
 var ErrInvalidField = errors.New("disallowed field name")
 
 func NewProfile(Id int) (*Profile, error) {
@@ -67,6 +61,7 @@ func (p *Profile) GetUserField(Field string) (any, error) {
 	return Data, nil
 }
 
+// Retrieve profile information, and allow joining with /posts to get the user's posts for the front end.
 func (p *Profile) GetProfileInfo() error {
 	Query := `
 	SELECT 
@@ -105,6 +100,7 @@ func (p *Profile) GetProfileInfo() error {
 	return nil
 }
 
+// Return True If the Field Is Allowed And The Data is valid
 func (p *Profile) UpdateProfileInfo(w http.ResponseWriter, r *http.Request, Field, Value string) bool {
 	allowedFields := map[string]bool{
 		"first_name":     true,
@@ -185,7 +181,7 @@ func (p *Profile) UpdateProfileInfo(w http.ResponseWriter, r *http.Request, Fiel
 
 	query := fmt.Sprintf("UPDATE users SET %s = ? WHERE id = ?", Field)
 	if _, err := database.ExecQuery(query, Value, p.Id); err != nil {
-		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": ErrServer.Error()})
+		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": global.ErrServer.Error()})
 		return false
 	}
 	return true

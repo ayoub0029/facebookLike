@@ -44,6 +44,8 @@ var (
 	ErrUserAlreadyFollowedYou = errors.New("you have already accepted this user’s follow request")
 )
 
+// Define a new user struct to manage follow, unfollow, and other user-related functions.
+// Accept a followerID and followedID, and return a pointer to the follow_request struct.
 func NewFollowRequest(FollowerId, FollowedId int) *Follow_Request {
 	return &Follow_Request{
 		followerId: FollowerId,
@@ -51,6 +53,9 @@ func NewFollowRequest(FollowerId, FollowedId int) *Follow_Request {
 	}
 }
 
+// Check if the user is already following you.
+// Verify if the user's account is private and if a follow request needs to be sent.
+// Return the status code and any relevant error code.
 func (req *Follow_Request) Follow() (int, error) {
 	Id, err := IsFollowed(req.followerId, req.followedId)
 
@@ -89,6 +94,8 @@ func (req *Follow_Request) Follow() (int, error) {
 	return http.StatusOK, nil
 }
 
+// Unfollow the user by checking if they are already following you, and remove them from the database.
+// Return the status code and any relevant error code.
 func (req *Follow_Request) Unfollow() (int, error) {
 	Id, err := IsFollowed(req.followerId, req.followedId)
 
@@ -109,6 +116,8 @@ func (req *Follow_Request) Unfollow() (int, error) {
 	return http.StatusOK, nil
 }
 
+// Check if there is a relationship between the user and the follower.
+// Return the status, status code, and any error encountered.
 func (req *Follow_Request) CheckFollowStatus() (string, int, error) {
 	_, err := IsFollowed(req.followedId, req.followerId)
 	if err == ErrFollowYourself || err == ErrUserNotExist || err == ErrCantFindFollowID {
@@ -132,6 +141,7 @@ func (req *Follow_Request) CheckFollowStatus() (string, int, error) {
 	return Status, http.StatusOK, nil
 }
 
+// Accept the follow request and return the status code, along with any errors encountered.
 func (req *Follow_Request) AccepteRequest() (int, error) {
 	_, err := IsFollowed(req.followedId, req.followerId)
 	if err == ErrFollowYourself || err == ErrUserNotExist || err == ErrCantFindFollowID {
@@ -163,6 +173,8 @@ func (req *Follow_Request) AccepteRequest() (int, error) {
 	return http.StatusOK, nil
 }
 
+// Reject the follow request and Remove them From the database
+// return the status code, along with any errors encountered.
 func (req *Follow_Request) RejectRequest() (int, error) {
 	Id, err := IsFollowed(req.followedId, req.followerId)
 
