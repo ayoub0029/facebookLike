@@ -46,7 +46,7 @@ var (
 
 func NewFollowRequest(FollowerId, FollowedId int) *Follow_Request {
 	return &Follow_Request{
-		followerId: FollowedId,
+		followerId: FollowerId,
 		followedId: FollowedId,
 	}
 }
@@ -110,18 +110,16 @@ func (req *Follow_Request) Unfollow() (int, error) {
 }
 
 func (req *Follow_Request) CheckFollowStatus() (string, int, error) {
-	_, err := IsFollowed(req.followerId, req.followedId)
-
+	_, err := IsFollowed(req.followedId, req.followerId)
 	if err == ErrFollowYourself || err == ErrUserNotExist || err == ErrCantFindFollowID {
 		return "", http.StatusBadRequest, err
 	}
-
 	if err != nil {
 		return "", http.StatusInternalServerError, err
 	}
 
 	Query := "SELECT status FROM followers WHERE follower_id = ? AND followed_id = ?"
-	Row, err := database.SelectOneRow(Query, req.followerId, req.followedId)
+	Row, err := database.SelectOneRow(Query, req.followedId, req.followerId)
 	if err != nil {
 		return "", http.StatusInternalServerError, err
 	}
@@ -143,9 +141,9 @@ func (req *Follow_Request) AccepteRequest() (int, error) {
 		return http.StatusInternalServerError, err
 	}
 
-	Status, _, err := req.CheckFollowStatus()
+	Status, StatusCode, err := req.CheckFollowStatus()
 	if err != nil {
-		return http.StatusInternalServerError, err
+		return StatusCode, err
 	}
 
 	if Status != FollowerStatus[Follower_Pending] {

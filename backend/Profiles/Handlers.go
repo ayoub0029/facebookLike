@@ -22,7 +22,7 @@ func GetProfile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if CurrentUserID == 0 {
-		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": err.Error()})
+		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": ErrUnauthorized.Error()})
 		return
 	}
 
@@ -90,7 +90,7 @@ func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if CurrentUserID == 0 {
-		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": err.Error()})
+		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": ErrUnauthorized.Error()})
 		return
 	}
 
@@ -122,7 +122,7 @@ func Follow(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if CurrentUserID == 0 {
-		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": err.Error()})
+		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": ErrUnauthorized.Error()})
 		return
 	}
 
@@ -173,7 +173,7 @@ func Unfollow(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if CurrentUserID == 0 {
-		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": err.Error()})
+		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": ErrUnauthorized.Error()})
 		return
 	}
 
@@ -214,7 +214,7 @@ func AcceptFollowRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if CurrentUserID == 0 {
-		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": err.Error()})
+		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": ErrUnauthorized.Error()})
 		return
 	}
 
@@ -229,7 +229,6 @@ func AcceptFollowRequest(w http.ResponseWriter, r *http.Request) {
 		global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": ErrInvalidRequest.Error()})
 		return
 	}
-
 	NewFollowRequest := NewFollowRequest(CurrentUserID, UserID)
 
 	StatusCode, err := NewFollowRequest.AccepteRequest()
@@ -254,7 +253,7 @@ func RejectFollowRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if CurrentUserID == 0 {
-		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": err.Error()})
+		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": ErrUnauthorized.Error()})
 		return
 	}
 
@@ -294,7 +293,7 @@ func CheckFollowStatus(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if CurrentUserID == 0 {
-		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": err.Error()})
+		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": ErrUnauthorized.Error()})
 		return
 	}
 
@@ -335,7 +334,7 @@ func GetFollowers(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if CurrentUserID == 0 {
-		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": err.Error()})
+		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": ErrUnauthorized.Error()})
 		return
 	}
 
@@ -371,6 +370,32 @@ func GetFollowers(w http.ResponseWriter, r *http.Request) {
 		PerPage: 10,
 	}
 
+	if UserID == 0 {
+		NewFollowersParam.UserID = CurrentUserID
+	} else {
+		Public, err := IsPublic(UserID)
+		if err == ErrUserNotExist {
+			global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": err.Error()})
+			return
+		}
+		if err != nil {
+			global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": ErrServer.Error()})
+			return
+		}
+
+		if !Public {
+			_, err := IsFollowed(CurrentUserID, UserID)
+			if err == ErrUserNotExist || err == ErrFollowYourself {
+				global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": err.Error()})
+				return
+			}
+			if err != nil {
+				global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error3": ErrServer.Error()})
+				return
+			}
+		}
+	}
+
 	Followers, err := NewFollowersParam.GetFollowers()
 	if err != nil {
 		if err == ErrUnauthorized {
@@ -397,27 +422,55 @@ func GetFollowing(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if CurrentUserID == 0 {
-		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": err.Error()})
+		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": ErrUnauthorized.Error()})
 		return
 	}
-
+	var UserID int
 	Param1 := r.FormValue("page")
 	Param2 := r.FormValue("user_id")
 	Page, err := strconv.Atoi(Param1)
 	if err != nil {
-		global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": ErrInvalidRequest.Error()})
+		global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error1": ErrInvalidRequest.Error()})
 		return
 	}
-	UserID, err := strconv.Atoi(Param2)
-	if err != nil {
-		global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": ErrInvalidRequest.Error()})
-		return
+	if Param2 != "" {
+		UserID, err = strconv.Atoi(Param2)
+		if err != nil {
+			global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error2": ErrInvalidRequest.Error()})
+			return
+		}
 	}
 
 	NewFollowersParam := &FollowersParams{
 		UserID:  UserID,
 		Page:    Page,
 		PerPage: 10,
+	}
+
+	if UserID == 0 {
+		NewFollowersParam.UserID = CurrentUserID
+	} else {
+		Public, err := IsPublic(UserID)
+		if err == ErrUserNotExist {
+			global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": err.Error()})
+			return
+		}
+		if err != nil {
+			global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": ErrServer.Error()})
+			return
+		}
+
+		if !Public {
+			_, err := IsFollowed(CurrentUserID, UserID)
+			if err == ErrUserNotExist || err == ErrFollowYourself {
+				global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": err.Error()})
+				return
+			}
+			if err != nil {
+				global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error3": ErrServer.Error()})
+				return
+			}
+		}
 	}
 
 	Following, err := NewFollowersParam.GetFollowing()
