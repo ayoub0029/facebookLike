@@ -14,17 +14,25 @@ type DataNotif struct {
 	CreatedAt string `json:"creatat"`
 }
 
-func Savenotifications(nf NotifServes) error {
+func Savenotifications(nf NotifServes, sen bool) error {
 	_, err := database.ExecQuery(`INSERT INTO notifications(
 					user_id,
 					sender_id,
 					type,
-					content)
-					VALUES(?,?,?,?)`,
+					content,
+					seen)
+					VALUES(?,?,?,?,?)`,
 		nf.SederId,
 		nf.ReceverId,
 		nf.Type,
-		nf.Message)
+		nf.Message,
+		sen)
+	return err
+}
+// _, err := ExecQuery("UPDATE chat SET last_send = ? WHERE id = ?", lastmessage, chatID)
+
+func MarkSenn(id int) error {
+	_,  err := database.ExecQuery("UPDATE notifications SET seen = 1 WHERE id = ?",id)
 	return err
 }
 

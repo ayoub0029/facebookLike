@@ -72,14 +72,19 @@ func (Nf *NotifServes) Event() error {
 }
 
 func sendAndSave(Nf NotifServes) error {
+	sen := false
 	val, ok := socket.Clients[Nf.ReceverId]
 	if ok {
-		socket.SendMessage(val, Nf.Message)
-		// add sen
+		err := socket.SendMessage(val, Nf.Message)
+		if err != nil {
+			logger.Error("send NotifServes %v", err)
+			return err
+		}
+		sen = true
 	}
-	err := Savenotifications(Nf)
+	err := Savenotifications(Nf,sen)
 	if err != nil {
-		logger.Error("%s",err)
+		logger.Error("%s", err)
 		return err
 	}
 	return nil

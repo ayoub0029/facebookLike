@@ -3,6 +3,7 @@ package notifications
 import (
 	"database/sql"
 	"net/http"
+	"strconv"
 
 	global "socialNetwork/Global"
 )
@@ -11,6 +12,7 @@ var logger = global.NewLogger()
 
 func Routes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /notifications", getNotifications)
+	mux.HandleFunc("POST /notifications/seen", SeenNotifications)
 }
 
 func getNotifications(res http.ResponseWriter, req *http.Request) {
@@ -34,4 +36,20 @@ func getNotifications(res http.ResponseWriter, req *http.Request) {
 	}
 
 	global.JsonResponse(res, http.StatusOK, data)
+}
+
+func SeenNotifications(res http.ResponseWriter, req *http.Request) {
+	ids := req.FormValue("id")
+
+	id, err := strconv.Atoi(ids)
+	if err != nil {
+		global.JsonResponse(res, http.StatusBadRequest, "id must be int")
+		return
+	}
+	err = MarkSenn(id)
+	if(err != nil){
+		global.JsonResponse(res, http.StatusInternalServerError, "server side error")
+		return
+	}
+	global.JsonResponse(res, http.StatusOK, "make sen succeeded")
 }
