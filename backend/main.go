@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"time"
 
 	auth "socialNetwork/Authentication"
 	middleware "socialNetwork/Middlewares"
@@ -24,11 +23,8 @@ func main() {
 	// ...
 
 	Server := &http.Server{
-		Addr:         ":8080",
-		Handler:      middleware.Logs_Middleware(mux),
-		ReadTimeout:  10 * time.Second, // Max duration for reading the entire request
-		WriteTimeout: 10 * time.Second, // Max duration before a write operation times out
-		TLSConfig:    nil,
+		Addr:    ":8080",
+		Handler: middleware.Logs_Middleware(mux),
 	}
 
 	fmt.Println("Server running on", Server.Addr)

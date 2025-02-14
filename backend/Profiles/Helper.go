@@ -63,18 +63,19 @@ func IsFollowed(a, b int) (int, error) {
 		return -1, ErrUserNotExist
 	}
 
-	var FollowId int
+	var RelationID int
+
 	Query := `SELECT id FROM followers WHERE follower_id = ? AND followed_id = ? AND status = 'accept'`
 	row, err := database.SelectOneRow(Query, a, b)
 	if err != nil {
 		return -1, err
 	}
-	if err := row.Scan(&FollowId); err != nil {
+	if err := row.Scan(&RelationID); err != nil {
 		if err == sql.ErrNoRows {
-			return -1, ErrCantFindFollowID
+			return -1, ErrCantFindRelationId
 		}
 		return -1, err
 	}
 
-	return FollowId, nil
+	return RelationID, nil
 }

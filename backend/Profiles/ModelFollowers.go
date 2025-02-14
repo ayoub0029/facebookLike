@@ -40,7 +40,7 @@ var (
 var (
 	ErrAlreadyFollowed        = errors.New("you have already followed this user")
 	ErrUnfollowed             = errors.New("you must follow the user before you can unfollow them")
-	ErrCantFindFollowID       = errors.New("follow relationship not found")
+	ErrCantFindRelationId     = errors.New("follow relationship not found")
 	ErrUserAlreadyFollowedYou = errors.New("you have already accepted this user’s follow request")
 )
 
@@ -63,7 +63,7 @@ func (req *Follow_Request) Follow() (int, error) {
 		return http.StatusBadRequest, err
 	}
 
-	if err != nil && err != ErrCantFindFollowID {
+	if err != nil && err != ErrCantFindRelationId {
 		return http.StatusInternalServerError, err
 	}
 
@@ -99,7 +99,7 @@ func (req *Follow_Request) Follow() (int, error) {
 func (req *Follow_Request) Unfollow() (int, error) {
 	Id, err := IsFollowed(req.followerId, req.followedId)
 
-	if err == ErrFollowYourself || err == ErrUserNotExist || err == ErrCantFindFollowID {
+	if err == ErrFollowYourself || err == ErrUserNotExist || err == ErrCantFindRelationId {
 		return http.StatusBadRequest, err
 	}
 
@@ -120,7 +120,7 @@ func (req *Follow_Request) Unfollow() (int, error) {
 // Return the status, status code, and any error encountered.
 func (req *Follow_Request) CheckFollowStatus() (string, int, error) {
 	_, err := IsFollowed(req.followedId, req.followerId)
-	if err == ErrFollowYourself || err == ErrUserNotExist || err == ErrCantFindFollowID {
+	if err == ErrFollowYourself || err == ErrUserNotExist || err == ErrCantFindRelationId {
 		return "", http.StatusBadRequest, err
 	}
 	if err != nil {
@@ -144,7 +144,7 @@ func (req *Follow_Request) CheckFollowStatus() (string, int, error) {
 // Accept the follow request and return the status code, along with any errors encountered.
 func (req *Follow_Request) AccepteRequest() (int, error) {
 	_, err := IsFollowed(req.followedId, req.followerId)
-	if err == ErrFollowYourself || err == ErrUserNotExist || err == ErrCantFindFollowID {
+	if err == ErrFollowYourself || err == ErrUserNotExist || err == ErrCantFindRelationId {
 		return http.StatusBadRequest, err
 	}
 	if err != nil {
@@ -178,7 +178,7 @@ func (req *Follow_Request) AccepteRequest() (int, error) {
 func (req *Follow_Request) RejectRequest() (int, error) {
 	Id, err := IsFollowed(req.followedId, req.followerId)
 
-	if err == ErrFollowYourself || err == ErrUserNotExist || err == ErrCantFindFollowID {
+	if err == ErrFollowYourself || err == ErrUserNotExist || err == ErrCantFindRelationId {
 		return http.StatusBadRequest, err
 	}
 
