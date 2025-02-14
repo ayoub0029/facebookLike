@@ -4,9 +4,12 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+
 	auth "socialNetwork/Authentication"
 	chats "socialNetwork/Chats"
 	database "socialNetwork/Database"
+	notifications "socialNetwork/Notifications"
+	search "socialNetwork/Search"
 	socket "socialNetwork/Socket"
 )
 
@@ -22,6 +25,8 @@ func main() {
 	auth.Routes(mux)
 	chats.Routes(mux)
 	socket.Routes(mux)
+	notifications.Routes(mux)
+	search.Routes(mux)
 	// posts.Routes(mux)  example
 	// ...
 
@@ -50,6 +55,7 @@ func handleStaticFile(w http.ResponseWriter, r *http.Request) {
 	// Serve the file
 	http.ServeFile(w, r, fullPath)
 }
+
 func home(w http.ResponseWriter, r *http.Request) {
 	// Only handle root path in home handler
 	if r.URL.Path != "/" {

@@ -1,7 +1,6 @@
 package notifications
 
 import (
-	global "socialNetwork/Global"
 	socket "socialNetwork/Socket"
 )
 
@@ -11,10 +10,10 @@ type NotifServes struct {
 }
 
 var (
-	FOLOWING    = "following"
+	FOLOWING         = "following"
 	GROUP_INVITATION = "group_invitation"
 	ACCCEPT_REQUEST  = "accept_equest"
-	EVENT = "event"
+	EVENT            = "event"
 )
 
 func NewNotification(message string, senderId, ReceverId, GroupId uint64) *NotifServes {
@@ -32,12 +31,14 @@ func (Nf *NotifServes) Following() error {
 	err := sendAndSave(*Nf)
 	return err
 }
+
 // receives a group invitation, so he can refuse or accept the request
 func (Nf *NotifServes) Groupinvitation() error {
 	Nf.Type = GROUP_INVITATION
 	err := sendAndSave(*Nf)
 	return err
 }
+
 // is the creator of a group and another user requests to join the group, so he can refuse or accept the request
 func (Nf *NotifServes) AcceptRequest() error {
 	Nf.Type = ACCCEPT_REQUEST
@@ -49,25 +50,26 @@ func (Nf *NotifServes) AcceptRequest() error {
 	err = sendAndSave(*Nf)
 	return err
 }
+
 // is member of a group and an event is created
 func (Nf *NotifServes) Event() error {
 	Nf.Type = EVENT
 	ids, err := getIdsUsersOfGroup(Nf.GroupId)
-	if(err != nil){
-		global.ErrorLog.Println(err)
+	if err != nil {
+		logger.Error("%s", err)
+		// global.ErrorLog.Println(err)
 		return err
 	}
-	for _, id := range ids{
+	for _, id := range ids {
 		Nf.ReceverId = id
 		err = sendAndSave(*Nf)
-		if(err != nil){
+		if err != nil {
 			return err
 		}
 	}
 
 	return err
 }
-
 
 func sendAndSave(Nf NotifServes) error {
 	val, ok := socket.Clients[Nf.ReceverId]
@@ -77,7 +79,7 @@ func sendAndSave(Nf NotifServes) error {
 	}
 	err := Savenotifications(Nf)
 	if err != nil {
-		global.ErrorLog.Println(err)
+		logger.Error("%s",err)
 		return err
 	}
 	return nil

@@ -1,7 +1,7 @@
 package notifications
 
 import (
-	"fmt"
+	"database/sql"
 
 	database "socialNetwork/Database"
 )
@@ -60,13 +60,11 @@ func getIdsUsersOfGroup(groupId uint64) ([]uint64, error) {
 	return ids, nil
 }
 
-func selectNotifas(user, lastNotif string) ([]DataNotif, error) {
-	where := ""
-	if lastNotif != "" {
-		where = "AND id > "
-	}
+func selectNotifications(user, lastNotif string) ([]DataNotif, error) {
+	var rows *sql.Rows
+	var err error
 
-	query := fmt.Sprintf(`SELECT
+	query := `SELECT
     	notifications.id,
     	users.nickname,
     	notifications.content,
@@ -76,15 +74,21 @@ func selectNotifas(user, lastNotif string) ([]DataNotif, error) {
     	notifications
     	LEFT JOIN users ON notifications.sender_id = users.id
 	WHERE
-    	user_id = ? %v
-	ORDER BY
-    	notifications.id DESC
-	LIMIT 10;`, where)
+    	user_id = ?`
 
-	rows, err := database.SelectQuery(query, user, lastNotif)
+	if lastNotif != "" {
+		query += " AND notifications.id > ?"
+		rows, err = database.SelectQuery(query, user, lastNotif)
+	} else {
+		rows, err = database.SelectQuery(query, user)
+	}
+
+	query += ` ORDER BY id DESC LIMIT 10;`
+
 	if err != nil {
 		return nil, err
 	}
+
 	var nf DataNotif
 	var notifications []DataNotif
 
@@ -92,18 +96,19 @@ func selectNotifas(user, lastNotif string) ([]DataNotif, error) {
 		err = rows.Scan(
 			&nf.Id,
 			&nf.Sender,
+			&nf.Message,
 			&nf.Type,
 			&nf.CreatedAt,
 		)
 		if err != nil {
-			return nil,err
+			return nil, err
 		}
 
 		notifications = append(notifications, nf)
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil,err
+		return nil, err
 	}
 	return notifications, nil
 }

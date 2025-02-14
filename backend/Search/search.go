@@ -1,8 +1,6 @@
 package search
 
 import (
-	"fmt"
-
 	database "socialNetwork/Database"
 )
 
@@ -20,11 +18,10 @@ type GroupSearch struct {
 }
 
 func searchUsersInDb(target, lastId string) ([]UsersSearch, error) {
-	where := ""
-	if lastId != "" {
-		where = "(id > " + lastId + ") AND"
+	if lastId == "" {
+		lastId = "0"
 	}
-	query := fmt.Sprintf(`SELECT
+	query := `SELECT
     	id,
     	nickname,
     	first_name,
@@ -32,21 +29,23 @@ func searchUsersInDb(target, lastId string) ([]UsersSearch, error) {
 	FROM
     	users
 	WHERE
-    	%v (
-        	nickname LIKE '?%'
-        	OR first_name like '?%'
-        	OR last_name like '?%'
+    	(id > ?) AND (
+        	nickname LIKE ?
+        	OR first_name LIKE ?
+        	OR last_name LIKE ?
     )
-	LIMIT 10;`, where)
+	LIMIT 10;`
 
-	rows, err := database.SelectQuery(query, target, target, target)
+	rows, err := database.SelectQuery(query, lastId, target+"%", target+"%", target+"%")
 	if err != nil {
 		return nil, err
 	}
-	var us UsersSearch
-	var usersSerch []UsersSearch
+	defer rows.Close()
+
+	var usersSearch []UsersSearch
 
 	for rows.Next() {
+		var us UsersSearch
 		err := rows.Scan(
 			&us.Id,
 			&us.Nickname,
@@ -56,36 +55,35 @@ func searchUsersInDb(target, lastId string) ([]UsersSearch, error) {
 		if err != nil {
 			return nil, err
 		}
-		usersSerch = append(usersSerch, us)
+		usersSearch = append(usersSearch, us)
 	}
 
 	if err = rows.Err(); err != nil {
 		return nil, err
 	}
 
-	return usersSerch, nil
+	return usersSearch, nil
 }
 
 func SearchGroupsInDb(target, lastId string) ([]GroupSearch, error) {
-	where := ""
-	if lastId != "" {
-		where = "(id > " + lastId + ") AND"
+	if lastId == "" {
+		lastId = "0"
 	}
 
-	auery := fmt.Sprintf(`SELECT
+	query := `SELECT
     	id,
     	name,
     	description
 	FROM
     	groups
 	WHERE
-    	%v
-    	AND (
-        	name like '?%'
-        	OR description like '%?%'
-    		)
-	LIMIT 10;`, where)
-	rows, err := database.SelectQuery(auery, target, target)
+    	(id > ?) AND (
+        		name like ?
+        		OR description like ?
+    			)
+	LIMIT 10;`
+
+	rows, err := database.SelectQuery(query, lastId, target+"%", "%"+target+"%")
 	if err != nil {
 		return nil, err
 	}
