@@ -18,6 +18,7 @@ body {
     background-color: var(--background);
     color: var(--primary-color);
     font-family: "Poppins", sans-serif;
+    font-size: 14px;
 }
 
 .container {
@@ -67,17 +68,52 @@ body {
 .searchBar input {
     width: 100%;
     padding: 10px;
-    font-size: 16px;
-    border: 1px solid var(--third-color);
+    border: 0;
+    outline: 0;
+    border-bottom: 1px solid var(--third-color);
     border-radius: 8px;
     margin-bottom: 20px;
+    font-family: 'Poppins', FontAwesome, sans-serif;
+}
+
+.imageUpload {
+    display: none;
 }
 
 .newPost textarea {
     width: 100%;
     height: 80px;
     padding: 10px;
+    border: 0;
+    outline: 0;
+    border-bottom: 1px solid var(--third-color);
+    border-radius: 8px;
+    resize: none;
+}
+
+.newPost{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.imgPrivacyPost {
+    display: grid;
+    grid-template-columns: 35% 63%;
+    gap: 2%;
+}
+
+.imageUp {
+    padding: 6px 15px;
+    background-color: var(--btn-color);
+    color: var(--background);
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.imgPrivacyPost select {
     font-size: 16px;
+    outline: 0;
     border: 1px solid var(--third-color);
     border-radius: 8px;
 }
@@ -114,6 +150,13 @@ body {
     object-fit: cover;
 }
 
+.smallImg {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
 .postInfo {
     display: flex;
     flex-direction: column;
@@ -121,6 +164,7 @@ body {
 
 .postName {
     font-weight: bold;
+    font-size: 15px;
 }
 
 .postTime {
@@ -147,6 +191,9 @@ body {
 
 /* Right Sidebar */
 .rightSidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
     position: sticky;
     top: 0;
     height: 97vh;
@@ -154,13 +201,26 @@ body {
     padding: 20px;
 }
 
+.directMessages div , .groupMessages div{
+    padding-left: 10px;
+    position: relative;
+}
+
 .status {
     position: absolute;
-    left: 48px;
-    top: 42px;
     padding: 6px;
     border: 3px solid var(--background);
     border-radius: 50%;
+}
+
+.profileStatusXY{
+    left: 48px;
+    top: 42px;
+}
+
+.chatProfileStatusXY{
+    left: 28px;
+    top: 16px;
 }
 
 .online {
@@ -200,5 +260,9 @@ body {
         padding: 7px;
         font-size: 12px;
         margin-bottom: 5px;
+    }
+
+    .imgPrivacyPost {
+        grid-template-columns: 45% 53%;
     }
 }

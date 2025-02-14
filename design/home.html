@@ -21,8 +21,9 @@
             </div>
             <div class="nav">
                 <div class="menuItem secondary"><i class="fas fa-home"></i> <span>&nbsp;Home</span></div>
-                <div class="menuItem secondary"><i class="fas fa-user"></i> <span>&nbsp;Groups</span></div>
-                <div class="menuItem secondary"><i class="fas fa-envelope"></i> <span>&nbsp;Messages</span></div>
+                <div class="menuItem secondary"><i class="fas fa-user"></i> <span>&nbsp;Profile</span></div>
+                <div class="menuItem secondary"><i class="fa-solid fa-user-group"></i> <span>&nbsp;Groups</span></div>
+                <div class="menuItem secondary"><i class="fas fa-envelope"></i> <span>&nbsp;Chats</span></div>
                 <div class="menuItem secondary"><i class="fas fa-bell"></i> <span>&nbsp;Notifications</span></div>
                 <div class="menuItem danger"><i class="fa-solid fa-arrow-right-from-bracket"></i> <span>&nbsp;Sign out</span></div>
             </div>
@@ -31,20 +32,30 @@
         <!-- Main Feed Section -->
         <aside class="feed">
             <div class="searchBar">
-                <input type="text" placeholder="Search..." />
+                <input type="text" placeholder="&#xF002; Search..." />
             </div>
 
             <div class="newPost">
-                <textarea placeholder="Write something..."></textarea>
+                <textarea placeholder="Write something here..."></textarea>
+                <div class="imgPrivacyPost"> 
+                    <label for="postImage" class="imageUp"><i class="fa-regular fa-image"></i> Image/GIF</label>
+                    <input type="file" id="postImage" class="imageUpload" accept="image/*,image/gif">
+                    <select id="privacy" name="privacy">
+                        <option value="public">Public</option>
+                        <option value="almostPrivate">Almost Private (followers only)</option>
+                        <option value="private">Private (selected followers)</option>
+                    </select>
+                </div>
                 <button>Post</button>
             </div>
+            
 
             <!-- Example Post -->
             <div class="post">
                 <div class="postHeader">
                     <img src="img/test.jpg" alt="Profile Image" class="profileImg">
                     <div class="postInfo">
-                        <span class="postName">John Doe</span>
+                        <span class="postName">Ayoub Lahmami</span>
                         <span class="postTime">5 min ago</span>
                     </div>
                 </div>
@@ -64,7 +75,7 @@
                 <div class="postHeader">
                     <img src="img/test.jpg" alt="Profile Image" class="profileImg">
                     <div class="postInfo">
-                        <span class="postName">John Doe</span>
+                        <span class="postName">Ayoub Lahmami</span>
                         <span class="postTime">5 min ago</span>
                     </div>
                 </div>
@@ -84,26 +95,68 @@
         <!-- Right Sidebar -->
         <div class="rightSidebar">
             <div class="postHeader">
-                <span class="status online"></span>
+                <span class="status profileStatusXY online"></span>
                 <img src="img/test.jpg" alt="Profile Image" class="profileImg">
                 <div class="postInfo">
-                    <span class="postName">John Doe</span>
+                    <span class="postName">Ayoub Lahmami</span>
                 </div>
             </div>
-            <div class="events">
+            <!-- <div class="events">
                 <h3>Upcoming Events</h3>
                 <div>Event 1</div>
                 <div>Event 2</div>
-            </div>
+            </div> -->
             <div class="directMessages">
                 <h3>Direct Messages</h3>
-                <div>user chat 1</div>
-                <div>user chat 2</div>
+                <div class="postHeader">
+                    <span class="status chatProfileStatusXY online"></span>
+                    <img src="img/test.jpg" class="smallImg">
+                    <p>Ayoub Lahmami</p>
+                </div>
+                <div class="postHeader">
+                    <span class="status chatProfileStatusXY offline"></span>
+                    <img src="img/test.jpg" class="smallImg">
+                    <p>Ayoub Lahmami</p>
+                </div>
+                <div class="postHeader">
+                    <span class="status chatProfileStatusXY online"></span>
+                    <img src="img/test.jpg" class="smallImg">
+                    <p>Ayoub Lahmami</p>
+                </div>
+                <div class="postHeader">
+                    <span class="status chatProfileStatusXY offline"></span>
+                    <img src="img/test.jpg" class="smallImg">
+                    <p>Ayoub Lahmami</p>
+                </div>
+                <div class="postHeader">
+                    <span class="status chatProfileStatusXY offline"></span>
+                    <img src="img/test.jpg" class="smallImg">
+                    <p>Ayoub Lahmami</p>
+                </div>
             </div>
+
             <div class="groupMessages">
                 <h3>Group Messages</h3>
-                <div>group chat 1</div>
-                <div>group chat 2</div>
+                <div class="postHeader">
+                    <img src="img/group.jpg" class="smallImg">
+                    <p>Orange Boys</p>
+                </div>
+                <div class="postHeader">
+                    <img src="img/group.jpg" class="smallImg">
+                    <p>Zone01 oujda Zone01 oujda </p>
+                </div>
+                <div class="postHeader">
+                    <img src="img/group.jpg" class="smallImg">
+                    <p>العقار في طنجة / Immobilier Tanger</p>
+                </div>
+                <div class="postHeader">
+                    <img src="img/group.jpg" class="smallImg">
+                    <p>بيع وشراء في وجدة 48 Acheter et vendre a Oujda</p>
+                </div>
+                <div class="postHeader">
+                    <img src="img/group.jpg" class="smallImg">
+                    <p>example</p>
+                </div>
             </div>
         </div>
     </div>
