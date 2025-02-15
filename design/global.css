@@ -8,6 +8,7 @@
     --background: #ffffff;
     --primary-color: #000000;
     --secondary-color: #808080;
+    --secondary-hover: #afafaf;
     --third-color: #e4e4e4;
     --lightGray-color: #f4f4f4;
     --btn-color: #81BE1C;
@@ -120,13 +121,29 @@ body {
 
 .newPost button {
     align-self: flex-end;
-    padding: 10px 20px;
     margin-bottom: 20px;
-    background: var(--btn-color);
-    color: var(--background);
+}
+
+.btn{
+    padding: 10px 10px;
     border: none;
     border-radius: 8px;
     cursor: pointer;
+}
+
+.btnGreen{
+    background: var(--btn-color);
+    color: var(--background);
+}
+
+.btnRed{
+    background: var(--danger-color);
+    color: var(--background);
+}
+
+.btnGray{
+    background: var(--secondary-color);
+    color: var(--background);
 }
 
 .post {

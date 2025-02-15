@@ -26,6 +26,7 @@
 ## Groups & Events 
 - `POST /groups` → Create a group  
 - `GET /groups?page=1` → Get all groups (pagination)  
+- `GET /groups?group_id=456` → Get one group
 - `GET /groups/members?group_id=12&page=1` → Get group members  
 - `POST /groups/join` → Request to join a group  
 - `POST /groups/leave` → Leave a group  
