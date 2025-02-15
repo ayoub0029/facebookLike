@@ -11,6 +11,8 @@
 </head>
 
 <body>
+    <button class="rightMenuToggle"><i class="fas fa-bars"></i></button>
+
     <div class="container">
         <!-- Left Sidebar -->
         <div class="leftSidebar">
@@ -101,11 +103,11 @@
                     <span class="postName">Ayoub Lahmami</span>
                 </div>
             </div>
-            <!-- <div class="events">
+            <div class="events">
                 <h3>Upcoming Events</h3>
                 <div>Event 1</div>
                 <div>Event 2</div>
-            </div> -->
+            </div>
             <div class="directMessages">
                 <h3>Friends</h3>
                 <div class="postHeader">
@@ -142,6 +144,13 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.querySelector('.rightMenuToggle').addEventListener('click', function() {
+            document.querySelector('.rightSidebar').classList.toggle('show');
+        });
+    </script>
+    
 </body>
 
 </html>

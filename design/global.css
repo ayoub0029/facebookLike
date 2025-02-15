@@ -189,24 +189,12 @@ body {
     cursor: pointer;
 }
 
-/* Right Sidebar */
-.rightSidebar {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    position: sticky;
-    top: 0;
-    height: 97vh;
-    background: var(--background);
-    padding: 20px;
-}
-
 .directMessages div , .groupMessages div{
     padding-left: 10px;
     position: relative;
 }
 
-.directMessages h3 , .groupMessages h3 {
+.events h3 ,.directMessages h3 , .groupMessages h3 {
     margin-bottom: 20px;
 }
 
@@ -245,10 +233,6 @@ body {
         grid-template-columns: 100%;
     }
 
-    .rightSidebar {
-        display: none;
-    }
-
     .leftSidebar {
         height: 100%;
     }
@@ -268,5 +252,56 @@ body {
 
     .imgPrivacyPost {
         grid-template-columns: 45% 53%;
+    }
+}
+
+.rightMenuToggle {
+    display: none; 
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: var(--btn-color);
+    color: var(--background);
+    border: none;
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 1000;
+}
+
+.rightSidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background: var(--background);
+    height: 97vh;
+    position: sticky;
+    top: 0;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+    .rightMenuToggle {
+        display: block;
+    }
+
+    .rightSidebar {
+        display: none;
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 80%;
+        height: 97vh;
+        background: var(--background);
+        box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+        z-index: 999;
+    }
+
+    .rightSidebar.show {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
     }
 }
