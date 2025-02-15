@@ -1,0 +1,79 @@
+.profiletHeader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+
+:root {
+    --status-color: #68e735;
+}
+
+.profiletHeader img {
+    border-radius: 50%;
+    width: 160px;
+    height: 160px;
+    border: 2px solid #fff;
+    outline: 3px solid var(--status-color);
+}
+
+
+.follow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.follow span {
+    display: block;
+    text-align: center;
+}
+
+.follow div {
+    padding: 8px;
+    position: relative;
+}
+
+.follow div:nth-of-type(2)::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    width: 2px;
+    height: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: #ddd;
+}
+
+.follow div>span:nth-of-type(2) {
+    font-size: 11px;
+    color: var(--primary-color);
+}
+
+.about {
+    margin-top: 25px;
+}
+
+.about span {
+    font-weight: 700;
+}
+
+.about p {
+    color: #666;
+    font-size: 0.7rem;
+}
+
+.btn_follow button {
+    /* color: #68e735; */
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    font-size: 1.2em;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    height: 40px;
+    width: 95px;
+    background-color: #fff;
+}
+
+.btn_follow button:active {
+    transform: translateY(1px);
+}

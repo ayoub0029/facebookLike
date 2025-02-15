@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="global.css">
+    <link rel="stylesheet" href="profile.css">
+    <title>Lmodir Dashboard</title>
+</head>
+
+<body>
+    <button class="rightMenuToggle"><i class="fas fa-bars"></i></button>
+
+    <div class="container">
+        <!-- Left Sidebar -->
+        <div class="leftSidebar">
+            <div class="logo">
+                <a href="/">
+                    <img src="img/logo.png" alt="logo">
+                </a>
+            </div>
+            <div class="nav">
+                <div class="menuItem secondary"><i class="fas fa-home"></i> <span>&nbsp;Home</span></div>
+                <div class="menuItem secondary"><i class="fas fa-user"></i> <span>&nbsp;Profile</span></div>
+                <div class="menuItem secondary"><i class="fa-solid fa-user-group"></i> <span>&nbsp;Groups</span></div>
+                <div class="menuItem secondary"><i class="fas fa-envelope"></i> <span>&nbsp;Chats</span></div>
+                <div class="menuItem secondary"><i class="fas fa-bell"></i> <span>&nbsp;Notifications</span></div>
+                <div class="menuItem danger"><i class="fa-solid fa-arrow-right-from-bracket"></i> <span>&nbsp;Sign
+                        out</span></div>
+            </div>
+        </div>
+
+        <!-- Main Feed Section -->
+        <aside class="feed">
+            <div class="searchBar">
+                <input type="text" placeholder="&#xF002; Search..." />
+            </div>
+
+            <!-- Example Post -->
+            <div class="post">
+                <div class="postHeader">
+                    <img src="img/test.jpg" alt="Profile Image" class="profileImg">
+                    <div class="postInfo">
+                        <span class="postName">Ayoub Lahmami</span>
+                        <span class="postTime">5 min ago</span>
+                    </div>
+                </div>
+                <div class="postContent">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                </div>
+                <img src="img/image.png" alt="Post Image" class="postImage">
+                <div class="postActions">
+                    <label><i class="fa-regular fa-heart"></i> 20</label>
+                    <label><i class="fa-regular fa-comment"></i> 12</label>
+                </div>
+            </div>
+
+            <!-- Example Post -->
+            <div class="post">
+                <div class="postHeader">
+                    <img src="img/test.jpg" alt="Profile Image" class="profileImg">
+                    <div class="postInfo">
+                        <span class="postName">Ayoub Lahmami</span>
+                        <span class="postTime">5 min ago</span>
+                    </div>
+                </div>
+                <div class="postContent">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                </div>
+                <img src="img/image.png" alt="Post Image" class="postImage">
+                <div class="postActions">
+                    <label><i class="fa-solid fa-heart danger"></i> 20</label>
+                    <label><i class="fa-regular fa-comment"></i> 12</label>
+                </div>
+            </div>
+
+        </aside>
+
+        <!-- Right Sidebar -->
+        <div class="rightSidebar">
+
+            <div class="profiletHeader">
+                <!-- <span class="status profileStatusXY online"></span> -->
+                <div >
+
+                    <img src="img/test.jpg" alt="Profile Image">
+                </div>
+                <span>Ayoub Lahmami</span>
+                <span>@AyoubLahmami</span>
+                <span>15 / 56 /19999 </span>
+                <div class="follow">
+                    <div>
+                        <span> 1321k</span>
+                        <span> Followers</span>
+                    </div>
+                    <div>
+                        <span> 56</span>
+                        <span> Following</span>
+                    </div>
+                </div>
+                <div class="btn_follow">
+                    <button>follow</button>
+                    <!-- <button></button> -->
+                </div>
+                <div class="about">
+                    <span>About Me</span>
+                    <p>
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Illum, ab. Voluptatem, ipsam fugit a hic mollitia in cumque, architecto eligendi recusandae iste veniam quod rem error repellat inventore reprehenderit? Similique.
+                    </p>
+                </div>
+            </div>
+            <!-- <div class="postHeader">
+                <span class="status profileStatusXY online"></span>
+                <img src="img/test.jpg" alt="Profile Image" class="profileImg">
+                <div class="postInfo">
+                    <span class="postName">Ayoub Lahmami</span>
+                </div>
+            </div>
+            <div class="events">
+                <h3>Upcoming Events</h3>
+                <div>Event 1</div>
+                <div>Event 2</div>
+            </div>
+            <div class="directMessages">
+                <h3>Friends</h3>
+                <div class="postHeader">
+                    <span class="status chatProfileStatusXY online"></span>
+                    <img src="img/test.jpg" class="smallImg">
+                    <p>Ayoub Lahmami</p>
+                </div>
+                <div class="postHeader">
+                    <span class="status chatProfileStatusXY offline"></span>
+                    <img src="img/test.jpg" class="smallImg">
+                    <p>Ayoub Lahmami</p>
+                </div>
+                <div class="postHeader">
+                    <span class="status chatProfileStatusXY online"></span>
+                    <img src="img/test.jpg" class="smallImg">
+                    <p>Ayoub Lahmami</p>
+                </div>
+            </div>
+
+            <div class="groupMessages">
+                <h3>Groups</h3>
+                <div class="postHeader">
+                    <img src="img/group.jpg" class="smallImg">
+                    <p>Orange Boys</p>
+                </div>
+                <div class="postHeader">
+                    <img src="img/group.jpg" class="smallImg">
+                    <p>العقار في طنجة / Immobilier Tanger</p>
+                </div>
+                <div class="postHeader">
+                    <img src="img/group.jpg" class="smallImg">
+                    <p>بيع وشراء في وجدة 48 Acheter et vendre a Oujda</p>
+                </div>
+            </div> -->
+        </div>
+    </div>
+
+    <script>
+        document.querySelector('.rightMenuToggle').addEventListener('click', function () {
+            document.querySelector('.rightSidebar').classList.toggle('show');
+        });
+    </script>
+
+</body>
+
+</html>
