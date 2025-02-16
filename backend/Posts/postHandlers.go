@@ -143,7 +143,7 @@ func UserProfilePosts(w http.ResponseWriter, r *http.Request) {
 	var Post PostData
 	var allPosts []PostData
 	for posts.Next() {
-		posts.Scan(&Post.ID, &Post.Likes, &Post.Comments, &Post.Username, &Post.Content, &Post.CreatedAt, &Post.Image, &Post.Updated_at, &Post.First_name, &Post.Last_name, &Post.Group_name)
+		posts.Scan(&Post.ID, &Post.Likes, &Post.Comments, &Post.Nickname, &Post.Content, &Post.CreatedAt, &Post.Image, &Post.Updated_at, &Post.First_name, &Post.Last_name, &Post.Group_name)
 		allPosts = append(allPosts, Post)
 	}
 	global.JsonResponse(w, http.StatusOK, allPosts)
@@ -203,7 +203,12 @@ func getPosts(w http.ResponseWriter, r *http.Request) {
 	var AllPosts []PostData
 	for posts.Next() {
 		var Post PostData
-		posts.Scan(&Post.ID, &Post.Likes, &Post.Comments, &Post.Username, &Post.First_name, &Post.Last_name, &Post.Content, &Post.CreatedAt, &Post.Updated_at, &Post.Image, &Post.Group_name)
+		posts.Scan(&Post.ID, &Post.Likes, &Post.Comments, &Post.Nickname, &Post.First_name, &Post.Last_name, &Post.Content, &Post.CreatedAt, &Post.Updated_at, &Post.Image, &Post.Group_name)
+		Post.IsLiked, err = CheckLikePost(userID, Post.ID)
+		if err != nil {
+			global.JsonResponse(w, http.StatusInternalServerError, "some thing was wrong")
+			return
+		}
 		AllPosts = append(AllPosts, Post)
 	}
 	global.JsonResponse(w, http.StatusOK, AllPosts)
@@ -271,7 +276,12 @@ func getPostGroup(w http.ResponseWriter, r *http.Request) {
 	var AllPosts []PostData
 	for posts.Next() {
 		var Post PostData
-		posts.Scan(&Post.ID, &Post.Likes, &Post.Comments, &Post.Username, &Post.First_name, &Post.Last_name, &Post.Content, &Post.CreatedAt, &Post.Updated_at, &Post.Image, &Post.Privacy, &Post.Group_name)
+		posts.Scan(&Post.ID, &Post.Likes, &Post.Comments, &Post.Nickname, &Post.First_name, &Post.Last_name, &Post.Content, &Post.CreatedAt, &Post.Updated_at, &Post.Image, &Post.Privacy, &Post.Group_name)
+		Post.IsLiked, err = CheckLikePost(userID, Post.ID)
+		if err != nil {
+			global.JsonResponse(w, http.StatusInternalServerError, "some thing was wrong")
+			return
+		}
 		AllPosts = append(AllPosts, Post)
 	}
 	global.JsonResponse(w, http.StatusOK, AllPosts)

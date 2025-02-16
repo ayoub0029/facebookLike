@@ -27,16 +27,17 @@ type Comment struct {
 }
 
 type PostData struct {
+	ID         int       `json:"id"`
+	Nickname   any       `json:"nickname"`
 	First_name string    `json:"first_name"`
 	Last_name  string    `json:"last_name"`
-	ID         int       `json:"id"`
 	Likes      any       `json:"likes"`
 	Comments   any       `json:"comments"`
-	Username   any    `json:"username"`
 	Content    string    `json:"content"`
 	CreatedAt  time.Time `json:"created_at"`
-	Updated_at any `json:"updated_at_at"`
-	Image      any    `json:"image"`
-	Group_name any    `json:"group_name"`
+	Updated_at any       `json:"updated_at_at"`
+	Image      any       `json:"image"`
+	Group_name any       `json:"group_name"`
+	IsLiked    any       `json:"is_liked"`
 	Privacy    string    `json:"privacy"`
 }

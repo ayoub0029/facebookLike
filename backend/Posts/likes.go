@@ -37,3 +37,23 @@ func LikePost(postID int, userID int, statuslike int) error {
 	}
 	return err
 }
+
+// check if the user like the post or not
+func CheckLikePost(postID int, userID int) (int, error) {
+	var like sql.NullInt32
+	row, err := database.SelectOneRow("SELECT like FROM post_reactions WHERE post_id = ? AND user_id = ?", postID, userID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return 0, nil
+		}
+		return 0, err
+	}
+	errlike := row.Scan(&like)
+	if errlike != nil {
+		return 0, errlike
+	}
+	if like.Valid {
+		return 1, nil
+	}
+	return 0, nil
+}

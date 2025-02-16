@@ -110,7 +110,7 @@ func get_userID(r *http.Request) (int, error) {
 // get group id from post id
 func getGroupOfpost(postID int) (int, error) {
 	query := `SELECT group_id FROM posts WHERE id = ?`
-	var groupID sql.NullInt64
+	var groupID sql.NullInt32
 	row, err := database.SelectOneRow(query, postID)
 	if err != nil {
 		return -1, err
@@ -120,7 +120,7 @@ func getGroupOfpost(postID int) (int, error) {
 		return -1, err
 	}
 	if groupID.Valid {
-		gID := int(groupID.Int64)
+		gID := int(groupID.Int32)
 		return gID, nil
 	}
 	return -1, nil
