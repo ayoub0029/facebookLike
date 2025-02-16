@@ -34,6 +34,7 @@ body {
     height: 97vh;
     background: var(--background);
     padding: 20px;
+    border-right: 1px solid var(--third-color);
 }
 
 .logo a img {
@@ -64,6 +65,9 @@ body {
 .feed {
     padding: 20px;
     background: var(--background);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 .searchBar input {
@@ -297,6 +301,7 @@ body {
     top: 0;
     padding: 20px;
     overflow-y: auto;
+    border-left: 1px solid var(--third-color);
 }
 
 @media (max-width: 768px) {

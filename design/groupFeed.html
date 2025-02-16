@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="global.css">
+    <link rel="stylesheet" href="groups.css">
+    <link rel="stylesheet" href="groupFeed.css">
+    <title>Lmodir Dashboard</title>
+</head>
+
+<body>
+    <button class="rightMenuToggle"><i class="fas fa-bars"></i></button>
+
+    <div class="container">
+        <!-- Left Sidebar -->
+        <div class="leftSidebar">
+            <div class="logo">
+                <a href="/">
+                    <img src="img/logo.png" alt="logo">
+                </a>
+            </div>
+            <div class="nav">
+                <div class="menuItem secondary"><i class="fas fa-home"></i> <span>&nbsp;Home</span></div>
+                <div class="menuItem secondary"><i class="fas fa-user"></i> <span>&nbsp;Profile</span></div>
+                <div class="menuItem secondary"><i class="fa-solid fa-user-group"></i> <span>&nbsp;Groups</span></div>
+                <div class="menuItem secondary"><i class="fas fa-envelope"></i> <span>&nbsp;Chats</span></div>
+                <div class="menuItem secondary"><i class="fas fa-bell"></i> <span>&nbsp;Notifications</span></div>
+                <div class="menuItem danger"><i class="fa-solid fa-arrow-right-from-bracket"></i> <span>&nbsp;Sign
+                        out</span></div>
+            </div>
+        </div>
+
+        <!-- Main Feed Section -->
+        <aside class="feed">
+            <div class="groupTitleFeed">
+                <b>GROUP : </b><span>orange_boys.07🧡🍊</span>
+            </div>
+
+            <div class="feedTabs">
+                <button id="postFeedTab" class="tab active">Post Feed</button>
+                <button id="eventFeedTab" class="tab">Events</button>
+                <button id="chatRoomTab" class="tab" onclick="window.location.href='/chat'"><i class="fas fa-comments"></i> Group Chat</button>
+            </div>
+
+            <!-- Post Feed Section -->
+            <div id="postFeed" class="feedSection">
+                <div class="newPost">
+                    <textarea placeholder="Write something here..."></textarea>
+                    <div class="imgPrivacyPost">
+                        <label for="postImage" class="imageUp"><i class="fa-regular fa-image"></i> Image/GIF</label>
+                        <input type="file" id="postImage" class="imageUpload" accept="image/*,image/gif">
+                    </div>
+                    <button class="btn btnGreen">Post</button>
+                </div>
+
+                <!-- Example Post -->
+                <div class="post">
+                    <div class="postHeader">
+                        <img src="img/test.jpg" alt="Profile Image" class="profileImg">
+                        <div class="postInfo">
+                            <span class="postName">Ayoub Lahmami</span>
+                            <span class="postTime">5 min ago</span>
+                        </div>
+                    </div>
+                    <div class="postContent">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                    </div>
+                    <img src="img/image.png" alt="Post Image" class="postImage">
+                    <div class="postActions">
+                        <label><i class="fa-regular fa-heart"></i> 20</label>
+                        <label><i class="fa-regular fa-comment"></i> 12</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Event Section -->
+            <div id="eventFeed" class="feedSection" style="display: none;">
+                <div class="newEvent">
+                    <h3>Create an Event</h3>
+                    <input type="text" placeholder="Event Title" required>
+                    <textarea placeholder="Event Description" required></textarea>
+                    <input type="datetime-local" required>
+                    <button class="btn btnGreen">Create Event</button>
+                </div>
+
+                <!-- Example Event -->
+                <div class="event">
+                    <h4>Event Title</h4>
+                    <p>Description of the event goes here...</p>
+                    <span>Event Date: 2023-12-31 19:00</span>
+                    <div class="eventOptions">
+                        <label><input type="radio" name="event1" value="going"> Going</label>
+                        <label><input type="radio" name="event1" value="notGoing"> Not Going</label>
+                    </div>
+                </div>
+
+                <div class="event">
+                    <h4>Event Title</h4>
+                    <p>Description of the event goes here...</p>
+                    <span>Event Date: 2023-12-31 19:00</span>
+                
+                    <div class="percentageBars">
+                        <div class="percentageLabel">Going (60)</div>
+                        <svg xmlns="http://www.w3.org/2000/svg">
+                            <rect class="svgFillGreen" x="0" y="0" width="60%" height="20" rx="5" ry="5"></rect>
+                        </svg>
+                        <div class="percentageLabel">Not Going (40)</div>
+                        <svg  xmlns="http://www.w3.org/2000/svg">
+                            <rect class="svgFillRed" x="0" y="0" width="40%" height="20" rx="5" ry="5"></rect>
+                        </svg>
+                    </div>
+
+                    <!-- khask tchof wach matsalach l event -->
+                    <button class="btn btnGray">Delete My Vote</button>
+                </div>
+                            
+                
+            </div>
+        </aside>
+
+
+        <!-- Right Sidebar -->
+        <div class="rightSidebar">
+            <div class="groupProfile">
+                <!-- group image -->
+                <div class="groupImage">
+                    <img src="img/group.jpg" alt="group image">
+                </div>
+
+                <!-- group title -->
+                <div class="groupTitle">
+                    orange_boys.07🧡🍊
+                </div>
+
+                <!-- group join/members -->
+                <!-- example new group join -->
+                <div class="groupJoinMembers">
+                    <div class="groupMembers">187 members</div>
+                    <button class="btn btnGreen"><i class="fa-solid fa-user-group"></i> &nbsp; Join group</button>
+                </div>
+                <!-- example request -->
+                <div class="groupJoinMembers">
+                    <div class="groupMembers">187 members</div>
+                    <button class="btn btnGray"><i class="fa-solid fa-user-group"></i> &nbsp; Cancel request</button>
+                </div>
+                <!-- example joined group -->
+                <div class="groupJoinMembers">
+                    <div class="groupMembers">187 members</div>
+                    <button class="btn btnGreen"><i class="fa-solid fa-plus"></i> &nbsp; Invite</button>
+                    <button class="btn btnRed"><i class="fa-solid fa-arrow-right-from-bracket"></i> &nbsp; Leave
+                        group</button>
+                </div>
+
+                <div class="groupAbout">
+                    <h3>About</h3>
+                    <div>فين ما مشينا جايبين لعز 😌🧡<br>فين ما مشينا جايبين لعز 😌🧡</div>
+                </div>
+                
+            </div>
+
+        </div>
+    </div>
+    
+
+    <script>
+        document.querySelector('.rightMenuToggle').addEventListener('click', function () {
+            document.querySelector('.rightSidebar').classList.toggle('show');
+        });
+    </script>
+
+<script>
+    document.getElementById('postFeedTab').addEventListener('click', function() {
+        document.getElementById('postFeed').style.display = 'block';
+        document.getElementById('eventFeed').style.display = 'none';
+        document.getElementById('postFeedTab').classList.add('active');
+        document.getElementById('eventFeedTab').classList.remove('active');
+    });
+
+    document.getElementById('eventFeedTab').addEventListener('click', function() {
+        document.getElementById('postFeed').style.display = 'none';
+        document.getElementById('eventFeed').style.display = 'block';
+        document.getElementById('eventFeedTab').classList.add('active');
+        document.getElementById('postFeedTab').classList.remove('active');
+    });
+</script>
+
+
+
+</body>
+
+</html>

@@ -34,7 +34,14 @@
 - `GET /groups/events?group_id=12&page=1` → Get group events  
 - `POST /groups/events` → Create an event  
 - `GET /groups/events?page=1` → Get all events (pagination)  
-- `POST /groups/events/vote` → Vote on an event  
+- `POST /groups/events/vote` → Vote on an event 
+
+<!-- get one group info / feed / events -->
+<!-- get group i joined -->
+<!-- get group i requested -->
+<!-- get group i invited -->
+<!-- edit group (optional) -->
+<!-- delete group (optional) -->
 
 ---
 

@@ -1,0 +1,146 @@
+.groupImage img {
+    width: 100%;
+    height: 130px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.groupProfile{
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.groupTitle{
+    align-self: center;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.groupTitleFeed{
+    font-size: 16px;
+}
+
+.groupJoinMembers{
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.groupMembers:hover{
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.groupAbout{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Feed Tabs */
+.feedTabs {
+    display: flex;
+    gap: 10px;
+}
+
+.feedTabs .tab {
+    padding: 10px 20px;
+    border: 1px solid var(--third-color);
+    border-radius: 8px;
+    background-color: var(--lightGray-color);
+    cursor: pointer;
+}
+
+.feedTabs .tab.active {
+    background-color: var(--btn-color);
+    color: var(--background);
+    font-weight: bold;
+}
+
+/* New Event Section */
+.newEvent {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 20px;
+    background-color: var(--lightGray-color);
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.newEvent input,
+.newEvent textarea {
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid var(--third-color);
+    border-radius: 8px;
+    resize: none;
+}
+
+.newEvent button {
+    align-self: flex-end;
+}
+
+/* Event Styling */
+.event {
+    padding: 20px;
+    background-color: var(--lightGray-color);
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.event h4 {
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.eventOptions{
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.eventOptions label {
+    margin-right: 15px;
+    cursor: pointer;
+}
+
+.percentageBars {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.percentageLabel {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+svg {
+    width: 100%;
+    height: 20px;
+    background-color: var(--lightGray-color);
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+rect {
+    height: 100%;
+    border-radius: 5px;
+}
+
+.svgFillGreen{
+    fill: var(--btn-color);
+}
+
+.svgFillRed{
+    fill: var(--secondary-color);
+}
+
+.btnGray:hover {
+    background-color: var(--secondary-hover);
+}
