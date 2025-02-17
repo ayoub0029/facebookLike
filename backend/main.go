@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"net/http"
+
+	profiles "socialNetwork/Profiles"
 	"socialNetwork/database"
 	"socialNetwork/Groups"
 
@@ -10,19 +12,17 @@ import (
 
 func main() {
 	database.CreateDatabase() // temporary 
-	/*myGroup := groups.NewGroup("myTeam5","for learning 5",1);
-	result := myGroup.Create();
-	if result {
-		fmt.Printf("group %d is created \n",myGroup.ID);
-		groups.PrintGroupsData();
-		return 
-	}else{
-		fmt.Println("Error");
-		return ;
-	}*/
-	mux := http.NewServeMux()
+	fmt.Println(groups.IsMember(1,1));
+	fmt.Println(groups.IsMember(1,2));
+	fmt.Println(groups.IsMember(1,3));
+	fmt.Println(groups.IsMember(1,4));
+	fmt.Println(groups.IsMember(2,4));
+	fmt.Println(groups.IsMember(2,5));
+	fmt.Println(groups.IsMember(2,6));
+	fmt.Println(groups.IsMember(2,1));
+	mux := http.NewServeMux();
 	mux.HandleFunc("/public/", handleStaticFile)
-
+	profiles.Routes(mux)
 	// ayoub---
 	// can here add conditions for routes authorization
 

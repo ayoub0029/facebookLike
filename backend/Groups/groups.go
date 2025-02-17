@@ -1,6 +1,9 @@
 package groups
 
-import "fmt"
+import (
+	"fmt"
+	"socialNetwork/Profiles"
+)
 
 type group struct {
 	ID         		int        `json:"id"`
@@ -18,6 +21,15 @@ func NewGroup(_name,_description string,_owner int) *group {
 	}
 }
 
+func IsMember(groupId,userId int) bool {
+	return isMember(groupId,userId);
+}
+
+func GetMembers(groupID int) []Profiles.Profile {
+	members := getAllMembers(groupID);
+	fmt.Println("members are : ",members);
+	return members;
+}
 func GetGroups() []group {
 	groupsLists := make([]group, 0);
 	groups_dataLists := getAllGroups();

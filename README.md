@@ -24,19 +24,17 @@
 ---
 
 ## Groups & Events 
-- `POST /groups` → Create a group  
-- `GET /groups?page=1` → Get all groups (pagination)  
+- `POST /groups` → Create a group
+- `GET /groups?page=1` → Get all groups (pagination)
 - `GET /groups/members?group_id=12&page=1` → Get group members  
 - `POST /groups/join` → Request to join a group  
-- `POST /groups/leave` → Leave a group  
+- `POST /groups/leave` → Leave a group 
 - `POST /groups/invite` → Accept/decline a group invitation  
-- `GET /groups/events?group_id=12&page=1` → Get group events  
-- `POST /groups/events` → Create an event  
-- `GET /groups/events?page=1` → Get all events (pagination)  
+- `GET /groups/events?group_id=12&page=1` → Get group events
+- `POST /groups/events` → Create an event
+- `GET /groups/events?page=1` → Get all events (pagination)
 - `POST /groups/events/vote` → Vote on an event  
-
 ---
-
 ## Chats
 - `GET /chats/private?receiver_id=321&page=1` → Get private chat messages  
 - `WS /chats/private` → Send a private message via WebSocket  
