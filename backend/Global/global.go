@@ -39,12 +39,12 @@ type Logger struct {
 // how to use
 //
 //	var logger = NewLogger()
-//	logger.Info("Starting application...")
 //	logger.Error("Failed to connect to database: %s", err)
+// this func print path of file and number of line and time  
 //
-// if you want just print number of line you can use "Simplelog" like this
+// if you want just print number of line you can use "InfoLogger" like this
 //
-//	logger.Simplelog.Println("text")
+//	logger.InfoLogger.Println("text")
 func NewLogger() *Logger {
 	return &Logger{
 		InfoLogger:  log.New(os.Stdout, colorBlue+"INFO\t"+colorReset, log.Ldate|log.Ltime|log.Lshortfile),
@@ -56,6 +56,6 @@ func (l *Logger) Error(format string, v ...interface{}) {
 	_, file, line, ok := runtime.Caller(1)
 	if ok {
 		msg := fmt.Sprintf(format, v...)
-		l.errorLogger.Printf("%s:%d:\n %s", file, line, msg)
+		l.errorLogger.Printf("%s:%d\n\t: %s", file, line, msg)
 	}
 }
