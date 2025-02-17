@@ -87,6 +87,9 @@ func join(groupId, memberId int) bool {
 	if err != nil {
 		return false;
 	}
+	!! send notification
+	!! var ntf newNotif
+	!! ntf.groupsx
 	return true;
 }
 
