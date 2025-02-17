@@ -29,13 +29,11 @@ const (
 	colorBlue  = "\033[34m"
 	colorRed   = "\033[31m"
 	colorReset = "\033[0m"
-	colorGreen = "\033[32m"
 )
 
 type Logger struct {
-	infoLogger  *log.Logger
+	InfoLogger  *log.Logger
 	errorLogger *log.Logger
-	Simplelog   *log.Logger
 }
 
 // how to use
@@ -49,17 +47,8 @@ type Logger struct {
 //	logger.Simplelog.Println("text")
 func NewLogger() *Logger {
 	return &Logger{
-		infoLogger:  log.New(os.Stdout, colorBlue+"INFO\t"+colorReset, log.Ldate|log.Ltime),
+		InfoLogger:  log.New(os.Stdout, colorBlue+"INFO\t"+colorReset, log.Ldate|log.Ltime|log.Lshortfile),
 		errorLogger: log.New(os.Stderr, colorRed+"ERROR\t"+colorReset, log.Ldate|log.Ltime),
-		Simplelog:   log.New(os.Stdout, colorGreen+"LOG\t"+colorReset, log.Lshortfile),
-	}
-}
-
-func (l *Logger) Info(format string, v ...interface{}) {
-	_, file, line, ok := runtime.Caller(1)
-	if ok {
-		msg := fmt.Sprintf(format, v...)
-		l.infoLogger.Printf("%s:%d:\n %s", file, line, msg)
 	}
 }
 
