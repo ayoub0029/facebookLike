@@ -40,9 +40,7 @@
 - `WS /chats/private` → Send a private message via WebSocket  
 - `GET /chats/group?group_id=12&page=1` → Get group chat messages  
 - `WS /chats/group` → Send a group chat message via WebSocket  
-
 ---
-
 ## Profiles & Followers
 - `GET /profiles?user_id=123` → Get user profile  
 - `POST /profiles/update` → Update profile details  
@@ -52,14 +50,11 @@
 - `GET /profiles/following?user_id=123&page=1` → Get users the user follows  
 - `POST /profiles/follow/accept` → Accept/reject follow request  
 - `GET /profiles/follow/status?user_id=123` → Check follow status  
-
 ---
-
 ## Notifications
 - `GET /notifications?user_id=123&page=1` → Get user notifications  
 - `POST /notifications/seen` → Mark a notification as seen  
 - `WS /notifications` → Real-time notifications via WebSocket  
-
 ## Search
 - `GET /search/usersGroups?query=john&page=1` → Search for users and groups  
 ---
