@@ -25,10 +25,15 @@ func NewEvent(_groupID,_ownerID int,_title,_description,_startdate,_enddate,_cre
 		Description : _description,
 		StartDate : _startdate,
 		EndDate : _enddate,
-		CreatedAt : _createdat
+		CreatedAt : _createdat,
 	}
 }
 
 func (e *event) Create() bool {
-	
+	return createEvent(e);
+}
+
+
+func GetEvents(group,page int) []event {
+	return getAllEvents(group,page);
 }

@@ -12,17 +12,21 @@ import (
 
 func main() {
 	database.CreateDatabase() // temporary 
-	fmt.Println(groups.IsMember(1,1));
-	fmt.Println(groups.IsMember(1,2));
-	fmt.Println(groups.IsMember(1,3));
-	fmt.Println(groups.IsMember(1,4));
-	fmt.Println(groups.IsMember(2,4));
-	fmt.Println(groups.IsMember(2,5));
-	fmt.Println(groups.IsMember(2,6));
-	fmt.Println(groups.IsMember(2,1));
+	
 	mux := http.NewServeMux();
-	mux.HandleFunc("/public/", handleStaticFile)
-	profiles.Routes(mux)
+	mux.HandleFunc("/public/", handleStaticFile);
+
+	profiles.Routes(mux);
+	
+	mux.HandleFunc("POST /AddGroup", groups.CreateGroup_handler);
+	mux.HandleFunc("GET /groups", groups.GetAllGroups_handler);
+	mux.HandleFunc("GET /group/members", groups.GetGroupMembers_handler);
+	mux.HandleFunc("POST /groups/events", groups.CreateEvent_handler);
+	mux.HandleFunc("GET /group/events", groups.GetEvent_handler);
+
+
+
+
 	// ayoub---
 	// can here add conditions for routes authorization
 

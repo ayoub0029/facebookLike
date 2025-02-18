@@ -25,14 +25,13 @@ func IsMember(groupId,userId int) bool {
 	return isMember(groupId,userId);
 }
 
-func GetMembers(groupID int) []Profiles.Profile {
-	members := getAllMembers(groupID);
-	fmt.Println("members are : ",members);
+func GetMembers(groupID,page int) []Profiles.Profile {
+	members := getAllMembers(groupID,page);
 	return members;
 }
-func GetGroups() []group {
+func GetGroups(page int) []group {
 	groupsLists := make([]group, 0);
-	groups_dataLists := getAllGroups();
+	groups_dataLists := getAllGroups(page);
 	for _, g_data := range groups_dataLists {
 		groupsLists = append(groupsLists,*convert(g_data));
 	}
@@ -40,7 +39,7 @@ func GetGroups() []group {
 }
 
 func PrintGroupsData()  {
-	groups := GetGroups();
+	groups := GetGroups(0);
 	for _, g := range groups {
 		fmt.Printf("ID 			: %d\n",g.ID);
 		fmt.Printf("Name 		: %s\n",g.Name);

@@ -1,7 +1,7 @@
 package groups
 
 import(
-	"fmt"
+	//"fmt"
 	d "socialNetwork/database"
 	"socialNetwork/Profiles"
 )
@@ -25,17 +25,16 @@ func createGroup(name,description string,owner int) int {
 	}
 }
 
-func getAllGroups() []group_data {
+func getAllGroups(page int) []group_data {
 	groupsList := make([]group_data, 0);
-	query := "select * from groups";
-	data_Rows , err := d.SelectQuery(query);
+	query := "select * from groups  LIMIT 5 OFFSET ?;";
+	data_Rows , err := d.SelectQuery(query,page);
 	if err != nil {
 		return nil;
 	}
 	for data_Rows.Next() {
 		MyGroup := group_data{}; 
-		_ = data_Rows.Scan(&MyGroup.ID,&MyGroup.Name,&MyGroup.Description,&MyGroup.Owner,&MyGroup.Owner);
-		fmt.Printf("Name : %s\n",MyGroup.Name);
+		_ = data_Rows.Scan(&MyGroup.ID,&MyGroup.Name,&MyGroup.Description,&MyGroup.Owner,&MyGroup.Created_At);
 		groupsList = append(groupsList,MyGroup);
 	}
 	return groupsList;
@@ -59,12 +58,12 @@ func isMember(groupId,userId int) bool {
 	}
 }
 
-func getAllMembers(groupID int) []Profiles.Profile {
+func getAllMembers(groupID,page int) []Profiles.Profile {
 	query := `SELECT u.id,u.first_name,u.last_name,u.avatar
 				FROM users u INNER JOIN group_members gm
 				on u.id = gm.user_id
-				WHERE gm.group_id = ?;`;
-	data_Rows , err := d.SelectQuery(query,groupID);
+				WHERE gm.group_id = ? LIMIT 2 OFFSET ?;`;
+	data_Rows , err := d.SelectQuery(query,groupID,page);
 	if err != nil {
 		return nil;
 	}
@@ -81,15 +80,12 @@ func requestToJoin(groupId, memberId int)  {
 	// notification
 }
 
-func join(groupId, memberId int) bool {
+/*func join(groupId, memberId int) bool {
 	query := `INSERT INTO group_members (group_id,user_id) VALUES(?,?);`;
 	res,err := d.ExecQuery(query,groupId,memberId);
 	if err != nil {
 		return false;
 	}
-	!! send notification
-	!! var ntf newNotif
-	!! ntf.groupsx
 	return true;
 }
 
@@ -101,4 +97,4 @@ func leaveGroup(groupId, memberId int) bool {
 		return false;
 	}
 	return true;
-}
+}*/
