@@ -17,20 +17,28 @@ import (
 // signUp handles user registration by validating input, hashing passwords,
 // storing user data, and handling avatar uploads.
 func signUp(w http.ResponseWriter, r *http.Request) {
-	ParseFormSize(w, r)
+	if err := ParseFormSize(w, r); err != nil {
+		return
+	}
 
 	githubID, _ := strconv.Atoi(r.FormValue("githubid"))
+	var gitID *int
+	if githubID == 0 {
+		gitID = nil
+	} else {
+		gitID = &githubID
+	}
 
 	newUser := User{
 		Email:     r.FormValue("email"),
-		Password:  r.FormValue("password"),
+		Password:  r.FormValue("password"), // in completing Oauth generate random pass
 		FirstName: html.EscapeString(r.FormValue("firstName")),
 		LastName:  html.EscapeString(r.FormValue("lastName")),
 		Avatar:    r.FormValue("avatar"), // for completing Oauth
 		DateOB:    html.EscapeString(r.FormValue("dateob")),
 		Nickname:  html.EscapeString(r.FormValue("nickname")),
 		AboutMe:   html.EscapeString(r.FormValue("aboutMe")),
-		GithubID:  githubID, // for completing Oauth
+		GithubID:  gitID, // for completing Oauth
 	}
 
 	if err := ValidateUser(newUser); err != nil {
@@ -187,7 +195,7 @@ func githubCallBack(w http.ResponseWriter, r *http.Request) {
 			Avatar:    userInfo.AvatarURL,
 			Nickname:  userInfo.Login,
 			AboutMe:   userInfo.Bio,
-			GithubID:  userInfo.ID,
+			GithubID:  &userInfo.ID,
 		}
 
 		fullName := strings.Fields(userInfo.Name)
@@ -203,7 +211,7 @@ func githubCallBack(w http.ResponseWriter, r *http.Request) {
 			"avatar":    {newUser.Avatar},
 			"nickname":  {newUser.Nickname},
 			"aboutMe":   {newUser.AboutMe},
-			"githubid":  {fmt.Sprintf("%d", newUser.GithubID)},
+			"githubid":  {fmt.Sprintf("%d", *newUser.GithubID)},
 		}
 
 		redirectURL := "/complete-registration?" + data.Encode()

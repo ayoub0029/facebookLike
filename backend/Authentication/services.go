@@ -82,7 +82,7 @@ func IsValidDate(date string, layout string) error {
 }
 
 // ParseFormSize parses a multipart form with a 10MB size limit.
-func ParseFormSize(w http.ResponseWriter, r *http.Request) {
+func ParseFormSize(w http.ResponseWriter, r *http.Request) error {
 	err := r.ParseMultipartForm(10 << 20) // 10MB
 	if err != nil {
 		if strings.Contains(err.Error(), "request body too large") {
@@ -90,8 +90,9 @@ func ParseFormSize(w http.ResponseWriter, r *http.Request) {
 		} else {
 			global.JsonResponse(w, http.StatusBadRequest, "Failed to parse form")
 		}
-		return
+		return fmt.Errorf("")
 	}
+	return nil
 }
 
 // UploadImage processes an optional file upload, validates image types (JPEG, PNG, GIF), and stores the file.
@@ -226,7 +227,7 @@ func InsertUser(u User, w http.ResponseWriter) error {
 		if err.Error() == "EXEC ERROR: UNIQUE constraint failed: users.email" {
 			global.JsonResponse(w, http.StatusConflict, "Email already exists.")
 		} else {
-			global.JsonResponse(w, http.StatusInternalServerError, "An unexpected error occurred. Please try again later.")
+			global.JsonResponse(w, http.StatusInternalServerError, err.Error())
 		}
 		return err
 	}
