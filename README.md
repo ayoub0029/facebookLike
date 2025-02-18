@@ -36,10 +36,12 @@
 - `GET /groups/events?page=1` → Get all events (pagination)  
 - `POST /groups/events/vote` → Vote on an event 
 
-<!-- get one group info / feed / events -->
-<!-- get group i joined -->
-<!-- get group i requested -->
-<!-- get group i invited -->
+<!-- get one group info (chof design o chof cheno khas bach n3emro dakchi) -->
+<!-- get group i created (10 f page pagination) -->
+<!-- get group i joined (10 f page pagination) -->
+<!-- get group i requested/invited we7da dyal ana ndir join we7da saftoli invite we7da user accepter we7da admin accepter te9der tjme3hom wela tfer9ho 3la joj dyal hundler-->
+
+
 <!-- edit group (optional) -->
 <!-- delete group (optional) -->
 
