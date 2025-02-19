@@ -28,6 +28,7 @@ type Comment struct {
 
 type PostData struct {
 	ID         int       `json:"id"`
+	Avatar     any       `json:"avatar"`
 	Nickname   any       `json:"nickname"`
 	First_name string    `json:"first_name"`
 	Last_name  string    `json:"last_name"`

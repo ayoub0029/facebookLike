@@ -108,6 +108,7 @@ func UserProfilePosts(w http.ResponseWriter, r *http.Request) {
 	myQuery := `
 	SELECT
 		p.id,
+		u.avatar
 	    (SELECT COUNT(*) FROM post_reactions AS reaction WHERE reaction.post_id = p.id) AS likes,
 	    (SELECT COUNT(*) FROM comments AS com WHERE com.post_id = p.id) AS comments,
 		u.nickname,
@@ -143,7 +144,7 @@ func UserProfilePosts(w http.ResponseWriter, r *http.Request) {
 	var Post PostData
 	var allPosts []PostData
 	for posts.Next() {
-		posts.Scan(&Post.ID, &Post.Likes, &Post.Comments, &Post.Nickname, &Post.Content, &Post.CreatedAt, &Post.Image, &Post.Updated_at, &Post.First_name, &Post.Last_name, &Post.Group_name)
+		posts.Scan(&Post.ID, &Post.Avatar, &Post.Likes, &Post.Comments, &Post.Nickname, &Post.Content, &Post.CreatedAt, &Post.Image, &Post.Updated_at, &Post.First_name, &Post.Last_name, &Post.Group_name)
 		allPosts = append(allPosts, Post)
 	}
 	global.JsonResponse(w, http.StatusOK, allPosts)
