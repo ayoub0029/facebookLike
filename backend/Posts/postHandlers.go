@@ -377,3 +377,65 @@ func postDelete(w http.ResponseWriter, r *http.Request) {
 
 	global.JsonResponse(w, http.StatusOK, "Post deleted successfully")
 }
+
+// likn is GET /posts/getpost&post_id=`post_id`
+func getPosts(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		global.JsonResponse(w, http.StatusMethodNotAllowed, "Method Not Allowed")
+		return
+	}
+	userID, err := get_userID(r)
+	if err != nil {
+		global.JsonResponse(w, http.StatusUnauthorized, "Unauthorized")
+		return
+	}
+
+
+	postID, _ := strconv.Atoi(r.URL.Query().Get("post_id"))
+
+	if postID <= 0{
+		global.JsonResponse(w, http.StatusBadRequest, "Bad Request")
+		return
+	}
+	
+	query := `
+	SELECT
+		p.id,
+	    (SELECT COUNT(*) FROM post_reactions AS reaction WHERE reaction.post_id = p.id) AS likes,
+	    (SELECT COUNT(*) FROM comments AS com WHERE com.post_id = p.id) AS comments,
+		u.nickname,
+	    u.first_name,
+		u.last_name,
+	    p.content,
+	    p.created_at,
+	    p.updated_at,
+	    p.media,
+	    (SELECT g.name FROM groups AS g WHERE g.id = p.group_id) AS group_name
+	FROM
+	    posts AS p
+	    JOIN users AS u ON p.user_id = u.id
+	    LEFT JOIN post_visibility AS pv ON pv.post_id = p.id AND pv.user_id = $1
+		LEFT JOIN followers AS f ON f.followed_id = u.id AND f.status != 'pending' AND f.follower_id = $1
+	WHERE
+		p.group_id IS NULL AND(
+	    p.privacy = 'public' 
+		OR (p.privacy = 'almost private' AND f.followed_id IS NOT NULL) 
+		OR (p.privacy = 'private' AND pv.post_id IS NOT NULL) 
+	    ) AND p.id = $2
+	ORDER BY
+	    p.id
+	`
+	posts, err := database.SelectQuery(query, userID, post_id)
+	if err != nil {
+		global.JsonResponse(w, http.StatusInternalServerError, "some thing was wrong")
+		return
+	}
+		var Post PostData
+		posts.Scan(&Post.ID, &Post.Likes, &Post.Comments, &Post.Nickname, &Post.First_name, &Post.Last_name, &Post.Content, &Post.CreatedAt, &Post.Updated_at, &Post.Image, &Post.Group_name)
+		Post.IsLiked, err = CheckLikePost(userID, Post.ID)
+		if err != nil {
+			global.JsonResponse(w, http.StatusInternalServerError, "some thing was wrong")
+			return
+		}
+	global.JsonResponse(w, http.StatusOK, Post)
+}
