@@ -16,7 +16,6 @@ import (
 	"socialNetwork/database"
 	"strings"
 	"time"
-
 	"github.com/gofrs/uuid"
 )
 
@@ -124,4 +123,28 @@ func getGroupOfpost(postID int) (int, error) {
 		return gID, nil
 	}
 	return -1, nil
+}
+
+// get group id from  group name
+func getGroupid(userID int, groupName any) (int, error) {
+	query := `
+	SELECT
+	id
+	FROM
+	groups
+	WHERE
+	name = $1
+	`
+	groups, err := database.SelectQuery(query, groupName)
+	if err != nil {
+		return 0, err
+	}
+	groupID := 0
+	groups.Scan(&groupID)
+	_, err = database.SelectQuery(`SELECT * FROM group_members WHERE user_id = $1
+		AND group_id = $2`, userID, groupID)
+	if err != nil {
+		return 0, err
+	}
+	return 1, nil
 }

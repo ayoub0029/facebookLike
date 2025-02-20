@@ -17,6 +17,7 @@ func Routes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /posts/comments", addComment)
 	mux.HandleFunc("DELETE /posts/comments/delete", commentDelete)
 	mux.HandleFunc("PUT /posts/comments/update", commentUpdate)
+	mux.HandleFunc("GET /post", getSpesificPost)
 }
 
 type Comment struct {
