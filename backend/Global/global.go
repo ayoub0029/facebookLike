@@ -3,7 +3,11 @@ package global
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
+	"log"
 	"net/http"
+	"os"
+	"runtime"
 
 	"github.com/gorilla/websocket"
 )
@@ -35,3 +39,42 @@ type Client struct {
 	State  bool   `json:"state"`
 	Conn   *websocket.Conn
 }
+
+// ----------------------------------------------------------- logger
+const (
+	colorBlue  = "\033[34m"
+	colorRed   = "\033[31m"
+	colorReset = "\033[0m"
+)
+
+type Logger struct {
+	InfoLogger  *log.Logger
+	errorLogger *log.Logger
+}
+
+// how to use
+//
+//	var logger = NewLogger()
+//	logger.Error("Failed to connect to database: %s", err)
+//
+// this func print path of file and number of line and time
+//
+// if you want just print number of line you can use "InfoLogger" like this
+//
+//	logger.InfoLogger.Println("text")
+func NewLogger() *Logger {
+	return &Logger{
+		InfoLogger:  log.New(os.Stdout, colorBlue+"INFO\t"+colorReset, log.Ldate|log.Ltime|log.Lshortfile),
+		errorLogger: log.New(os.Stderr, colorRed+"ERROR\t"+colorReset, log.Ldate|log.Ltime),
+	}
+}
+
+func (l *Logger) Error(format string, v ...interface{}) {
+	_, file, line, ok := runtime.Caller(1)
+	if ok {
+		msg := fmt.Sprintf(format, v...)
+		l.errorLogger.Printf("%s:%d\n\t: %s", file, line, msg)
+	}
+}
+
+// -------------------------------------------------------------------------end logger

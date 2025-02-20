@@ -23,7 +23,7 @@ var upgrader = websocket.Upgrader{
 // the same adresse
 func AddClient(client *global.Client) {
 	clientsMutex.Lock()
-	clients[client.UserId] = client
+	Clients[client.UserId] = client
 	clientsMutex.Unlock()
 }
 
@@ -37,9 +37,9 @@ func SendMessage(client *global.Client, msg any) error {
 // removing client from the map
 func RemoveClient(clientID uint64) {
 	clientsMutex.Lock()
-	if client, exists := clients[clientID]; exists {
+	if client, exists := Clients[clientID]; exists {
 		client.Conn.Close()
-		delete(clients, clientID)
+		delete(Clients, clientID)
 	}
 	clientsMutex.Unlock()
 }
@@ -68,7 +68,7 @@ func WsHandling(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	AddClient(client)
-	fmt.Println(clients)
+	fmt.Println(Clients)
 	go SocketListner(client, r)
 }
 
@@ -88,8 +88,8 @@ func handlePrvChatMessage(wsMessage WebSocketMessage, userID uint64) error {
 	} */
 	fmt.Println(chatMsg)
 	chats.HandleChatPrvMessage(chatMsg, userID)
-	if clients[chatMsg.Receiver_id] != nil {
-		return SendMessage(clients[chatMsg.Receiver_id], chatMsg)
+	if Clients[chatMsg.Receiver_id] != nil {
+		return SendMessage(Clients[chatMsg.Receiver_id], chatMsg)
 	}
 	return nil
 }
