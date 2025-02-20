@@ -8,7 +8,7 @@ import (
 
 	auth "socialNetwork/Authentication"
 	global "socialNetwork/Global"
-	"socialNetwork/database"
+	database "socialNetwork/Database"
 )
 
 type Profile struct {

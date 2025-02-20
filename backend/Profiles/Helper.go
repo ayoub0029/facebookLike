@@ -5,8 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
-
-	"socialNetwork/database"
+	database "socialNetwork/Database"
 )
 
 var (

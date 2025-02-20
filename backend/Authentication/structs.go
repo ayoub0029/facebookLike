@@ -9,7 +9,7 @@ type User struct {
 	Avatar    string `json:"avatar,omitempty"`
 	Nickname  string `json:"nickname,omitempty"`
 	AboutMe   string `json:"aboutMe,omitempty"`
-	GithubID  int    `json:"githubid,omitempty"`
+	GithubID  *int   `json:"githubid"`
 }
 
 type Login struct {
@@ -29,5 +29,5 @@ type GitHubUserInfo struct {
 const (
 	clientID     = "Ov23lizV08UkuxdzTzwM"
 	clientSecret = "0f442761d78a2527968ae65b45dc49d8117b77de"
-	redirectURI  = "https://localhost:8080/auth/github/callback"
+	redirectURI  = "http://localhost:8080/auth/github/callback"
 )

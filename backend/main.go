@@ -7,11 +7,12 @@ import (
 	auth "socialNetwork/Authentication"
 	middleware "socialNetwork/Middlewares"
 	profiles "socialNetwork/Profiles"
-	"socialNetwork/database"
+	database "socialNetwork/Database"
 )
 
 func main() {
 	database.CreateDatabase() // temporary
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("/public/", handleStaticFile)
 	profiles.Routes(mux)
@@ -36,4 +37,9 @@ func main() {
 
 func handleStaticFile(res http.ResponseWriter, req *http.Request) {
 	// check file if exist and serve the file
+}
+
+func home(w http.ResponseWriter, r *http.Request) {
+	// home handler
+	// check here paths and 404
 }

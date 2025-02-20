@@ -26,6 +26,7 @@
 ## Groups & Events 
 - `POST /groups` → Create a group  
 - `GET /groups?page=1` → Get all groups (pagination)  
+- `GET /groups?group_id=456` → Get one group
 - `GET /groups/members?group_id=12&page=1` → Get group members  
 - `POST /groups/join` → Request to join a group  
 - `POST /groups/leave` → Leave a group  
@@ -33,7 +34,16 @@
 - `GET /groups/events?group_id=12&page=1` → Get group events  
 - `POST /groups/events` → Create an event  
 - `GET /groups/events?page=1` → Get all events (pagination)  
-- `POST /groups/events/vote` → Vote on an event  
+- `POST /groups/events/vote` → Vote on an event 
+
+<!-- get one group info (chof design o chof cheno khas bach n3emro dakchi) -->
+<!-- get group i created (10 f page pagination) -->
+<!-- get group i joined (10 f page pagination) -->
+<!-- get group i requested/invited we7da dyal ana ndir join we7da saftoli invite we7da user accepter we7da admin accepter te9der tjme3hom wela tfer9ho 3la joj dyal hundler-->
+
+
+<!-- edit group (optional) -->
+<!-- delete group (optional) -->
 
 ---
 

@@ -4,8 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-
-	"socialNetwork/database"
+	database "socialNetwork/Database"
 )
 
 type Follow_Request struct {
