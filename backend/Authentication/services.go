@@ -222,7 +222,6 @@ func InsertUser(u User, w http.ResponseWriter) error {
 		u.Nickname,
 		u.AboutMe,
 		u.GithubID)
-
 	if err != nil {
 		if err.Error() == "EXEC ERROR: UNIQUE constraint failed: users.email" {
 			global.JsonResponse(w, http.StatusConflict, "Email already exists.")
@@ -262,7 +261,6 @@ func IsLoggedIn(req *http.Request, sessionName string) (int, error) {
 	} else if err != nil {
 		return 0, err
 	}
-
 	var userID int
 	var exp string
 	row, errQuery := database.SelectOneRow("SELECT id, exp FROM users WHERE uuid = ?", cookie.Value)
