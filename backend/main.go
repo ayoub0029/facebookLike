@@ -8,6 +8,7 @@ import (
 	auth "socialNetwork/Authentication"
 	chats "socialNetwork/Chats"
 	database "socialNetwork/Database/Sqlite"
+	"socialNetwork/Groups"
 	middleware "socialNetwork/Middlewares"
 	notifications "socialNetwork/Notifications"
 	posts "socialNetwork/Posts"
@@ -32,6 +33,15 @@ func main() {
 	notifications.Routes(mux)
 	search.Routes(mux)
 	mux.HandleFunc("/", home)
+
+	//-------------------------------------------------------khiri temporary
+	// groups.Routes(mux)
+	mux.HandleFunc("POST /AddGroup", groups.CreateGroup_handler)
+	mux.HandleFunc("GET /groups", groups.GetAllGroups_handler)
+	mux.HandleFunc("GET /group/members", groups.GetGroupMembers_handler)
+	mux.HandleFunc("POST /groups/events", groups.CreateEvent_handler)
+	mux.HandleFunc("GET /group/events", groups.GetEvent_handler)
+	//----------------------------------------------------------------------
 
 	// ayoub---
 	// can here add conditions for routes authorization
