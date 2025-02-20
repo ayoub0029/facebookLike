@@ -76,11 +76,17 @@ func getAllMembers(groupID,page int) []Profiles.Profile {
 	return members_lists;
 }
 
-func requestToJoin(groupId, memberId int)  {
-	// notification
+func join(groupId, memberId int) bool {
+	query := `UPDATE group_members  SET status = 'accepted' 
+			  WHERE group_id = ? AND user_id = ?`;
+	res,err := d.ExecQuery(query,groupId,memberId);
+	if err != nil {
+		return false;
+	}
+	return true;
 }
 
-/*func join(groupId, memberId int) bool {
+func requestToJoin(groupId, memberId int) bool {
 	query := `INSERT INTO group_members (group_id,user_id) VALUES(?,?);`;
 	res,err := d.ExecQuery(query,groupId,memberId);
 	if err != nil {
@@ -97,4 +103,4 @@ func leaveGroup(groupId, memberId int) bool {
 		return false;
 	}
 	return true;
-}*/
+}

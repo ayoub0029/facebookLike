@@ -66,3 +66,19 @@ func convert(g_data group_data) *group {
 		Owner : g_data.Owner,
 	}
 }
+
+func RequestToJoin(groupId, memberId int) bool {
+	if requestToJoin(groupID,memberId) {
+		//Sending Notification code ...
+		return true;
+	}
+	return false;
+}
+
+func Join(groupId, memberId int) bool {
+	return join(groupID,memberId);
+}
+
+func Leave(groupId, memberId int) bool {
+	return leaveGroup(groupID,memberId);
+}
