@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+
+	"github.com/gorilla/websocket"
 )
 
 var (
@@ -26,4 +28,10 @@ func CheckEmpty(args ...string) bool {
 		}
 	}
 	return false
+}
+
+type Client struct {
+	UserId uint64 `json:"userid"`
+	State  bool   `json:"state"`
+	Conn   *websocket.Conn
 }

@@ -3,20 +3,31 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	auth "socialNetwork/Authentication"
 	middleware "socialNetwork/Middlewares"
+	posts "socialNetwork/Posts"
 	profiles "socialNetwork/Profiles"
-	database "socialNetwork/Database"
+	chats "socialNetwork/Chats"
+	database "socialNetwork/Database/Sqlite"
+	socket "socialNetwork/Socket"
 )
 
 func main() {
-	database.CreateDatabase() // temporary
+	if err := database.InitializeMigrations(); err != nil {
+		fmt.Printf("Migration error: %v\n", err)
+		os.Exit(1)
+	}
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/public/", handleStaticFile)
 	profiles.Routes(mux)
 	auth.Routes(mux)
+	posts.Routes(mux)
+	chats.Routes(mux)
+	socket.Routes(mux)
+
 	// ayoub---
 	// can here add conditions for routes authorization
 
