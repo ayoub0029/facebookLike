@@ -3,9 +3,6 @@ package global
 import (
 	"encoding/json"
 	"errors"
-	_ "image/gif"
-	_ "image/jpeg"
-	_ "image/png"
 	"net/http"
 )
 
