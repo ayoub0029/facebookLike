@@ -276,7 +276,7 @@ func IsLoggedIn(req *http.Request, sessionName string) (int, error) {
 	}
 
 	// expiration time
-	parsedTime, err := time.Parse("2006-01-02 15:04:05", exp)
+	parsedTime, err := time.Parse("2006-01-02T15:04:05.999999999Z", exp)
 	if err != nil || parsedTime.Before(time.Now()) {
 		ResetUuidToNull(cookie.Value)
 		return 0, nil

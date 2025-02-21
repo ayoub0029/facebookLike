@@ -8,8 +8,7 @@ import (
 	auth "socialNetwork/Authentication"
 	chats "socialNetwork/Chats"
 	database "socialNetwork/Database/Sqlite"
-	"socialNetwork/Groups"
-	middleware "socialNetwork/Middlewares"
+	groups "socialNetwork/Groups"
 	notifications "socialNetwork/Notifications"
 	posts "socialNetwork/Posts"
 	profiles "socialNetwork/Profiles"
@@ -49,13 +48,19 @@ func main() {
 	// posts.Routes(mux)  example
 	// ...
 
-	Server := &http.Server{
-		Addr:    ":8080",
-		Handler: middleware.Logs_Middleware(mux),
-	}
+	// Server := &http.Server{
+	// 	Addr:    ":8080",
+	// 	Handler: middleware.Logs_Middleware(mux),
+	// }
 
-	fmt.Println("Server running on", Server.Addr)
-	err := http.ListenAndServe(Server.Addr, Server.Handler)
+	// fmt.Println("Server running on", Server.Addr)
+	// err := http.ListenAndServe(Server.Addr, Server.Handler)
+	// if err != nil {
+	// 	fmt.Println("Error starting server:", err)
+	// }
+	port := ":8080"
+	fmt.Println("Server running on", port)
+	err := http.ListenAndServe(port, mux)
 	if err != nil {
 		fmt.Println("Error starting server:", err)
 	}

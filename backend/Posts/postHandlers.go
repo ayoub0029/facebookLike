@@ -3,6 +3,7 @@ package posts
 import (
 	"html"
 	"net/http"
+	auth "socialNetwork/Authentication"
 	database "socialNetwork/Database"
 	global "socialNetwork/Global"
 	groups "socialNetwork/Groups"
@@ -154,15 +155,16 @@ func getPosts(w http.ResponseWriter, r *http.Request) {
 		global.JsonResponse(w, http.StatusMethodNotAllowed, "Method Not Allowed")
 		return
 	}
-	userID, err := get_userID(r)
+	userID, err := auth.IsLoggedIn(r, "token")
 	if err != nil {
 		global.JsonResponse(w, http.StatusUnauthorized, "Unauthorized")
 		return
 	}
 
 	lastId, _ := strconv.Atoi(r.URL.Query().Get("last_id"))
-	if lastId <= 0 {
+	if lastId < 0 {
 		global.JsonResponse(w, http.StatusBadRequest, "Invalid data provided")
+		return
 	}
 	query := `
 	SELECT
@@ -203,11 +205,11 @@ func getPosts(w http.ResponseWriter, r *http.Request) {
 	for posts.Next() {
 		var Post PostData
 		posts.Scan(&Post.ID, &Post.Avatar, &Post.Likes, &Post.Comments, &Post.Nickname, &Post.First_name, &Post.Last_name, &Post.Content, &Post.CreatedAt, &Post.Updated_at, &Post.Image, &Post.Group_name)
-		Post.IsLiked, err = CheckLikePost(userID, Post.ID)
-		if err != nil {
-			global.JsonResponse(w, http.StatusInternalServerError, "some thing was wrong")
-			return
-		}
+		// Post.IsLiked, err = CheckLikePost(userID, Post.ID)
+		// if err != nil {
+		// 	global.JsonResponse(w, http.StatusInternalServerError, "some thing was wrong")
+		// 	return
+		// }
 		AllPosts = append(AllPosts, Post)
 	}
 	global.JsonResponse(w, http.StatusOK, AllPosts)
