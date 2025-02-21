@@ -21,11 +21,6 @@ func post_owner(postID int) (int, error) {
 	return owner, err
 }
 
-// check if the usesr member of the group
-func isMember(user_id int, group_id int) (bool, error) {
-	return true, nil
-}
-
 // it's check if user A is can see and interact with user B posts
 func isAuthorized(post_id, user_id int) (bool, error) {
 	post_owner_id, err := post_owner(post_id)
