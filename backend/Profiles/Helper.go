@@ -1,10 +1,11 @@
-package Profiles
+package profiles
 
 import (
 	"database/sql"
 	"errors"
 	"fmt"
 	"regexp"
+
 	database "socialNetwork/Database"
 )
 

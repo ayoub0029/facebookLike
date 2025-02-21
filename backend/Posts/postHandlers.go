@@ -3,8 +3,9 @@ package posts
 import (
 	"html"
 	"net/http"
-	global "socialNetwork/Global"
 	database "socialNetwork/Database"
+	global "socialNetwork/Global"
+	groups "socialNetwork/Groups"
 	"strconv"
 	"time"
 )
@@ -57,11 +58,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		IsMember, err := isMember(userID, groupID)
-		if err != nil {
-			global.JsonResponse(w, http.StatusInternalServerError, "Internal Server Error")
-			return
-		}
+		IsMember := groups.IsMember(userID, groupID)
 		if !IsMember {
 			global.JsonResponse(w, http.StatusUnauthorized, "Unauthorized")
 			return
@@ -236,11 +233,7 @@ func getPostGroup(w http.ResponseWriter, r *http.Request) {
 		global.JsonResponse(w, http.StatusBadRequest, "group_id is required")
 		return
 	}
-	isMember, err := isMember(userID, groupID)
-	if err != nil {
-		global.JsonResponse(w, http.StatusInternalServerError, "some thing was wrong")
-		return
-	}
+	isMember := groups.IsMember(userID, groupID)
 	if !isMember {
 		global.JsonResponse(w, http.StatusUnauthorized, "you are not a member of this group")
 		return
@@ -445,11 +438,7 @@ func getSpesificPost(w http.ResponseWriter, r *http.Request) {
 			global.JsonResponse(w, http.StatusInternalServerError, "some thing was wrong")
 			return
 		}
-		ok, err := isMember(userID, id)
-		if err != nil {
-			global.JsonResponse(w, http.StatusInternalServerError, "some thing was wrong")
-			return
-		}
+		ok := groups.IsMember(userID, id)
 		if !ok {
 			global.JsonResponse(w, http.StatusForbidden, "you are not member of this group")
 			return

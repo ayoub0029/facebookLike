@@ -2,7 +2,7 @@ package groups
 
 import (
 	"fmt"
-	"socialNetwork/Profiles"
+	profiles "socialNetwork/Profiles"
 )
 
 type group struct {
@@ -25,7 +25,7 @@ func IsMember(groupId, userId int) bool {
 	return isMember(groupId, userId)
 }
 
-func GetMembers(groupID, page int) []Profiles.Profile {
+func GetMembers(groupID, page int) []profiles.Profile {
 	members := getAllMembers(groupID, page)
 	return members
 }

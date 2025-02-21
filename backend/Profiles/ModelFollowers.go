@@ -1,9 +1,10 @@
-package Profiles
+package profiles
 
 import (
 	"errors"
 	"fmt"
 	"net/http"
+
 	database "socialNetwork/Database"
 )
 
