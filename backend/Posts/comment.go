@@ -2,7 +2,7 @@ package posts
 
 import (
 	"fmt"
-	"socialNetwork/Profiles"
+	profiles "socialNetwork/Profiles"
 	database "socialNetwork/Database"
 )
 
@@ -27,8 +27,8 @@ func isAuthorized(post_id, user_id int) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	isFollow, err := Profiles.IsFollowed(user_id, post_owner_id)
-	isPublic, err2 := Profiles.IsPublic(post_owner_id)
+	isFollow, err := profiles.IsFollowed(user_id, post_owner_id)
+	isPublic, err2 := profiles.IsPublic(post_owner_id)
 	if err != nil || err2 != nil {
 		return false, err
 		}

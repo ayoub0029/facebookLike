@@ -3,7 +3,7 @@ package groups
 import(
 	//"fmt"
 	d "socialNetwork/Database"
-	"socialNetwork/Profiles"
+	profiles "socialNetwork/Profiles"
 )
 
 type group_data struct{
@@ -58,7 +58,7 @@ func isMember(groupId,userId int) bool {
 	}
 }
 
-func getAllMembers(groupID,page int) []Profiles.Profile {
+func getAllMembers(groupID,page int) []profiles.Profile {
 	query := `SELECT u.id,u.first_name,u.last_name,u.avatar
 				FROM users u INNER JOIN group_members gm
 				on u.id = gm.user_id
@@ -67,9 +67,9 @@ func getAllMembers(groupID,page int) []Profiles.Profile {
 	if err != nil {
 		return nil;
 	}
-	members_lists := make([]Profiles.Profile, 0);
+	members_lists := make([]profiles.Profile, 0);
 	for data_Rows.Next() {
-		Member := Profiles.Profile{};
+		Member := profiles.Profile{};
 		_ = data_Rows.Scan(&Member.Id,&Member.ProfileData.First_Name,&Member.ProfileData.Last_Name,&Member.ProfileData.Avatar);
 		members_lists = append(members_lists,Member);
 	}
