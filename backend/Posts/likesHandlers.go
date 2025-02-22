@@ -34,7 +34,7 @@ func ApplyUserReaction(w http.ResponseWriter, r *http.Request) {
 		global.JsonResponse(w, http.StatusInternalServerError, "Something wrong")
 		return
 	}
-	if group_id <= 0 {
+	if group_id < 0 {
 		global.JsonResponse(w, http.StatusUnauthorized, "post is in group that you are not member in")
 		return
 	}
@@ -42,7 +42,7 @@ func ApplyUserReaction(w http.ResponseWriter, r *http.Request) {
 	err = LikePost(postID, userID, statusLike)
 
 	if err != nil {
-		global.JsonResponse(w, http.StatusInternalServerError, err.Error())
+		global.JsonResponse(w, http.StatusInternalServerError, "the was an error")
 		return
 	}
 	global.JsonResponse(w, http.StatusOK, "Success")

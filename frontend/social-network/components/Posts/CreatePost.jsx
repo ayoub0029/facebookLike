@@ -5,10 +5,12 @@ import { fetchApi } from "@/api/fetchApi";
 export function CreatePost() {
   const hundleCreate = async (e) => {
     e.preventDefault();
-    const formData = new FormData(e.target)
-    const response = await fetchApi("POST", "posts", formData, true)
+    // const formData = new FormData(e.target)
+    // const response = await fetchApi("POST", "posts", formData, true)
+    const response2 = await fetchApi("GET", "posts?last_id=0")
 
-    console.log(response);
+    // console.log(response);
+    console.log(response2);
     
   }
   return (

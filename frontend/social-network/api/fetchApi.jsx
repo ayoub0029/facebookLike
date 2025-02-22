@@ -4,8 +4,10 @@ export async function fetchApi(method = "GET", endpoint, body = null, isFormData
     const headers = isFormData ? {} : { "Content-Type": "application/json" };
     const options = {
         method,
+        credentials: "include",
         headers,
         body: isFormData ? body : JSON.stringify(body),
+        mode: "cors",
     };
 
     if (method === "GET" || method === "DELETE") {

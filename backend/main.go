@@ -8,7 +8,9 @@ import (
 	auth "socialNetwork/Authentication"
 	chats "socialNetwork/Chats"
 	database "socialNetwork/Database/Sqlite"
+	global "socialNetwork/Global"
 	groups "socialNetwork/Groups"
+	middleware "socialNetwork/Middlewares"
 	notifications "socialNetwork/Notifications"
 	posts "socialNetwork/Posts"
 	profiles "socialNetwork/Profiles"
@@ -31,7 +33,7 @@ func main() {
 	socket.Routes(mux)
 	notifications.Routes(mux)
 	search.Routes(mux)
-	mux.HandleFunc("/", home)
+	mux.HandleFunc("/", notFound)
 
 	//-------------------------------------------------------khiri temporary
 	// groups.Routes(mux)
@@ -60,7 +62,7 @@ func main() {
 	// }
 	port := ":8080"
 	fmt.Println("Server running on", port)
-	err := http.ListenAndServe(port, mux)
+	err := http.ListenAndServe(port, middleware.EnableCORS(mux))
 	if err != nil {
 		fmt.Println("Error starting server:", err)
 	}
@@ -83,13 +85,6 @@ func handleStaticFile(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, fullPath)
 }
 
-func home(w http.ResponseWriter, r *http.Request) {
-	// Only handle root path in home handler
-	if r.URL.Path != "/" {
-		http.Error(w, "404 Page not found", http.StatusNotFound)
-		return
-	}
-
-	// Serve index.html from static directory
-	http.ServeFile(w, r, "static/index.html")
+func notFound(w http.ResponseWriter, r *http.Request) {
+	global.JsonResponse(w, http.StatusNotFound, "404 Page not found")
 }

@@ -1,9 +1,9 @@
 package posts
 
 import (
+	"fmt"
 	"html"
 	"net/http"
-	auth "socialNetwork/Authentication"
 	database "socialNetwork/Database"
 	global "socialNetwork/Global"
 	groups "socialNetwork/Groups"
@@ -81,7 +81,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	global.JsonResponse(w, http.StatusOK, "Post created successfully")
 }
 
-// spesific profile postes
+// spesific profile posts
 // link is GET /posts/profile&user_id=`user_id`&last_id=`last_id`
 func UserProfilePosts(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
@@ -95,10 +95,10 @@ func UserProfilePosts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	lastId, _ := strconv.Atoi(r.URL.Query().Get("last_id"))
-	userProfileID, _ := strconv.Atoi(r.FormValue("user_id"))
+	lastId, err := strconv.Atoi(r.URL.Query().Get("last_id"))
+	userProfileID, errr := strconv.Atoi(r.FormValue("user_id"))
 
-	if userProfileID <= 0 || lastId <= 0 {
+	if userProfileID < 0 || lastId < 0 || err != nil || errr != nil {
 		global.JsonResponse(w, http.StatusBadRequest, "Invalid data provided")
 		return
 	}
@@ -155,8 +155,8 @@ func getPosts(w http.ResponseWriter, r *http.Request) {
 		global.JsonResponse(w, http.StatusMethodNotAllowed, "Method Not Allowed")
 		return
 	}
-	userID, err := auth.IsLoggedIn(r, "token")
-	if err != nil {
+	userID, err := get_userID(r)
+	if err != nil || userID == 0 {
 		global.JsonResponse(w, http.StatusUnauthorized, "Unauthorized")
 		return
 	}
@@ -198,18 +198,18 @@ func getPosts(w http.ResponseWriter, r *http.Request) {
 	`
 	posts, err := database.SelectQuery(query, userID, lastId)
 	if err != nil {
-		global.JsonResponse(w, http.StatusInternalServerError, "some thing was wrong")
+		global.JsonResponse(w, http.StatusInternalServerError, "some thing was wrongg")
 		return
 	}
 	var AllPosts []PostData
 	for posts.Next() {
 		var Post PostData
 		posts.Scan(&Post.ID, &Post.Avatar, &Post.Likes, &Post.Comments, &Post.Nickname, &Post.First_name, &Post.Last_name, &Post.Content, &Post.CreatedAt, &Post.Updated_at, &Post.Image, &Post.Group_name)
-		// Post.IsLiked, err = CheckLikePost(userID, Post.ID)
-		// if err != nil {
-		// 	global.JsonResponse(w, http.StatusInternalServerError, "some thing was wrong")
-		// 	return
-		// }
+		Post.IsLiked, err = CheckLikePost(userID, Post.ID)
+		if err != nil {
+			global.JsonResponse(w, http.StatusInternalServerError, "some thing wrong")
+			return
+		}
 		AllPosts = append(AllPosts, Post)
 	}
 	global.JsonResponse(w, http.StatusOK, AllPosts)
@@ -229,9 +229,9 @@ func getPostGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	groupID, _ := strconv.Atoi(r.URL.Query().Get("group_id"))
-	lastId, _ := strconv.Atoi(r.URL.Query().Get("last_id"))
-	if groupID <= 0 || lastId < 0 {
+	groupID, err := strconv.Atoi(r.URL.Query().Get("group_id"))
+	lastId, errr := strconv.Atoi(r.URL.Query().Get("last_id"))
+	if groupID < 0 || lastId < 0 || err != nil || errr != nil {
 		global.JsonResponse(w, http.StatusBadRequest, "group_id is required")
 		return
 	}
@@ -266,6 +266,7 @@ func getPostGroup(w http.ResponseWriter, r *http.Request) {
 	LIMIT
 		10
 	`
+
 	posts, err := database.SelectQuery(query, groupID, lastId)
 	if err != nil {
 		global.JsonResponse(w, http.StatusInternalServerError, "some thing was wrong")
@@ -305,8 +306,9 @@ func postUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	isAuthorized, err := is_user_authorized(userID, postID, "post")
+	isAuthorized, err := is_user_authorized(userID, postID, "posts")
 	if err != nil {
+		fmt.Println(err)
 		global.JsonResponse(w, http.StatusInternalServerError, "Error checking authorization")
 		return
 	}
@@ -353,8 +355,7 @@ func postDelete(w http.ResponseWriter, r *http.Request) {
 		global.JsonResponse(w, http.StatusBadRequest, "Invalid post id")
 		return
 	}
-
-	isAuthorized, err := is_user_authorized(userID, postID, "post")
+	isAuthorized, err := is_user_authorized(userID, postID, "posts")
 	if err != nil {
 		global.JsonResponse(w, http.StatusInternalServerError, "Error checking authorization")
 		return
