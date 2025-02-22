@@ -79,7 +79,7 @@ func getAllMembers(groupID,page int) []Profiles.Profile {
 func join(groupId, memberId int) bool {
 	query := `UPDATE group_members  SET status = 'accepted' 
 			  WHERE group_id = ? AND user_id = ?`;
-	res,err := d.ExecQuery(query,groupId,memberId);
+	_,err := d.ExecQuery(query,groupId,memberId);
 	if err != nil {
 		return false;
 	}
@@ -88,7 +88,7 @@ func join(groupId, memberId int) bool {
 
 func requestToJoin(groupId, memberId int) bool {
 	query := `INSERT INTO group_members (group_id,user_id) VALUES(?,?);`;
-	res,err := d.ExecQuery(query,groupId,memberId);
+	_,err := d.ExecQuery(query,groupId,memberId);
 	if err != nil {
 		return false;
 	}
@@ -98,9 +98,43 @@ func requestToJoin(groupId, memberId int) bool {
 func leaveGroup(groupId, memberId int) bool {
 	query := `DELETE FROM group_members 
 			  WHERE user_id = ? AND group_id = ?;`;
-	res,err := d.ExecQuery(query,memberId,groupId);
+	_,err := d.ExecQuery(query,memberId,groupId);
 	if err != nil {
 		return false;
 	}
 	return true;
+}
+
+func getAllGroupsCreatedBy(userID,page int) []group {
+	groupsList := make([]group, 0);
+	query := "select * from groups g WHERE g.owner_id = ?  LIMIT 5 OFFSET ?;";
+	data_Rows , err := d.SelectQuery(query,userID,page);
+	if err != nil {
+		return nil;
+	}
+	for data_Rows.Next() {
+		MyGroup := group{}; 
+		_ = data_Rows.Scan(&MyGroup.ID,&MyGroup.Name,&MyGroup.Description,&MyGroup.Owner,&MyGroup.CreatedAt);
+		groupsList = append(groupsList,MyGroup);
+	}
+	return groupsList;
+}
+
+func getAllGroupsJoinedBy(userID,page int) []group {
+	query := `SELECT * FROM groups g
+			  INNER JOIN group_members gm 
+			  on gm.group_id = g.id
+			  WHERE gm.user_id = ?  LIMIT 5 OFFSET ?;`;
+	groupsList := make([]group, 0);
+	query := "select * from groups g WHERE g.owner_id = ?  LIMIT 5 OFFSET ?;";
+	data_Rows , err := d.SelectQuery(query,userID,page);
+	if err != nil {
+		return nil;
+	}
+	for data_Rows.Next() {
+		MyGroup := group{}; 
+		_ = data_Rows.Scan(&MyGroup.ID,&MyGroup.Name,&MyGroup.Description,&MyGroup.Owner,&MyGroup.CreatedAt);
+		groupsList = append(groupsList,MyGroup);
+	}
+	return groupsList;
 }

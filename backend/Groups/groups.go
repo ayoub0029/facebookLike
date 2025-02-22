@@ -10,6 +10,8 @@ type group struct {
 	Name       		string     `json:"name"`
 	Description     string     `json:"description"`
 	Owner		    int        `json:"owner"`
+	CreatedAt		string     `json:"createdAt"`
+
 }
 
 func NewGroup(_name,_description string,_owner int) *group {
@@ -68,7 +70,7 @@ func convert(g_data group_data) *group {
 }
 
 func RequestToJoin(groupId, memberId int) bool {
-	if requestToJoin(groupID,memberId) {
+	if requestToJoin(groupId,memberId) {
 		//Sending Notification code ...
 		return true;
 	}
@@ -76,9 +78,17 @@ func RequestToJoin(groupId, memberId int) bool {
 }
 
 func Join(groupId, memberId int) bool {
-	return join(groupID,memberId);
+	return join(groupId,memberId);
 }
 
 func Leave(groupId, memberId int) bool {
-	return leaveGroup(groupID,memberId);
+	return leaveGroup(groupId,memberId);
+}
+
+func GetGroupsCreatedBy(userID,page int) []group {
+	return getAllGroupsCreatedBy(userID,page);
+}
+
+func GetGroupsJoinedBy(userID,page int) []group {
+	return getAllGroupsJoinedBy(userID,page);
 }

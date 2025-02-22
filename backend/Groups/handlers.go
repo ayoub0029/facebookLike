@@ -23,13 +23,45 @@ func CreateGroup_handler(res http.ResponseWriter,req *http.Request)  {
 	global.JsonResponse(res,200,"Mrigla");
 }
 
-func GetAllGroups_handler(res http.ResponseWriter,req *http.Request)  {
+func GetAllGroups_handler(res http.ResponseWriter,req *http.Request) {
 	page,err := strconv.Atoi(req.FormValue("page"));
 	if err != nil {
 		global.JsonResponse(res,400,"data Error");
 		return;
 	}
 	groupsArray := getAllGroups(page);
+	if groupsArray == nil {
+		global.JsonResponse(res,404,"data Not Found");
+		return;
+	}
+	global.JsonResponse(res,200,groupsArray);
+}
+
+func GetGroupsCreatedBy_handler(res http.ResponseWriter,req *http.Request)  {
+	owner,err := strconv.Atoi(req.FormValue("owner"));
+	page,err2 := strconv.Atoi(req.FormValue("page"));
+
+	if err != nil || err2 != nil {
+		global.JsonResponse(res,400,"data Error");
+		return;
+	}
+	groupsArray := getAllGroupsCreatedBy(owner,page);
+	if groupsArray == nil {
+		global.JsonResponse(res,404,"data Not Found");
+		return;
+	}
+	global.JsonResponse(res,200,groupsArray);
+}
+
+func GetGroupsJoinedBy_handler(res http.ResponseWriter,req *http.Request)  {
+	owner,err := strconv.Atoi(req.FormValue("owner"));
+	page,err2 := strconv.Atoi(req.FormValue("page"));
+
+	if err != nil || err2 != nil {
+		global.JsonResponse(res,400,"data Error");
+		return;
+	}
+	groupsArray := getAllGroupsCreatedBy(owner,page);
 	if groupsArray == nil {
 		global.JsonResponse(res,404,"data Not Found");
 		return;
@@ -83,6 +115,7 @@ func GetEvent_handler(res http.ResponseWriter,req *http.Request)  {
 	}
 	global.JsonResponse(res,200,events);
 }
+
 
 /*func JoinGroup_handler(res http.ResponseWriter,req *http.Request)  {
 	member,err := strconv.Atoi(req.FormValue("member"));
