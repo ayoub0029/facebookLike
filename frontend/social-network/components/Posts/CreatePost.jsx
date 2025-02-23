@@ -7,7 +7,7 @@ export function CreatePost() {
     e.preventDefault();
     // const formData = new FormData(e.target)
     // const response = await fetchApi("POST", "posts", formData, true)
-    const response2 = await fetchApi("GET", "posts?last_id=0")
+    const response2 = await fetchApi("posts?last_id=0")
 
     // console.log(response);
     console.log(response2);

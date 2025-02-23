@@ -1,4 +1,4 @@
-export async function fetchApi(method = "GET", endpoint, body = null, isFormData = false) {
+export async function fetchApi(endpoint, method = "GET", body = null, isFormData = false) {
     const BaseURL = "http://localhost:8080";
     const url = `${BaseURL}/${endpoint}`;
     const headers = isFormData ? {} : { "Content-Type": "application/json" };
@@ -16,12 +16,15 @@ export async function fetchApi(method = "GET", endpoint, body = null, isFormData
 
     try {
         const response = await fetch(url, options);
+
+        const result = await response.json();
+
         if (!response.ok) {
-            throw new Error(`HTTP error Status: ${response.status}`);
+            return { error: result, status: response.status };
         }
-        return await response.json();
+        return result
     } catch (error) {
         console.error("Fetch error:", error);
-        return { error: error.message };
+        return { error: error.message , status:50};
     }
 };

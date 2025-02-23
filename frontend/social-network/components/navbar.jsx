@@ -9,7 +9,7 @@ export function Navigation() {
             <Image
               width={200}
               height={100}
-              src="/Images/logo.png"
+              src="http://localhost:8080/public/logo.png"
               alt="logo"
               layout="responsive" />
           </a>

@@ -73,11 +73,11 @@ func handleStaticFile(w http.ResponseWriter, r *http.Request) {
 	filePath := r.URL.Path[len("/public/"):]
 
 	// Construct the full path to the static file
-	fullPath := "static/" + filePath
+	fullPath := "Assets/" + filePath
 
 	// Check if file exists
 	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
-		http.Error(w, "404 File not found", http.StatusNotFound)
+		http.Error(w, "404 File not found ----", http.StatusNotFound)
 		return
 	}
 
