@@ -6,6 +6,7 @@ export default function Chat() {
       </aside>
 
       <div className="rightSidebar">
+        
       </div>
     </>
     )
