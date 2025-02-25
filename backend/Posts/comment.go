@@ -2,13 +2,13 @@ package posts
 
 import (
 	"fmt"
-	profiles "socialNetwork/Profiles"
 	database "socialNetwork/Database"
+	profiles "socialNetwork/Profiles"
 )
 
 // get the post id and return the id of post creator
 func post_owner(postID int) (int, error) {
-	row, err := database.SelectQuery(`SELECT user_id FROM post WHERE post.id = ?`, postID)
+	row, err := database.SelectOneRow(`SELECT user_id FROM posts WHERE id = ?`, postID)
 
 	if err != nil {
 		return 0, err
@@ -27,12 +27,19 @@ func isAuthorized(post_id, user_id int) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	isFollow, err := profiles.IsFollowed(user_id, post_owner_id)
-	isPublic, err2 := profiles.IsPublic(post_owner_id)
+	isFollow := 0
+	isPublic := true
+	var err2 error
+	if user_id != post_owner_id{
+
+		isFollow, err = profiles.IsFollowed(user_id, post_owner_id)
+		isPublic, err2 = profiles.IsPublic(post_owner_id)
+	}
+	fmt.Println(err,err2)
 	if err != nil || err2 != nil {
 		return false, err
-		}
-	if  isFollow != -1 || isPublic{
+	}
+	if isFollow != -1 || isPublic {
 		return true, nil
 	}
 	return false, nil
@@ -42,13 +49,13 @@ func isAuthorized(post_id, user_id int) (bool, error) {
 func is_user_authorized(user_id int, item_id int, item_type string) (bool, error) {
 
 	var tableName string
-	if item_type == "comment" {
-		tableName = "comment"
-	} else if item_type == "post" {
-		tableName = "post"
+	if item_type == "comments" {
+		tableName = "comments"
+	} else if item_type == "posts" {
+		tableName = "posts"
 	}
 
-	cmd := fmt.Sprintf(`SELECT user.id FROM %v WHERE  %v.id = ? `, tableName, tableName)
+	cmd := fmt.Sprintf(`SELECT user_id FROM %s WHERE id = ?`, tableName)
 
 	row_creator_id, err := database.SelectOneRow(cmd, item_id)
 	if err != nil {

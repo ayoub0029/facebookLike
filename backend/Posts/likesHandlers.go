@@ -2,8 +2,9 @@ package posts
 
 import (
 	"net/http"
-	global "socialNetwork/Global"
 	"strconv"
+
+	global "socialNetwork/Global"
 )
 
 //	ApplyUserRection going to reciver postID and userID and statusLike
@@ -34,15 +35,14 @@ func ApplyUserReaction(w http.ResponseWriter, r *http.Request) {
 		global.JsonResponse(w, http.StatusInternalServerError, "Something wrong")
 		return
 	}
-	if group_id <= 0 {
+	if group_id < 0 {
 		global.JsonResponse(w, http.StatusUnauthorized, "post is in group that you are not member in")
 		return
 	}
 
 	err = LikePost(postID, userID, statusLike)
-
 	if err != nil {
-		global.JsonResponse(w, http.StatusInternalServerError, err.Error())
+		global.JsonResponse(w, http.StatusInternalServerError, "the was an error")
 		return
 	}
 	global.JsonResponse(w, http.StatusOK, "Success")

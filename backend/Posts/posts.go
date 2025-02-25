@@ -55,7 +55,7 @@ func image_handler(w http.ResponseWriter, img multipart.File) (string, error) {
 	uuid, err := uuid.NewV4()
 
 	imgName := fmt.Sprintf("%s.%s", uuid, strings.Split(imgType, "/")[1]) // example uuid.jpg
-	imagePath := "./website/img/" + imgName
+	imagePath := "./Assets/" + imgName
 
 	dest, errCreate := os.Create(imagePath)
 	if errCreate != nil {
@@ -81,7 +81,7 @@ func image_handler(w http.ResponseWriter, img multipart.File) (string, error) {
 func InsertPost(userID string, content string, image string, groupID int, privacy string) error {
 	content = html.EscapeString(content)
 
-	_, err := database.ExecQuery("INSERT INTO post (user_id, content, media, created_at, group_id, pricacy) VALUES (?, ?, ? ,?, ?, ?)", userID, content, image, time.Now(), groupID, privacy)
+	_, err := database.ExecQuery("INSERT INTO posts (user_id, content, media, created_at, group_id, privacy) VALUES (?, ?, ? ,?, ?, ?)", userID, content, image, time.Now(), groupID, privacy)
 	if err != nil {
 		return err
 	}
@@ -96,14 +96,13 @@ func get_userID(r *http.Request) (int, error) {
 		return 0, err
 	}
 	query := "SELECT id FROM users WHERE uuid = ?"
-	row, err := database.SelectQuery(query, uuid)
+	row, err := database.SelectOneRow(query, uuid.Value)
 	if err != nil {
 		return 0, err
 	}
 	var userID int
 	row.Scan(&userID)
 	return userID, nil
-
 }
 
 // get group id from post id
@@ -122,7 +121,7 @@ func getGroupOfpost(postID int) (int, error) {
 		gID := int(groupID.Int32)
 		return gID, nil
 	}
-	return -1, nil
+	return 0, nil
 }
 
 // get group id from  group name
