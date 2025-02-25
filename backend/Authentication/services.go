@@ -102,10 +102,10 @@ func ParseFormSize(w http.ResponseWriter, r *http.Request) error {
 // Uses a UUID for unique filenames and saves the file in `./website/img/`.
 func UploadImage(formFieldName string, w http.ResponseWriter, r *http.Request) *string {
 	file, _, err := r.FormFile(formFieldName)
-	dbPath := ""
+	imgName := ""
 
 	if err == http.ErrMissingFile {
-		return &dbPath
+		return &imgName
 	}
 
 	if err != nil {
@@ -168,9 +168,8 @@ func UploadImage(formFieldName string, w http.ResponseWriter, r *http.Request) *
 	}
 
 	imgExt := strings.Split(imgType, "/")[1]
-	imgName := fmt.Sprintf("%s.%s", uuidStr, imgExt)
-	imagePath := "./website/img/" + imgName
-	dbPath = "/public/img/" + imgName
+	imgName = fmt.Sprintf("%s.%s", uuidStr, imgExt)
+	imagePath := "./Assets/" + imgName
 
 	dest, err := os.Create(imagePath)
 	if err != nil {
@@ -191,7 +190,7 @@ func UploadImage(formFieldName string, w http.ResponseWriter, r *http.Request) *
 		return nil
 	}
 
-	return &dbPath
+	return &imgName
 }
 
 // simple insert new user with check if email already exists.

@@ -150,6 +150,9 @@ func UserProfilePosts(w http.ResponseWriter, r *http.Request) {
 
 // get posts to display in the feed
 // link is GET /posts&last_id=`last_id`
+
+// ta3dilat ayoub ---- lastId < | p.group_id = 0 machi null | ORDER BY  p.id DESC | 9223372036854775806
+
 func getPosts(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		global.JsonResponse(w, http.StatusMethodNotAllowed, "Method Not Allowed")
@@ -165,6 +168,9 @@ func getPosts(w http.ResponseWriter, r *http.Request) {
 	if lastId < 0 {
 		global.JsonResponse(w, http.StatusBadRequest, "Invalid data provided")
 		return
+	}
+	if lastId == 0 {
+		lastId = 9223372036854775806
 	}
 	query := `
 	SELECT
@@ -186,13 +192,14 @@ func getPosts(w http.ResponseWriter, r *http.Request) {
 	    LEFT JOIN post_visibility AS pv ON pv.post_id = p.id AND pv.user_id = $1
 		LEFT JOIN followers AS f ON f.followed_id = u.id AND f.status != 'pending' AND f.follower_id = $1
 	WHERE
-		p.group_id IS NULL AND(
+		p.group_id = 0 AND(
 	    p.privacy = 'public' 
 		OR (p.privacy = 'almost private' AND f.followed_id IS NOT NULL) 
 		OR (p.privacy = 'private' AND pv.post_id IS NOT NULL) 
-	    ) AND p.id > $2
+	    ) 
+	AND p.id < $2  
 	ORDER BY
-	    p.id
+    	p.id DESC  
 	LIMIT
 		10
 	`

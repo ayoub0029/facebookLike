@@ -55,7 +55,7 @@ func image_handler(w http.ResponseWriter, img multipart.File) (string, error) {
 	uuid, err := uuid.NewV4()
 
 	imgName := fmt.Sprintf("%s.%s", uuid, strings.Split(imgType, "/")[1]) // example uuid.jpg
-	imagePath := "./website/img/" + imgName
+	imagePath := "./Assets/" + imgName
 
 	dest, errCreate := os.Create(imagePath)
 	if errCreate != nil {

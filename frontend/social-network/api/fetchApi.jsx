@@ -25,6 +25,6 @@ export async function fetchApi(endpoint, method = "GET", body = null, isFormData
         return result
     } catch (error) {
         console.error("Fetch error:", error);
-        return { error: error.message , status:50};
+        return { error: error.message, status: 50 };
     }
 };

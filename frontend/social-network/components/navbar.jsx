@@ -6,7 +6,8 @@ export function Navigation() {
       <>
         <div className="logo">
           <a href="/">
-            <Image
+            <Image 
+              style={{maxWidth:"300px"}}
               width={200}
               height={100}
               src="http://localhost:8080/public/logo.png"
