@@ -1,40 +1,41 @@
 package chats
 
 import (
+	"fmt"
 	"log"
 	"net/http"
-	auth "socialNetwork/Authentication"
+
 	database "socialNetwork/Database"
+	middleware "socialNetwork/Middlewares"
 )
 
 // function return message from database
 func GetMsgFromPrvChatDB(receiverID, page int, r *http.Request) ([]privateMsg, error) {
 	var msgs []privateMsg
-	userID, err := auth.IsLoggedIn(r, "token")
-	if err != nil {
-		log.Fatal(err) // ma3rftch wach n exiter wlla chii 7aja ukhra
-		return []privateMsg{}, err
+	user, ok := r.Context().Value(middleware.UserContextKey).(middleware.User)
+	if !ok {
+		return nil, fmt.Errorf("user not login")
 	}
 	query := `SELECT m.sender_id, m.receiver_id, m.message, m.created_at FROM private_chat m
 	        	WHERE (m.sender_id = ? or m.sender_id = ?) and (m.receiver_id = ? or m.receiver_id =?)
 				ORDER BY m.created_at DESC LIMIT 10 OFFSET ?;`
-	rows, err := database.SelectQuery(query, userID, receiverID, userID, receiverID, page)
+	rows, err := database.SelectQuery(query, user.ID, receiverID, user.ID, receiverID, page)
 	if err != nil {
 		log.Println("Getting data from db error: ", err)
-		return []privateMsg{}, err
+		return nil, err
 	}
 	msg := privateMsg{}
 	for rows.Next() {
 		err := rows.Scan(&msg.SenderID, &msg.ReceiverID, &msg.Message, &msg.CreatedDate)
 		if err != nil {
 			log.Println("Scan error: ", err)
-			return []privateMsg{}, err
+			return nil, err
 		}
 
 		msgs = append(msgs, msg)
 	}
 	if len(msgs) == 0 {
-		return []privateMsg{}, nil
+		return nil, nil
 	}
 	return msgs, nil
 }
@@ -42,24 +43,24 @@ func GetMsgFromPrvChatDB(receiverID, page int, r *http.Request) ([]privateMsg, e
 func GetMsgFromGrpChatDB(groupID, page int, r *http.Request) ([]groupMsg, error) {
 	var msgs []groupMsg
 	query := `SELECT m.sender_id, m.group_id, m.message, m.created_at FROM group_chat m
-			  WHERE m.group_id = ?
+			  WHERE m.group_id = ? 
 	          ORDER BY m.created_at DESC LIMIT 10 OFFSET ?;`
 	rows, err := database.SelectQuery(query, groupID, page)
 	if err != nil {
 		log.Println("Getting data from db error: ", err)
-		return []groupMsg{}, err
+		return nil, err
 	}
 	msg := groupMsg{}
 	for rows.Next() {
 		err := rows.Scan(&msg.SenderID, &msg.GroupId, &msg.Message, &msg.CreatedDate)
 		if err != nil {
 			log.Println("Scan error: ", err)
-			return []groupMsg{}, err
+			return nil, err
 		}
 		msgs = append(msgs, msg)
 	}
 	if len(msgs) == 0 {
-		return []groupMsg{}, nil
+		return nil, nil
 	}
 	return msgs, nil
 }

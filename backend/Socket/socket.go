@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	auth "socialNetwork/Authentication"
+
 	chats "socialNetwork/Chats"
 	global "socialNetwork/Global"
+	middleware "socialNetwork/Middlewares"
 
 	"github.com/gorilla/websocket"
 )
@@ -51,22 +52,17 @@ func WsHandling(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	userID, err := auth.IsLoggedIn(r, "token")
-	if err != nil {
-		log.Println(err)
+	user, ok := r.Context().Value(middleware.UserContextKey).(middleware.User)
+	if !ok {
 		return
 	}
-	/* n, _ := rand.Int(rand.Reader, big.NewInt(1000))
-	userID := n.Uint64() + 1 */
+
 	client := &global.Client{
-		UserId: uint64(userID),
+		UserId: user.ID,
 		State:  true,
 		Conn:   conn,
 	}
-	if client.UserId == 0 {
-		conn.Close()
-		return
-	}
+	
 	AddClient(client)
 	fmt.Println(Clients)
 	go SocketListner(client, r)
@@ -86,7 +82,6 @@ func handlePrvChatMessage(wsMessage WebSocketMessage, userID uint64) error {
 		log.Println(err)
 		return nil
 	} */
-	fmt.Println(chatMsg)
 	chats.HandleChatPrvMessage(chatMsg, userID)
 	if Clients[chatMsg.Receiver_id] != nil {
 		return SendMessage(Clients[chatMsg.Receiver_id], chatMsg)
@@ -117,13 +112,11 @@ func handleGrpChatMessage(wsMessage WebSocketMessage) error {
 // of real time actions ex: notification and messages...
 func SocketListner(client *global.Client, r *http.Request) {
 	for {
-		userId, err := auth.IsLoggedIn(r, "token")
-		if err != nil {
-			log.Println(err)
+		user, ok := r.Context().Value(middleware.UserContextKey).(middleware.User)
+		if !ok {
 			return
 		}
-		/* n, _ := rand.Int(rand.Reader, big.NewInt(1000))
-		userId := n.Uint64() + 1 */
+
 		var wsMessage WebSocketMessage
 		if err := client.Conn.ReadJSON(&wsMessage); err != nil {
 			log.Println(err)
@@ -132,7 +125,7 @@ func SocketListner(client *global.Client, r *http.Request) {
 		fmt.Println(wsMessage.Type)
 		if wsMessage.Type == "privateChat" {
 			fmt.Println(wsMessage.Content)
-			if err := handlePrvChatMessage(wsMessage, uint64(userId)); err != nil {
+			if err := handlePrvChatMessage(wsMessage, user.ID); err != nil {
 				log.Printf("Error handling %s message: %v", wsMessage.Type, err)
 			}
 		} else if wsMessage.Type == "groupChat" {

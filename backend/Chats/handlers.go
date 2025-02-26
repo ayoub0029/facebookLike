@@ -1,15 +1,18 @@
 package chats
 
 import (
-	"log"
 	"net/http"
+
 	global "socialNetwork/Global"
 )
+
+var logger = global.NewLogger()
 
 func privateChat(w http.ResponseWriter, r *http.Request) {
 	message, err := GetAllPrivateMsg(r)
 	if err != nil {
-		log.Println(err)
+		logger.Error("mesage: %v", err)
+		global.JsonResponse(w, http.StatusInternalServerError, "server side error")
 		return
 	}
 	global.JsonResponse(w, 200, message)
@@ -18,7 +21,8 @@ func privateChat(w http.ResponseWriter, r *http.Request) {
 func groupChat(w http.ResponseWriter, r *http.Request) {
 	message, err := GetAllGroupMsg(r)
 	if err != nil {
-		log.Println(err)
+		logger.Error("mesage: %v", err)
+		global.JsonResponse(w, http.StatusInternalServerError, "server side error")
 		return
 	}
 	global.JsonResponse(w, 200, message)

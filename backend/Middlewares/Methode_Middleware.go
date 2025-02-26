@@ -22,7 +22,7 @@ var logger = global.NewLogger()
 
 type contextKey string
 
-const userContextKey contextKey = "userKey"
+const UserContextKey contextKey = "userKey"
 
 type User struct {
 	Name string
@@ -61,7 +61,7 @@ func Auth(next http.Handler) http.Handler {
 		}
 
 		user := User{Name: "", ID: uint64(id)}
-		ctx := context.WithValue(req.Context(), userContextKey, user)
+		ctx := context.WithValue(req.Context(), UserContextKey, user)
 		req = req.WithContext(ctx)
 		next.ServeHTTP(res, req)
 	})
