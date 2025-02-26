@@ -1,12 +1,13 @@
+import  GroupRequests  from "@/components/Groups/GroupRequests"
+import  MyGroups  from "@/components/Groups/MyGroups"
+
 export default function Groups() {
-    return (
-        <>
-        <aside className="feed">
-          test test
-        </aside>
-  
-        <div className="rightSidebar">
-        </div>
-      </>
-    )
-  }
+  return (
+    <>
+      <div>
+        <MyGroups />
+        <GroupRequests />
+      </div>
+    </>
+  );
+}
