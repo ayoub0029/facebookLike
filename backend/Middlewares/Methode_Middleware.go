@@ -41,7 +41,7 @@ func Auth(next http.Handler) http.Handler {
 
 		id, err := auth.IsLoggedIn(req, "token")
 		if err != nil {
-			logger.Error("[%v]", err)
+			logger.Error("Message: %v", err)
 			global.JsonResponse(res, http.StatusInternalServerError, "server side error")
 			return
 		}
