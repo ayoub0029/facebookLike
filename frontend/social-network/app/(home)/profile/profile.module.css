@@ -1,0 +1,96 @@
+/* ProfileHeader.module.css */
+
+.profiletHeader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .profiletHeader .full_name {
+    font-size: 1.15rem;
+  }
+  
+  .profiletHeader span {
+    margin-bottom: 3px;
+  }
+  
+  .profiletHeader img {
+    border-radius: 50%;
+    width: 160px;
+    height: 160px;
+    border: 2px solid #fff;
+    outline: 3px solid #68e735;
+  }
+  
+  .profiletHeader .nickname,
+  .profiletHeader .date_brith {
+    color: var(--secondary-color);
+  }
+  
+  .profiletHeader .follow_number {
+    font-weight: bold;
+  }
+  
+  .profiletHeader .follow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .profiletHeader .follow span {
+    display: block;
+    text-align: center;
+  }
+  
+  .profiletHeader .follow div {
+    padding: 8px;
+    position: relative;
+  }
+  
+  .profiletHeader .follow div:nth-of-type(2)::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    width: 2px;
+    height: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: #ddd;
+  }
+  
+  .profiletHeader .follow div > span:nth-of-type(2) {
+    font-size: 11px;
+    color: var(--primary-color);
+  }
+  
+  .profiletHeader .follow :nth-child(2) :nth-child(2) {
+    margin-left: 10px;
+  }
+  
+  .profiletHeader .about {
+    margin-top: 25px;
+  }
+  
+  .profiletHeader .about span {
+    font-weight: 700;
+  }
+  
+  .profiletHeader .about p {
+    color: #666;
+    font-size: 0.7rem;
+  }
+  
+  .btn_follow button {
+    border: none;
+    color: #fff;
+    border-radius: 8px;
+    font-size: 1.2em;
+    height: 40px;
+    width: 95px;
+    background-color: var(--btn-color);
+  }
+  
+  .btn_follow button:active {
+    transform: translateY(1px);
+  }
+  

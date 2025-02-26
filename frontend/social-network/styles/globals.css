@@ -325,3 +325,100 @@
         gap: 20px;
     }
   }
+
+
+/* .profiletHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  & .full_name {
+      font-size: 1.15rem;
+  }
+
+  & span {
+      margin-bottom: 3px;
+  }
+
+  & img {
+      border-radius: 50%;
+      width: 160px;
+      height: 160px;
+      border: 2px solid #fff;
+      outline: 3px solid  #68e735;
+  }
+
+  & .nickname,
+  .date_brith {
+      color: var(--secondary-color);
+
+  }
+
+  & .follow_number {
+      font-weight: bold;
+  }
+
+  & .follow {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      & span {
+          display: block;
+          text-align: center;
+      }
+
+      & div{
+          padding: 8px;
+          position: relative; 
+      }
+      
+      & div:nth-of-type(2)::before {
+          content: "";
+          position: absolute;
+          left: 0;
+          width: 2px;
+          height: 50%;
+          top: 50%;
+          transform: translateY(-50%);
+          background-color: #ddd;
+      }
+
+      & div>span:nth-of-type(2) {
+          font-size: 11px;
+          color: var(--primary-color);
+      }
+
+      & :nth-child(2) :nth-child(2){
+          margin-left: 10px;
+      }
+  }
+
+  & .about {
+      margin-top: 25px;
+
+      & span {
+          font-weight: 700;
+      }
+
+      & p {
+          color: #666;
+          font-size: 0.7rem;
+      }
+  }
+
+}
+
+.btn_follow button {
+  border: none;
+  color: #fff;
+  border-radius: 8px;
+  font-size: 1.2em;
+  height: 40px;
+  width: 95px;
+  background-color: var(--btn-color);
+}
+
+.btn_follow button:active {
+  transform: translateY(1px);
+} */
