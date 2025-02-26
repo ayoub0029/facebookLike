@@ -12,10 +12,12 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
-	global "socialNetwork/Global"
 	database "socialNetwork/Database"
+	global "socialNetwork/Global"
+	"strconv"
 	"strings"
 	"time"
+
 	"github.com/gofrs/uuid"
 )
 
@@ -78,15 +80,19 @@ func image_handler(w http.ResponseWriter, img multipart.File) (string, error) {
 }
 
 // add post to database with the provided params
-func InsertPost(userID string, content string, image string, groupID int, privacy string) error {
+func InsertPost(userID string, content string, image string, groupID int, privacy string) (int, error) {
 	content = html.EscapeString(content)
 
-	_, err := database.ExecQuery("INSERT INTO posts (user_id, content, media, created_at, group_id, privacy) VALUES (?, ?, ? ,?, ?, ?)", userID, content, image, time.Now(), groupID, privacy)
+	row, err := database.ExecQuery("INSERT INTO posts (user_id, content, media, created_at, group_id, privacy) VALUES (?, ?, ? ,?, ?, ?)", userID, content, image, time.Now(), groupID, privacy)
 	if err != nil {
-		return err
+		return -1, err
+	}
+	lastID, err := row.LastInsertId()
+	if err != nil {
+		return -1, err
 	}
 
-	return nil
+	return int(lastID), nil
 }
 
 // get user id from the token
@@ -146,4 +152,19 @@ func getGroupid(userID int, groupName any) (int, error) {
 		return 0, err
 	}
 	return 1, nil
+}
+
+// add the allowed users to the see the private post
+func private_post(postID int, allowedUsers []string) error {
+	for _, user := range allowedUsers {
+		userInt, err := strconv.Atoi(user)
+		if userInt <= 0 {
+			return err
+		}
+		_, err = database.ExecQuery("INSERT INTO post_visibility (post_id, user_id) VALUES (?, ?)", postID, userInt)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

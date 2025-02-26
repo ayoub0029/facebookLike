@@ -72,10 +72,19 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = InsertPost(strconv.Itoa(userID), content, imagePublic, groupID, privacy)
+	postID, err := InsertPost(strconv.Itoa(userID), content, imagePublic, groupID, privacy)
 	if err != nil {
 		global.JsonResponse(w, http.StatusInternalServerError, "Error add post")
 		return
+	}
+
+	if privacy == "private" {
+		r.ParseForm()
+		err := private_post(postID, r.Form["allowedUsers"])
+		if err != nil {
+			global.JsonResponse(w, http.StatusInternalServerError, "Error add post")
+			return
+		}
 	}
 
 	global.JsonResponse(w, http.StatusOK, "Post created successfully")
