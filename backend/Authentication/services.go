@@ -11,10 +11,11 @@ import (
 	"net/url"
 	"os"
 	"regexp"
-	database "socialNetwork/Database"
-	global "socialNetwork/Global"
 	"strings"
 	"time"
+
+	database "socialNetwork/Database"
+	global "socialNetwork/Global"
 
 	"github.com/gofrs/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -415,4 +416,14 @@ func FindUserByOAuthID(oauthID string) (bool, error) {
 		return false, err
 	}
 	return true, nil
+}
+
+func CheckIsNotNeedLogin(path string) bool {
+	alowd := map[string]bool{
+		"/auth/signup":          true,
+		"/auth/login":           true,
+		"/auth/githublogin":     true,
+		"/auth/github/callback": true,
+	}
+	return alowd[path]
 }

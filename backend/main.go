@@ -50,19 +50,13 @@ func main() {
 	// posts.Routes(mux)  example
 	// ...
 
-	// Server := &http.Server{
-	// 	Addr:    ":8080",
-	// 	Handler: middleware.Logs_Middleware(mux),
-	// }
+	Server := &http.Server{
+		Addr:    ":8080",
+		Handler: middleware.Auth(mux),
+	}
 
-	// fmt.Println("Server running on", Server.Addr)
-	// err := http.ListenAndServe(Server.Addr, Server.Handler)
-	// if err != nil {
-	// 	fmt.Println("Error starting server:", err)
-	// }
-	port := ":8080"
-	fmt.Println("Server running on", port)
-	err := http.ListenAndServe(port, middleware.EnableCORS(mux))
+	fmt.Println("Server running on", Server.Addr)
+	err := Server.ListenAndServe()
 	if err != nil {
 		fmt.Println("Error starting server:", err)
 	}
