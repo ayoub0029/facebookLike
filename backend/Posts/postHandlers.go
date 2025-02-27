@@ -464,5 +464,5 @@ func getSpesificPost(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	global.JsonResponse(w, http.StatusOK, Post)
+	global.JsonResponse(w, http.StatusOK, []PostData{Post})
 }

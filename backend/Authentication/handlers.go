@@ -126,13 +126,8 @@ func logOut(w http.ResponseWriter, r *http.Request) {
 func status(w http.ResponseWriter, r *http.Request) {
 	userID, errLogin := IsLoggedIn(r, "token")
 
-	if errLogin != nil {
+	if errLogin != nil && userID <= 0 {
 		global.JsonResponse(w, http.StatusUnauthorized, "Authentication failed")
-		return
-	}
-
-	if userID == 0 {
-		global.JsonResponse(w, http.StatusOK, nil)
 		return
 	}
 
