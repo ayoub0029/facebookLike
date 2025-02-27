@@ -7,8 +7,8 @@ import (
 	"strings"
 
 	auth "socialNetwork/Authentication"
-	global "socialNetwork/Global"
 	database "socialNetwork/Database"
+	global "socialNetwork/Global"
 )
 
 type Profile struct {
@@ -26,6 +26,8 @@ type ProfileData struct {
 	Email         string
 	DOB           string
 	Created_at    string
+	Follower      uint64
+	Follwoed      uint64
 }
 
 var (
@@ -64,18 +66,20 @@ func (p *Profile) GetUserField(Field string) (any, error) {
 func (p *Profile) GetProfileInfo() error {
 	Query := `
 	SELECT 
-		profile_status,
-		avatar,
-		nickname,
-		first_name,
-		last_name,
-		about_me,
-		email,
-		date_of_birth,
-		Created_at
-	FROM users 
-	WHERE id = ?
-	`
+    	profile_status,
+    	avatar,
+    	nickname,
+    	first_name,
+    	last_name,
+    	about_me,
+    	email,
+    	date_of_birth,
+    	created_at,
+    	(SELECT COUNT(id) FROM followers AS follower WHERE followed_id = $1) AS follower,
+    	(SELECT COUNT(id) FROM followers AS followed WHERE follower_id = $1) AS followed
+	FROM users
+	WHERE id = $1;`
+	
 	Row, err := database.SelectOneRow(Query, p.Id)
 	if err != nil {
 		return err
@@ -90,6 +94,8 @@ func (p *Profile) GetProfileInfo() error {
 		&p.ProfileData.Email,
 		&p.ProfileData.DOB,
 		&p.ProfileData.Created_at,
+		&p.ProfileData.Follower,
+		&p.ProfileData.Follwoed,
 	)
 	if err != nil {
 		fmt.Println(err)
