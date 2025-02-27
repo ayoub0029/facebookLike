@@ -28,7 +28,7 @@ export default function Profile() {
   useEffect(() => {
     if (profile) {      
       async function fetchIsFollow() {
-        const response = await fetchApi(`profiles/follow/status?user_id=1`, "GET");
+        const response = await fetchApi(`profiles/follow/status?user_id=2`, "GET");
         if (response.hasOwnProperty("error")) {
           alert(`Error followe check: ${response.error} Status: ${response.status}`);
         } else {
