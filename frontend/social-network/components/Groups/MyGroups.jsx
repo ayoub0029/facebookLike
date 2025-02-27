@@ -15,7 +15,7 @@ const UserGroups = () => {
             try {
                 setLoading(true)
                 // Fetch groups of the users from the API endpoint
-                const data = await fetchApi('GET', '/users', null, false)
+                const data = await fetchApi('GET', '/UserGroup', null, false)
                 console.log('User data:', data)
                 setUserGroups(data || [])
                 setError(null)
@@ -71,33 +71,24 @@ const UserGroups = () => {
                 <p className="no-groups">No users found</p>
             ) : (
                 <div className="joinedGroups">
-                    {userGroups.map(user => (
+                    {userGroups.map(group => (
                         <>
                             <div className="groupCard">
-                                <Link
-                                    key={user.id}
-                                    href={`https://jsonplaceholder.typicode.com/users/${user.id}`}
-                                    className="group-item"
-                                >
                                     <img
                                         src="../../Img/group.png"
-                                        alt="User Avatar"
+                                        alt="group Avatar"
                                     />
                                     <div className="groupInfo">
-                                        <h3 className="group-name">{user.name}</h3>
-                                        <p className="member-count">
-                                            {user.phone}
-                                        </p>
-                                        <p className="group-email">
-                                            {user.email}
+                                        <h3 className="group-name">{group.name}</h3>
+                                        <p className="group-discription">
+                                            {group.discription}
                                         </p>
                                     </div>
-                                </Link>
                                 <button className='btn btnGray' onClick={() => {
-                                    LeaveTheGroup(user.id)
+                                    LeaveTheGroup(group.id)
                                 }}>Leave the group</button>
                                 <button className='btn btnGray' onClick={() => {
-                                    GroupDetail(user.id)
+                                    GroupDetail(group.id)
                                 }}>View Group</button>
                             </div>
                         </>

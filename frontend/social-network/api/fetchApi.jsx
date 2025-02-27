@@ -8,7 +8,7 @@
  */
 
 export async function fetchApi(method = "GET", endpoint, body = null, isFormData = false) {
-    const BaseURL = "https://jsonplaceholder.typicode.com";
+    const BaseURL = "http://localhost:8080";
     const url = `${BaseURL}/${endpoint}`;
     const headers = isFormData ? {} : { "Content-Type": "application/json" };
     const options = {
