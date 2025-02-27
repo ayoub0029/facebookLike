@@ -112,6 +112,10 @@ func UserProfilePosts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if lastId == 0 {
+		lastId = 9223372036854775806
+	}
+
 	myQuery := `
 	SELECT
 		p.id,
@@ -137,9 +141,9 @@ func UserProfilePosts(w http.ResponseWriter, r *http.Request) {
 	    p.privacy = 'public' 
 		OR (p.privacy = 'almost private' AND f.followed_id IS NOT NULL) 
 		OR (p.privacy = 'private' AND pv.post_id IS NOT NULL) 
-	    ) AND p.id > $3
+	    ) AND p.id < $3
 	ORDER BY
-	    p.id
+	    p.id DESC
 	LIMIT
 		10
 		`
@@ -251,6 +255,11 @@ func getPostGroup(w http.ResponseWriter, r *http.Request) {
 		global.JsonResponse(w, http.StatusBadRequest, "group_id is required")
 		return
 	}
+
+	if lastId == 0 {
+		lastId = 9223372036854775806
+	}
+
 	isMember := groups.IsMember(userID, groupID)
 	if !isMember {
 		global.JsonResponse(w, http.StatusUnauthorized, "you are not a member of this group")
@@ -276,9 +285,9 @@ func getPostGroup(w http.ResponseWriter, r *http.Request) {
 	    posts AS p
 	    JOIN users AS u ON p.user_id = u.id
 	WHERE
-		p.group_id IS NOT NULL AND p.group_id = $1 AND p.id > $2
+		p.group_id IS NOT NULL AND p.group_id = $1 AND p.id < $2
 	ORDER BY
-	    p.id
+	    p.id DECS
 	LIMIT
 		10
 	`
@@ -435,8 +444,6 @@ func getSpesificPost(w http.ResponseWriter, r *http.Request) {
 		OR (p.privacy = 'almost private' AND f.followed_id IS NOT NULL)
 		OR (p.privacy = 'private' AND pv.post_id IS NOT NULL)
 	    )AND p.id = $2
-	ORDER BY
-	    p.id
 	`
 	posts, err := database.SelectQuery(query, userID, postID)
 	if err != nil {
