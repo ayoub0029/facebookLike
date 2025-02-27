@@ -17,6 +17,7 @@ type Profile struct {
 }
 
 type ProfileData struct {
+	Id            uint64
 	ProfileStatus string
 	Avatar        string
 	Nickname      string
@@ -66,6 +67,7 @@ func (p *Profile) GetUserField(Field string) (any, error) {
 func (p *Profile) GetProfileInfo() error {
 	Query := `
 	SELECT 
+		id,
     	profile_status,
     	avatar,
     	nickname,
@@ -79,12 +81,13 @@ func (p *Profile) GetProfileInfo() error {
     	(SELECT COUNT(id) FROM followers AS followed WHERE follower_id = $1) AS followed
 	FROM users
 	WHERE id = $1;`
-	
+
 	Row, err := database.SelectOneRow(Query, p.Id)
 	if err != nil {
 		return err
 	}
 	err = Row.Scan(
+		&p.ProfileData.Id,
 		&p.ProfileData.ProfileStatus,
 		&p.ProfileData.Avatar,
 		&p.ProfileData.Nickname,

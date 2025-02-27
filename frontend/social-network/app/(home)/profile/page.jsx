@@ -3,8 +3,11 @@ import { fetchApi } from "@/api/fetchApi.jsx"
 import { FetchPosts } from "@/components/Posts/FetchPosts"
 import { useEffect, useState } from "react"
 import ProfileComponent from "@/components/profile/profile.jsx"
+import { useParams } from "next/navigation"
 
 export default function Profile() {
+  const params = useParams()
+  console.log(params);
 
   const [profile, setProfile] = useState(null)
   useEffect(() => {
@@ -28,7 +31,7 @@ export default function Profile() {
       </>
     )
   }
-
+  profile["isOwner"] = true
   return (
     <>
       <aside className="feed">

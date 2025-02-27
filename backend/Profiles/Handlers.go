@@ -1,6 +1,7 @@
 package profiles
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -11,7 +12,6 @@ import (
 // GET /profiles?user_id=123 → Get user profile
 // GET /profiles → Get Your user profile Info
 func GetProfile(w http.ResponseWriter, r *http.Request) {
-
 	CurrentUserID, err := auth.IsLoggedIn(r, "token")
 	if err != nil {
 		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": global.ErrServer.Error()})
@@ -33,7 +33,7 @@ func GetProfile(w http.ResponseWriter, r *http.Request) {
 			global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": global.ErrServer.Error()})
 			return
 		}
-
+		// fmt.Println(NewProfile.ProfileData, "--", Param)
 		global.JsonResponse(w, http.StatusOK, NewProfile.ProfileData)
 		return
 	}
@@ -58,10 +58,12 @@ func GetProfile(w http.ResponseWriter, r *http.Request) {
 	if NewProfile.ProfileData.ProfileStatus == ProfileStatus[Profile_Private] {
 		global.JsonResponse(w, http.StatusOK,
 			struct {
+				Id            uint64
 				ProfileStatus string
 				Avatar        string
 				Nickname      string
 			}{
+				Id:            NewProfile.ProfileData.Id,
 				ProfileStatus: NewProfile.ProfileData.ProfileStatus,
 				Avatar:        NewProfile.ProfileData.Avatar,
 				Nickname:      NewProfile.ProfileData.Nickname,
@@ -69,13 +71,11 @@ func GetProfile(w http.ResponseWriter, r *http.Request) {
 		)
 		return
 	}
-
 	global.JsonResponse(w, http.StatusOK, NewProfile.ProfileData)
 }
 
 // POST /profiles/update → Update profile details
 func UpdateProfile(w http.ResponseWriter, r *http.Request) {
-
 	CurrentUserID, err := auth.IsLoggedIn(r, "token")
 	if err != nil {
 		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": global.ErrServer.Error()})
@@ -103,7 +103,6 @@ func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 
 // POST /profiles/follow → Send follow request
 func Follow(w http.ResponseWriter, r *http.Request) {
-
 	CurrentUserID, err := auth.IsLoggedIn(r, "token")
 	if err != nil {
 		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": global.ErrServer.Error()})
@@ -150,7 +149,6 @@ func Follow(w http.ResponseWriter, r *http.Request) {
 
 // POST /profiles/unfollow → Unfollow a user
 func Unfollow(w http.ResponseWriter, r *http.Request) {
-
 	CurrentUserID, err := auth.IsLoggedIn(r, "token")
 	if err != nil {
 		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": global.ErrServer.Error()})
@@ -187,7 +185,6 @@ func Unfollow(w http.ResponseWriter, r *http.Request) {
 
 // POST /profiles/follow/accept?user_id=123 → Accept follow request
 func AcceptFollowRequest(w http.ResponseWriter, r *http.Request) {
-
 	CurrentUserID, err := auth.IsLoggedIn(r, "token")
 	if err != nil {
 		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": global.ErrServer.Error()})
@@ -222,7 +219,6 @@ func AcceptFollowRequest(w http.ResponseWriter, r *http.Request) {
 
 // POST /profiles/follow/reject?user_id=123 → reject follow request
 func RejectFollowRequest(w http.ResponseWriter, r *http.Request) {
-
 	CurrentUserID, err := auth.IsLoggedIn(r, "token")
 	if err != nil {
 		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": global.ErrServer.Error()})
@@ -258,7 +254,6 @@ func RejectFollowRequest(w http.ResponseWriter, r *http.Request) {
 
 // GET /profiles/follow/status?user_id=123 → Check follow status
 func CheckFollowStatus(w http.ResponseWriter, r *http.Request) {
-
 	CurrentUserID, err := auth.IsLoggedIn(r, "token")
 	if err != nil {
 		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": global.ErrServer.Error()})
@@ -273,12 +268,14 @@ func CheckFollowStatus(w http.ResponseWriter, r *http.Request) {
 	Param := r.FormValue("user_id")
 	if Param == "" {
 		global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": ErrInvalidParams.Error()})
+		fmt.Println(ErrInvalidParams.Error())
 		return
 	}
 
 	FollowedID, err := strconv.Atoi(Param)
 	if err != nil {
 		global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": global.ErrInvalidRequest.Error()})
+		fmt.Println(global.ErrInvalidRequest.Error())
 		return
 	}
 
@@ -286,7 +283,12 @@ func CheckFollowStatus(w http.ResponseWriter, r *http.Request) {
 
 	Status, StatusCode, err := NewFollowRequest.CheckFollowStatus()
 	if err != nil {
+		// if err == ErrCantFindRelationId {
+		// 	global.JsonResponse(w, http.StatusOK, map[string]string{"Status": "false"})
+		// 	return
+		// }
 		global.JsonResponse(w, StatusCode, map[string]string{"Error": err.Error()})
+		fmt.Println(err.Error(), FollowedID)
 		return
 	}
 
@@ -295,7 +297,6 @@ func CheckFollowStatus(w http.ResponseWriter, r *http.Request) {
 
 // GET /profiles/followers?user_id=123&page=1 → Get followers of a user
 func GetFollowers(w http.ResponseWriter, r *http.Request) {
-
 	CurrentUserID, err := auth.IsLoggedIn(r, "token")
 	if err != nil {
 		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": global.ErrServer.Error()})
@@ -379,7 +380,6 @@ func GetFollowers(w http.ResponseWriter, r *http.Request) {
 
 // GET /profiles/following?user_id=123&page=1 → Get users the user follows
 func GetFollowing(w http.ResponseWriter, r *http.Request) {
-
 	CurrentUserID, err := auth.IsLoggedIn(r, "token")
 	if err != nil {
 		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": global.ErrServer.Error()})
