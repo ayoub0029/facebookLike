@@ -2,6 +2,7 @@ package groups
 
 import (
 	"fmt"
+
 	profiles "socialNetwork/Profiles"
 )
 
@@ -10,6 +11,7 @@ type group struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	Owner       int    `json:"owner"`
+	CreatedAt   string `json:"createdAt"`
 }
 
 func NewGroup(_name, _description string, _owner int) *group {
@@ -29,6 +31,7 @@ func GetMembers(groupID, page int) []profiles.Profile {
 	members := getAllMembers(groupID, page)
 	return members
 }
+
 func GetGroups(page int) []group {
 	groupsLists := make([]group, 0)
 	groups_dataLists := getAllGroups(page)
@@ -67,18 +70,26 @@ func convert(g_data group_data) *group {
 	}
 }
 
-// func RequestToJoin(groupId, memberId int) bool {
-// 	if requestToJoin(groupID, memberId) {
-// 		//Sending Notification code ...
-// 		return true
-// 	}
-// 	return false
-// }
+func RequestToJoin(groupId, memberId int) bool {
+	if requestToJoin(groupId, memberId) {
+		// Sending Notification code ...
+		return true
+	}
+	return false
+}
 
-// func Join(groupId, memberId int) bool {
-// 	return join(groupID, memberId)
-// }
+func Join(groupId, memberId int) bool {
+	return join(groupId, memberId)
+}
 
-// func Leave(groupId, memberId int) bool {
-// 	return leaveGroup(groupID, memberId)
-// }
+func Leave(groupId, memberId int) bool {
+	return leaveGroup(groupId, memberId)
+}
+
+func GetGroupsCreatedBy(userID, page int) []group {
+	return getAllGroupsCreatedBy(userID, page)
+}
+
+func GetGroupsJoinedBy(userID, page int) []group {
+	return getAllGroupsJoinedBy(userID, page)
+}

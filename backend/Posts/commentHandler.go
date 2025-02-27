@@ -1,10 +1,12 @@
 package posts
 
 import (
+	"fmt"
 	"html"
 	"net/http"
-	global "socialNetwork/Global"
 	database "socialNetwork/Database"
+	global "socialNetwork/Global"
+	groups "socialNetwork/Groups"
 	"strconv"
 	"time"
 )
@@ -29,22 +31,28 @@ func addComment(w http.ResponseWriter, r *http.Request) {
 		global.JsonResponse(w, http.StatusInternalServerError, "Something wrong")
 		return
 	}
-	if group_id <= 0 {
-		global.JsonResponse(w, http.StatusUnauthorized, "post is in group that you are not member in")
-		return
-	}
 
 	userID, err := get_userID(r)
 	if err != nil {
 		global.JsonResponse(w, http.StatusUnauthorized, "Unauthorized")
 		return
 	}
+	if group_id < 0 {
+		global.JsonResponse(w, http.StatusUnauthorized, "post is in group that you are not member in")
+		return
+	}
+
+	if group_id != 0 && !groups.IsMember(group_id, userID) {
+		global.JsonResponse(w, http.StatusUnauthorized, "post is in group that you are not member")
+		return
+	}
+
 	content := r.FormValue("content")
 	content = html.EscapeString(content)
 
 	ok, err := isAuthorized(post_id, userID)
 	if err != nil {
-		global.JsonResponse(w, http.StatusInternalServerError, "Something wrong")
+		global.JsonResponse(w, http.StatusInternalServerError, "Something was wrong")
 		return
 	}
 	if !ok {
@@ -59,7 +67,7 @@ func addComment(w http.ResponseWriter, r *http.Request) {
 
 	// -------------------------- check if post id exist
 	post := 0
-	row, err := database.SelectOneRow("SELECT id FROM post WHERE id = ?", post_id)
+	row, err := database.SelectOneRow("SELECT id FROM posts WHERE id = ?", post_id)
 	if err != nil {
 		global.JsonResponse(w, http.StatusInternalServerError, "Something wrong")
 		return
@@ -94,24 +102,25 @@ func getComments(w http.ResponseWriter, r *http.Request) {
 
 	postId, _ := strconv.Atoi(r.URL.Query().Get("post_id"))
 	lastId, _ := strconv.Atoi(r.URL.Query().Get("last_id"))
-	if postId <= 0 || lastId <= 0 {
+	if postId <= 0 || lastId < 0 {
 		global.JsonResponse(w, http.StatusBadRequest, "postID is invalid")
 		return
 	}
 
 	group_id, err := getGroupOfpost(postId)
 	if err != nil {
-		global.JsonResponse(w, http.StatusInternalServerError, "Something wrong")
+		global.JsonResponse(w, http.StatusInternalServerError, "Something was wrong")
 		return
 	}
-	if group_id <= 0 {
-		global.JsonResponse(w, http.StatusUnauthorized, "post is in group that you are not member in")
+
+	if group_id != 0 && !groups.IsMember(group_id, userID) {
+		global.JsonResponse(w, http.StatusUnauthorized, "post is in group that you are not member")
 		return
 	}
 
 	ok, err := isAuthorized(postId, userID)
 	if err != nil {
-		global.JsonResponse(w, http.StatusInternalServerError, "Something wrong")
+		global.JsonResponse(w, http.StatusInternalServerError, "Something is wrong")
 		return
 	}
 	if !ok {
@@ -119,25 +128,18 @@ func getComments(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	page := r.URL.Query().Get("page")
-	Page, err := strconv.Atoi(page)
-	if err != nil || Page < 1 {
-		global.JsonResponse(w, http.StatusBadRequest, "Something wrong")
-		return
-	}
-
 	query := `
         SELECT
     		cmt.id,
-    		u.username,
+    		u.nickname,
     		cmt.comment_text,
     		cmt.created_at
 		FROM
 		    comments AS cmt
-		    JOIN user AS u on cmt.user_id = u.id
-		    JOIN post AS p on cmt.post_id = p.id
+		    JOIN users AS u on cmt.user_id = u.id
+		    JOIN posts AS p on cmt.post_id = p.id
 
-		WHERE p.id = ?, cmt.id > ?
+		WHERE p.id = ? AND cmt.id > ?
 
 		ORDER BY cmt.created_at DESC
 		LIMIT 5
@@ -145,7 +147,8 @@ func getComments(w http.ResponseWriter, r *http.Request) {
 
 	sqlrows, err := database.SelectQuery(query, postId, lastId)
 	if err != nil {
-		global.JsonResponse(w, http.StatusInternalServerError, "Something wrong")
+		fmt.Println(err)
+		global.JsonResponse(w, http.StatusInternalServerError, "Something was wrong")
 		return
 	}
 
@@ -187,9 +190,10 @@ func commentDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	isauthorized, err := is_user_authorized(userID, comment_id, "comment")
+	isauthorized, err := is_user_authorized(userID, comment_id, "comments")
 	if err != nil {
-		global.JsonResponse(w, http.StatusInternalServerError, "something wrong")
+		fmt.Println(err)
+		global.JsonResponse(w, http.StatusInternalServerError, "something is wrong")
 		return
 	}
 
@@ -201,7 +205,7 @@ func commentDelete(w http.ResponseWriter, r *http.Request) {
 	query := `DELETE FROM comments WHERE id=?`
 	_, err = database.ExecQuery(query, comment_id)
 	if err != nil {
-		global.JsonResponse(w, http.StatusInternalServerError, "Something wrong")
+		global.JsonResponse(w, http.StatusInternalServerError, "Something was wrong")
 		return
 	}
 
@@ -209,7 +213,7 @@ func commentDelete(w http.ResponseWriter, r *http.Request) {
 }
 
 // comment update handler
-// link PUT /posts/comments/update?comment_id=`id`
+// link PUT /posts/comments/update?comment_id=`id`&content=`newcontentt`
 func commentUpdate(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPut {
 		global.JsonResponse(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -224,14 +228,14 @@ func commentUpdate(w http.ResponseWriter, r *http.Request) {
 
 	comment_id, _ := strconv.Atoi(r.FormValue("comment_id"))
 	if comment_id <= 0 {
-		global.JsonResponse(w, http.StatusInternalServerError, "Something wrong")
+		global.JsonResponse(w, http.StatusInternalServerError, "Something was wrong")
 		return
 	}
 
-	isAuthorized, err := is_user_authorized(userID, comment_id, "comment")
+	isAuthorized, err := is_user_authorized(userID, comment_id, "comments")
 
 	if err != nil {
-		global.JsonResponse(w, http.StatusInternalServerError, "Something wrong")
+		global.JsonResponse(w, http.StatusInternalServerError, "Something where wrong")
 		return
 	}
 	if !isAuthorized {
@@ -241,7 +245,7 @@ func commentUpdate(w http.ResponseWriter, r *http.Request) {
 
 	comment_content := r.FormValue("content")
 	if comment_content == "" || len(comment_content) >= 1100 {
-		global.JsonResponse(w, http.StatusBadRequest, "Something wrong")
+		global.JsonResponse(w, http.StatusBadRequest, "Something is wrong")
 		return
 	}
 	comment_content = html.EscapeString(comment_content)

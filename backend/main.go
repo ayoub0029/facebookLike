@@ -8,7 +8,8 @@ import (
 	auth "socialNetwork/Authentication"
 	chats "socialNetwork/Chats"
 	database "socialNetwork/Database/Sqlite"
-	"socialNetwork/Groups"
+	global "socialNetwork/Global"
+	groups "socialNetwork/Groups"
 	middleware "socialNetwork/Middlewares"
 	notifications "socialNetwork/Notifications"
 	posts "socialNetwork/Posts"
@@ -32,7 +33,7 @@ func main() {
 	socket.Routes(mux)
 	notifications.Routes(mux)
 	search.Routes(mux)
-	mux.HandleFunc("/", home)
+	mux.HandleFunc("/", notFound)
 
 	//-------------------------------------------------------khiri temporary
 	// groups.Routes(mux)
@@ -51,11 +52,11 @@ func main() {
 
 	Server := &http.Server{
 		Addr:    ":8080",
-		Handler: middleware.Logs_Middleware(mux),
+		Handler: middleware.Auth(mux),
 	}
 
 	fmt.Println("Server running on", Server.Addr)
-	err := http.ListenAndServe(Server.Addr, Server.Handler)
+	err := Server.ListenAndServe()
 	if err != nil {
 		fmt.Println("Error starting server:", err)
 	}
@@ -66,11 +67,11 @@ func handleStaticFile(w http.ResponseWriter, r *http.Request) {
 	filePath := r.URL.Path[len("/public/"):]
 
 	// Construct the full path to the static file
-	fullPath := "static/" + filePath
+	fullPath := "Assets/" + filePath
 
 	// Check if file exists
 	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
-		http.Error(w, "404 File not found", http.StatusNotFound)
+		http.Error(w, "404 File not found ----", http.StatusNotFound)
 		return
 	}
 
@@ -78,13 +79,6 @@ func handleStaticFile(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, fullPath)
 }
 
-func home(w http.ResponseWriter, r *http.Request) {
-	// Only handle root path in home handler
-	if r.URL.Path != "/" {
-		http.Error(w, "404 Page not found", http.StatusNotFound)
-		return
-	}
-
-	// Serve index.html from static directory
-	http.ServeFile(w, r, "static/index.html")
+func notFound(w http.ResponseWriter, r *http.Request) {
+	global.JsonResponse(w, http.StatusNotFound, "404 Page not found")
 }
