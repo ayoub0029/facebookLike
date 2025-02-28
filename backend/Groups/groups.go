@@ -12,6 +12,7 @@ type group struct {
 	Description string `json:"description"`
 	Owner       int    `json:"owner"`
 	CreatedAt   string `json:"createdAt"`
+	Members     int    `json:"members"`
 }
 
 func NewGroup(_name, _description string, _owner int) *group {
@@ -20,6 +21,7 @@ func NewGroup(_name, _description string, _owner int) *group {
 		Name:        _name,
 		Description: _description,
 		Owner:       _owner,
+		Members : 0,
 	}
 }
 
@@ -92,4 +94,8 @@ func GetGroupsCreatedBy(userID, page int) []group {
 
 func GetGroupsJoinedBy(userID, page int) []group {
 	return getAllGroupsJoinedBy(userID, page)
+}
+
+func GetGroupInfo(groupID int) *group {
+	return getGroupInfo(groupID);
 }

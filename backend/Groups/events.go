@@ -11,6 +11,13 @@ type event struct {
 	CreatedAt   string `json:"createdat"`
 }
 
+type eventVote struct {
+	ID                int           `json:"id"`
+	User              int           `json:"user"`
+	Event             int           `json:"event"`
+	Option            int           `json:"option"`
+}
+
 func NewEvent(_groupID, _ownerID int, _title, _description, _startdate, _enddate, _createdat string) *event {
 	return &event{
 		ID:          -1,
