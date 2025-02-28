@@ -30,7 +30,7 @@ func GetAllGroups_handler(res http.ResponseWriter, req *http.Request) {
 		global.JsonResponse(res, 400, "data Error")
 		return
 	}
-	groupsArray := getAllGroups(page)
+	groupsArray := GetGroups(page)
 	if groupsArray == nil {
 		global.JsonResponse(res, 404, "data Not Found")
 		return
@@ -46,7 +46,7 @@ func GetGroupsCreatedBy_handler(res http.ResponseWriter, req *http.Request) {
 		global.JsonResponse(res, 400, "data Error")
 		return
 	}
-	groupsArray := getAllGroupsCreatedBy(owner, page)
+	groupsArray := GetGroupsCreatedBy(owner, page)
 	if groupsArray == nil {
 		global.JsonResponse(res, 404, "data Not Found")
 		return
@@ -62,7 +62,7 @@ func GetGroupsJoinedBy_handler(res http.ResponseWriter, req *http.Request) {
 		global.JsonResponse(res, 400, "data Error")
 		return
 	}
-	groupsArray := getAllGroupsCreatedBy(owner, page)
+	groupsArray := GetGroupsJoinedBy(owner, page)
 	if groupsArray == nil {
 		global.JsonResponse(res, 404, "data Not Found")
 		return
@@ -125,3 +125,17 @@ func GetEvent_handler(res http.ResponseWriter, req *http.Request) {
 	}
 
 }*/
+
+func GetGroupInfo_handler(res http.ResponseWriter, req *http.Request)  {
+	group, err := strconv.Atoi(req.FormValue("group"))
+	if err != nil {
+		global.JsonResponse(res, 400, "data Error");
+		return;
+	}
+	groupInfo := GetGroupInfo(group);
+	if groupInfo == nil {
+		global.JsonResponse(res, 404, "data Not Found");
+		return;
+	}
+	global.JsonResponse(res, 200, *groupInfo);
+}

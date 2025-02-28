@@ -1,0 +1,54 @@
+
+/*:root {
+    --background: #ffffff;
+    --primary-color: #000000;
+    --secondary-color: #808080;
+    --secondary-hover: #afafaf;
+    --third-color: #e4e4e4;
+    --lightGray-color: #f4f4f4;
+    --btn-color: #81BE1C;
+    --danger-color: #ee5459;
+}*/
+
+.ChatSection{
+    background-color: #f4f4f4;
+    color: #000000;
+    border-radius: 10px;
+}
+
+.MessageSection{
+    display: flex;
+    /*justify-content: space-between;*/
+    gap: 10px;
+    padding: 10px;
+    
+}
+
+.HeaderChat{
+    width: 100%;
+    background-color: #ffffff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 10%;
+}
+
+.MessageHeader{
+    display: flex;
+    justify-content: space-between;
+    color: #ee5459;;
+    
+}
+.MessageContent{
+    color: #808080;
+}
+.MessageHeaderContainer{
+    width: 80%;
+}
+
+.Image{
+    background-image: url('./images/profile.png');
+    background-repeat: no-repeat;
+    width: 7%;
+    border-radius: 50%;
+}

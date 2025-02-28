@@ -14,6 +14,22 @@ type group_data struct {
 	Created_At  string
 }
 
+
+func getGroupInfo(groupID int)  *group{
+	query := `SELECT g.id,g.name,g.description,g.owner_id,g.created_at,count(gm.user_id) members FROM groups g LEFT JOIN group_members gm
+			ON g.id = gm.group_id WHERE g.id = ? GROUP BY g.id;`;
+	res, err := d.SelectOneRow(query, groupID);
+	if err != nil {
+		return nil;
+	}
+	MyGroup := &group{}
+	err = res.Scan(&MyGroup.ID,&MyGroup.Name,&MyGroup.Description,&MyGroup.Owner,&MyGroup.CreatedAt,&MyGroup.Members);
+	if err != nil {
+		return nil;
+	}
+	return MyGroup;
+}
+
 func createGroup(name, description string, owner int) int {
 	query := "INSERT INTO groups (name,description,owner_id) VALUES(?,?,?);"
 	res, err := d.ExecQuery(query, name, description, owner)
