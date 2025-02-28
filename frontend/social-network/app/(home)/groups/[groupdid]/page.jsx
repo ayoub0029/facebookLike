@@ -1,4 +1,4 @@
-import ProfileGrp from '../../../components/Groups/ProfileGrp'
+import ProfileGrp from '../../../../components/Groups/ProfileGrp'
 export default function Profile() {
   return (
     <>

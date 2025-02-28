@@ -1,7 +1,6 @@
 "use client"
 import React, { useState, useEffect } from 'react'
 import { fetchApi } from '@/api/fetchApi'
-import { useRouter } from 'next/navigation';
 import '../../styles/GroupRequests.css'
 import Link from 'next/link';
 
@@ -15,13 +14,13 @@ const UserGroups = () => {
             try {
                 setLoading(true)
                 // Fetch groups of the users from the API endpoint
-                const data = await fetchApi('GET', '/UserGroup', null, false)
-                console.log('User data:', data)
+                const data = await fetchApi('groups?page=0', 'GET', null, false)
+                console.log('User groups data:', data)
                 setUserGroups(data || [])
                 setError(null)
             } catch (err) {
-                console.error('Error fetching users:', err)
-                setError('Failed to load user data')
+                console.error('Error fetching groups:', err)
+                setError('Failed to load group data')
             } finally {
                 setLoading(false)
             }
@@ -29,69 +28,55 @@ const UserGroups = () => {
         fetchUserGroups()
     }, [])
 
-    const LeaveTheGroup = async (id) => {
-        setUserGroups(userGroups.filter(user => user.id !== id))
-        /* try {
+    const leaveTheGroup = async (groupId) => {
+        try {
             setLoading(true)
-            const data = await fetchApi('DELETE', `/groups/${id}`, null, false)
-            console.log('User data:', data)
+            await fetchApi(`groups/${groupId}`, 'DELETE', null, false)
+            setUserGroups(userGroups.filter(group => group.ID !== groupId))
             setError(null)
         } catch (err) {
-            console.error('Error fetching users:', err)
-            setError('Failed to load user data')
+            console.error('Error leaving group:', err)
+            setError('Failed to leave the group')
         } finally {
             setLoading(false)
-        } */
-    }
-    
-    const router = useRouter();
-    const GroupDetail = async (id) => {
-        /* try {
-            setLoading(true)
-            const data = await fetchApi('GET', `/groups/${id}`, null, false)
-            console.log('User data:', data)
-            setError(null)
-        } catch (err) {
-            console.error('Error fetching users:', err)
-            setError('Failed to load user data')
-        } finally {
-            setLoading(false)
-        } */
-        router.push(`/groups/${id}`);
+        }
     }
 
     return (
-        <div className="user-groups-container">
-            <h2 className="user-groups-title">
-                User Contacts
+        <div>
+            <h2>
+                User Groups
             </h2>
-            {loading && <p>Loading users...</p>}
-            {error && <p>{error}</p>}
+            {loading && <p>Loading groups...</p>}
+            {error && <p className="error-message">{error}</p>}
             {!loading && !error && userGroups.length === 0 ? (
-                <p className="no-groups">No users found</p>
+                <p className="no-groups">No groups found</p>
             ) : (
                 <div className="joinedGroups">
                     {userGroups.map(group => (
-                        <>
-                            <div className="groupCard">
-                                    <img
-                                        src="../../Img/group.png"
-                                        alt="group Avatar"
-                                    />
-                                    <div className="groupInfo">
-                                        <h3 className="group-name">{group.name}</h3>
-                                        <p className="group-discription">
-                                            {group.discription}
-                                        </p>
-                                    </div>
-                                <button className='btn btnGray' onClick={() => {
-                                    LeaveTheGroup(group.id)
-                                }}>Leave the group</button>
-                                <button className='btn btnGray' onClick={() => {
-                                    GroupDetail(group.id)
-                                }}>View Group</button>
+                        <div className="groupCard" key={group.ID}>
+                            <img
+                                src="../../Img/group.png"
+                                alt="Group Avatar"
+                            />
+                            <div className="groupInfo">
+                                <h3>{group.Name}</h3>
+                                <p>
+                                    {group.Description}
+                                </p>
                             </div>
-                        </>
+                            <div>
+                                <button
+                                    className='btn btnGray'
+                                    onClick={() => leaveTheGroup(group.ID)}
+                                >
+                                    Leave the group
+                                </button>
+                                <Link href={`/groups/${group.ID}`} className='btn btnGray'>
+                                    View Group
+                                </Link>
+                            </div>
+                        </div>
                     ))}
                 </div>
             )}
