@@ -32,7 +32,7 @@ const UserGroups = () => {
         try {
             setLoading(true)
             await fetchApi(`groups/${groupId}`, 'DELETE', null, false)
-            setUserGroups(userGroups.filter(group => group.ID !== groupId))
+            setUserGroups(userGroups.filter(group => group.id !== groupId))
             setError(null)
         } catch (err) {
             console.error('Error leaving group:', err)
@@ -54,27 +54,35 @@ const UserGroups = () => {
             ) : (
                 <div className="joinedGroups">
                     {userGroups.map(group => (
-                        <div className="groupCard" key={group.ID}>
+                        <div className="groupCard" key={group.id}>
                             <img
                                 src="../../Img/group.png"
                                 alt="Group Avatar"
                             />
                             <div className="groupInfo">
-                                <h3>{group.Name}</h3>
+                                <h3>{group.name}</h3>
                                 <p>
-                                    {group.Description}
+                                    {group.description}
                                 </p>
                             </div>
                             <div>
                                 <button
                                     className='btn btnGray'
-                                    onClick={() => leaveTheGroup(group.ID)}
+                                    onClick={() => leaveTheGroup(group.id)}
                                 >
                                     Leave the group
                                 </button>
-                                <Link href={`/groups/${group.ID}`} className='btn btnGray'>
-                                    View Group
-                                </Link>
+
+                                <button
+                                    className='btn btnGray'
+                                    onClick={() => {
+                                        console.log("id:", group.id)
+                                    }}
+                                >
+                                    <Link href={`/groups/${group.id}`}>
+                                        View Group
+                                    </Link>
+                                </button>
                             </div>
                         </div>
                     ))}

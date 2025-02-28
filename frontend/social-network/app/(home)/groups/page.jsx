@@ -8,8 +8,8 @@ export default function Groups() {
       <div>
         <CreateGroup />
         <MyGroups />
-        <GrpIjoined />
-        <GroupRequests />
+        {/* <GrpIjoined /> */}
+        {/* <GroupRequests /> */}
       </div>
     </>
   );

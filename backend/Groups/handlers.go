@@ -1,21 +1,27 @@
 package groups
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
 	global "socialNetwork/Global"
+	middleware "socialNetwork/Middlewares"
 )
 
 func CreateGroup_handler(res http.ResponseWriter, req *http.Request) {
 	name := req.FormValue("name")
 	description := req.FormValue("description")
-	owner, err := strconv.Atoi(req.FormValue("owner"))
-	if err != nil {
-		global.JsonResponse(res, 400, "data Error")
+	user, ok := req.Context().Value(middleware.UserContextKey).(middleware.User)
+	if !ok {
 		return
 	}
-	myGroup := NewGroup(name, description, owner)
+	fmt.Println(name, description, user)
+	/* if err != nil {
+		global.JsonResponse(res, 400, "data Error")
+		return
+	} */
+	myGroup := NewGroup(name, description, int(user.ID))
 	status := myGroup.Create()
 	if !status {
 		global.JsonResponse(res, 500, "Enternal Server 500")
@@ -126,16 +132,16 @@ func GetEvent_handler(res http.ResponseWriter, req *http.Request) {
 
 }*/
 
-func GetGroupInfo_handler(res http.ResponseWriter, req *http.Request)  {
+func GetGroupInfo_handler(res http.ResponseWriter, req *http.Request) {
 	group, err := strconv.Atoi(req.FormValue("group"))
 	if err != nil {
-		global.JsonResponse(res, 400, "data Error");
-		return;
+		global.JsonResponse(res, 400, "data Error")
+		return
 	}
-	groupInfo := GetGroupInfo(group);
+	groupInfo := GetGroupInfo(group)
 	if groupInfo == nil {
-		global.JsonResponse(res, 404, "data Not Found");
-		return;
+		global.JsonResponse(res, 404, "data Not Found")
+		return
 	}
-	global.JsonResponse(res, 200, *groupInfo);
+	global.JsonResponse(res, 200, *groupInfo)
 }

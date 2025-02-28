@@ -4,8 +4,8 @@ export default function Profile() {
     <>
       <div className="rightSidebar">
         <ProfileGrp />
-        <CreateEvent />
-        <Events />
+        {/* <CreateEvent /> */}
+        {/* <Events /> */}
       </div>
     </>
   )
