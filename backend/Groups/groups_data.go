@@ -128,10 +128,9 @@ func getAllGroupsCreatedBy(userID, page int) []group {
 }
 
 func getAllGroupsJoinedBy(userID, page int) []group {
-	query := `SELECT * FROM groups g
-			  INNER JOIN group_members gm 
-			  on gm.group_id = g.id
-			  WHERE gm.user_id = ?  LIMIT 5 OFFSET ?;`
+	query := `SELECT g.id,g.name,g.description,g.owner_id,g.created_at FROM groups g
+				INNER JOIN group_members gm on gm.group_id = g.id
+			WHERE gm.user_id = ? AND gm.status = 'accepted' LIMIT 5 OFFSET ?;`
 	groupsList := make([]group, 0)
 	data_Rows, err := d.SelectQuery(query, userID, page)
 	if err != nil {
