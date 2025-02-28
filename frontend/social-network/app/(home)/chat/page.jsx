@@ -16,8 +16,6 @@ export default function Chat() {
           <MessageSection fullName = "ayoub hmami" avatar = "./images/profile.jpeg" date = "22-02-2025" message = "kirak dayer" />
           <MessageSection fullName = "bochikhi abdelilah" avatar = "./images/profile.jpeg" date = "22-02-2025" message = "cv ?" />
           <MessageSection fullName = "khir abdelouahab" avatar = "./images/profile.jpeg" date = "22-02-2025" message = "el hamdelilah" />
-       
-       
         </section>
         <footer>
 
