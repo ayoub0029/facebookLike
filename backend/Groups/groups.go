@@ -99,3 +99,11 @@ func GetGroupsJoinedBy(userID, page int) []group {
 func GetGroupInfo(groupID int) *group {
 	return getGroupInfo(groupID);
 }
+
+func Invite(groupID,inviterID int) bool {
+	if requestToJoin(groupID, inviterID) {
+		// Sending Notification code ...
+		return true
+	}
+	return false
+}

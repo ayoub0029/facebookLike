@@ -43,6 +43,10 @@ func main() {
 	mux.HandleFunc("POST /groups/events", groups.CreateEvent_handler)
 	mux.HandleFunc("GET /group/events", groups.GetEvent_handler);
 	mux.HandleFunc("GET /groupInfo", groups.GetGroupInfo_handler);
+	mux.HandleFunc("GET /groupsCreatedBy", groups.GetGroupsCreatedBy_handler);
+	mux.HandleFunc("GET /groupsJoinedBy", groups.GetGroupsJoinedBy_handler);
+
+
 
 	//----------------------------------------------------------------------
 
