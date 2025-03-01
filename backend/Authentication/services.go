@@ -416,3 +416,13 @@ func FindUserByOAuthID(oauthID string) (bool, error) {
 	}
 	return true, nil
 }
+
+func CheckIsNotNeedLogin(path string) bool {
+	alowd := map[string]bool{
+		"/auth/signup":          true,
+		"/auth/login":           true,
+		"/auth/githublogin":     true,
+		"/auth/github/callback": true,
+	}
+	return alowd[path]
+}
