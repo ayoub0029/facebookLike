@@ -7,7 +7,7 @@ import { useParams } from "next/navigation"
 
 export default function Profile() {
   const params = useParams();
-  
+
   const [profile, setProfile] = useState(null);
   useEffect(() => {
     async function fetchProfile() {
@@ -22,11 +22,10 @@ export default function Profile() {
     fetchProfile();
   }, [params.id]);
   console.log(profile);
-  
-  const [isFollow, setIsfollow] = useState(false); 
 
+  const [isFollow, setIsfollow] = useState(false);
   useEffect(() => {
-    if (profile) {      
+    if (profile) {
       async function fetchIsFollow() {
         const response = await fetchApi(`profiles/follow/status?user_id=2`, "GET");
         if (response.hasOwnProperty("error")) {
@@ -39,15 +38,11 @@ export default function Profile() {
       fetchIsFollow();
     }
   }, [profile])
-  if (!profile) {
-    return (
-      <div>Loading...</div>
-    );
-  }
-  console.log(isFollow);
-  
+
+  if (!profile) return <div> Loading... </div>
+
   profile["Status"] = isFollow.Status
-  
+
   return (
     <>
       <aside className="feed">

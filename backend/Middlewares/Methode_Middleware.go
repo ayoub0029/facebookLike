@@ -43,7 +43,7 @@ func Auth(next http.Handler) http.Handler {
 			res.WriteHeader(http.StatusNoContent)
 			return
 		}
-		
+
 		id, err := auth.IsLoggedIn(req, "token")
 		if err != nil {
 			logger.Error("Message: %v", err)

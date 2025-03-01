@@ -5,15 +5,15 @@
     flex-direction: column;
     align-items: center;
   }
-  
+
   .profiletHeader .full_name {
     font-size: 1.15rem;
   }
-  
+
   .profiletHeader span {
     margin-bottom: 3px;
   }
-  
+
   .profiletHeader img {
     border-radius: 50%;
     width: 160px;
@@ -21,32 +21,32 @@
     border: 2px solid #fff;
     outline: 3px solid #68e735;
   }
-  
+
   .profiletHeader .nickname,
   .profiletHeader .date_brith {
     color: var(--secondary-color);
   }
-  
+
   .profiletHeader .follow_number {
     font-weight: bold;
   }
-  
+
   .profiletHeader .follow {
     display: flex;
     align-items: center;
     gap: 10px;
   }
-  
+
   .profiletHeader .follow span {
     display: block;
     text-align: center;
   }
-  
+
   .profiletHeader .follow div {
     padding: 8px;
     position: relative;
   }
-  
+
   .profiletHeader .follow div:nth-of-type(2)::before {
     content: "";
     position: absolute;
@@ -57,29 +57,29 @@
     transform: translateY(-50%);
     background-color: #ddd;
   }
-  
+
   .profiletHeader .follow div > span:nth-of-type(2) {
     font-size: 11px;
     color: var(--primary-color);
   }
-  
+
   .profiletHeader .follow :nth-child(2) :nth-child(2) {
     margin-left: 10px;
   }
-  
+
   .profiletHeader .about {
     margin-top: 25px;
   }
-  
+
   .profiletHeader .about span {
     font-weight: 700;
   }
-  
+
   .profiletHeader .about p {
     color: #666;
     font-size: 0.7rem;
   }
-  
+
   .btn_follow button {
     border: none;
     color: #fff;
@@ -89,8 +89,119 @@
     width: 95px;
     background-color: var(--btn-color);
   }
-  
+
   .btn_follow button:active {
     transform: translateY(1px);
   }
-  
+
+
+  /* ------------------------------- pop up users -------------------------------------- */
+  /* Modal.module.css */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modalBackdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modalContent {
+  position: relative;
+  z-index: 10;
+  background-color: white;
+  border-radius: 8px;
+  padding: 24px;
+  max-width: 500px;
+  width: 100%;
+  margin: 0 auto;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.closeButton {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #999;
+}
+
+.closeButton:hover {
+  color: #333;
+}
+
+/* --------------------------------------- */
+/* Home.module.css */
+.container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.button {
+  padding: 10px 16px;
+  background-color: #0070f3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.button:hover {
+  background-color: #0060df;
+}
+
+.modalTitle {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+
+.modalActions {
+  margin-top: 24px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.buttonPrimary {
+  padding: 8px 16px;
+  background-color: #0070f3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 8px;
+}
+
+.buttonPrimary:hover {
+  background-color: #0060df;
+}
+
+.buttonSecondary {
+  padding: 8px 16px;
+  background-color: #f0f0f0;
+  color: #333;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.buttonSecondary:hover {
+  background-color: #e0e0e0;
+}
