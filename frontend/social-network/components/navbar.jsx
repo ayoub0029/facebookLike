@@ -21,7 +21,7 @@ export function Navigation() {
         <Link href={"/groups"} className="menuItem secondary"><i className="fa-solid fa-user-group"></i> <span>&nbsp;Groups</span></Link>
         <Link href={"/chat"} className="menuItem secondary"><i className="fas fa-envelope"></i> <span>&nbsp;Chats</span></Link>
         <Link href={"/notifications"} className="menuItem secondary"><i className="fas fa-bell"></i> <span>&nbsp;Notifications</span></Link>
-        <Link href={"/logout"} className="menuItem danger"><i className="fa-solid fa-arrow-right-from-bracket"></i> <span>&nbsp;Sign out</span></Link>
+        <Link href={"/auth/logout"} className="menuItem danger"><i className="fa-solid fa-arrow-right-from-bracket"></i> <span>&nbsp;Sign out</span></Link>
       </div>
     </>
   );
