@@ -4,9 +4,13 @@ import Modal from "./popupUsers.jsx"
 
 export default function ProfileComponent({ profile }) {
 
-  const [folloersOpen, setIsModalOpen] = useState(false);
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  const [followersOpen, setFollowersOpen] = useState(false);
+  const openModal1 = () => setFollowersOpen(true);
+  const closeModal1 = () => setFollowersOpen(false);
+
+  const [followengOpen, setFollowengOpen] = useState(false);
+  const openModal2 = () => setFollowengOpen(true);
+  const closeModal2 = () => setFollowengOpen(false);
 
   return profile.ProfileStatus === 'private' && !profile.isOwner ? (
     <div className={style["profiletHeader"]}>
@@ -39,12 +43,12 @@ export default function ProfileComponent({ profile }) {
       <span className={style["date_brith"]}>{formateDOB(profile.DOB)}</span>
 
       <div className={style["follow"]}>
-        <div onClick={openModal}>
+        <div onClick={openModal1}>
           <span className={style["follow_number"]}> {profile.Follower}</span>
           <span> Followers</span>
         </div>
 
-        <div onClick={openModal}>
+        <div onClick={openModal2}>
           <span className={style["follow_number"]}> {profile.Follwoed}</span>
           <span> Following</span>
         </div>
@@ -57,19 +61,27 @@ export default function ProfileComponent({ profile }) {
         <p>{profile.AboutMe}</p>
       </div>
 
-      <Modal isOpen={folloersOpen} onClose={closeModal}>
-        <h2 className={style.modalTitle}>Followers</h2>
-        <p>This is your custom popup content!</p>
-        <p>This is your custom popup content!</p>
-        <p>This is your custom popup content!</p>
-        <p>This is your custom popup content!</p>
-        <p>This is your custom popup content!</p>
-        <p>This is your custom popup content!</p>
-        <p>This is your custom popup content!</p>
-        <p>This is your custom popup content!</p>
-        <p>This is your custom popup content!</p>
-        <p>This is your custom popup content!</p>
-        <p>This is your custom popup content!</p>
+      <Modal isOpen={followersOpen} onClose={closeModal1}>
+        <div className="directMessages">
+          <h2 className={style.modalTitle}>Followers</h2>
+          <div className="postHeader">
+            <img src="http://localhost:8080/public/test.jpg" className="smallImg" />
+            <p>Ayoub Lahmami</p>
+          </div>
+          <div className="postHeader">
+            <img src="http://localhost:8080/public/test.jpg" className="smallImg" />
+            <p>Ayoub Lahmami</p>
+          </div>
+          <div className="postHeader">
+            <img src="http://localhost:8080/public/test.jpg" className="smallImg" />
+            <p>Ayoub Lahmami</p>
+          </div>
+
+        </div>
+      </Modal>
+
+      <Modal isOpen={followengOpen} onClose={closeModal2}>
+        <h2 className={style.modalTitle}>Followeng</h2>
         <p>This is your custom popup content!</p>
         <p>This is your custom popup content!</p>
         <p>This is your custom popup content!</p>
