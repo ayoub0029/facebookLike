@@ -7,7 +7,7 @@ import Image from "next/image";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-export function FetchPosts({ endpoint, edit = false }) {
+export function FetchPosts({ endpoint }) {
     const [posts, setPosts] = useState([]);
     const [error, setError] = useState(null);
     const [menuVisible, setMenuVisible] = useState(null);
@@ -48,6 +48,25 @@ export function FetchPosts({ endpoint, edit = false }) {
         setMenuVisible(menuVisible === postId ? null : postId);
     };
 
+    const handleLike = async (postId, isLiked) => {
+        const status = isLiked ? 0 : 1;
+        await fetchApi(`/posts/reactions?post_id=${postId}&status_like=${status}`);
+
+        try {
+            const response = await fetchApi(`/post?post_id=${postId}`);
+
+            if (response && response[0]) {
+                setPosts((allPosts) =>
+                    allPosts.map((post) =>
+                        post.id === postId ? { ...post, is_liked: response[0].is_liked, likes: response[0].likes } : post
+                    )
+                );
+            }
+        } catch (err) {
+            console.error("Failed to like the post", err);
+        }
+    };
+
     if (error) return <div className="error">{error}</div>;
     if (posts.length === 0) return <div>Loading posts...</div>;
 
@@ -55,7 +74,7 @@ export function FetchPosts({ endpoint, edit = false }) {
         <div>
             {posts.map((post) => (
                 <div key={post.id} className="post">
-                    {edit && (
+                    {post.edit && (
                         <>
                             <div className="editPoints" onClick={() => toggleMenu(post.id)}>...</div>
                             {menuVisible === post.id && (
@@ -100,7 +119,15 @@ export function FetchPosts({ endpoint, edit = false }) {
                         ) : null}
                     </div>
                     <div className="postActions">
-                        <label><i className="fa-regular fa-heart"></i> {post.likes}</label>
+                        {post.is_liked ? (
+                            <label onClick={() => handleLike(post.id, post.is_liked)}>
+                                <i className="fa-solid fa-heart danger"></i> {post.likes}
+                            </label>
+                        ) : (
+                            <label onClick={() => handleLike(post.id, post.is_liked)}>
+                                <i className="fa-regular fa-heart"></i> {post.likes}
+                            </label>
+                        )}
                         <label><i className="fa-regular fa-comment"></i> {post.comments}</label>
                     </div>
                 </div>

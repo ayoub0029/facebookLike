@@ -209,8 +209,7 @@ func getPosts(w http.ResponseWriter, r *http.Request) {
 	    p.privacy = 'public' 
 		OR (p.privacy = 'almost private' AND f.followed_id IS NOT NULL) 
 		OR (p.privacy = 'private' AND pv.post_id IS NOT NULL) 
-	    ) 
-	AND p.id < $2  
+	    OR p.user_id = $1) AND p.id < $2  
 	ORDER BY
     	p.id DESC  
 	LIMIT
@@ -225,7 +224,7 @@ func getPosts(w http.ResponseWriter, r *http.Request) {
 	for posts.Next() {
 		var Post PostData
 		posts.Scan(&Post.ID, &Post.Avatar, &Post.Likes, &Post.Comments, &Post.Nickname, &Post.First_name, &Post.Last_name, &Post.Content, &Post.CreatedAt, &Post.Updated_at, &Post.Image, &Post.Group_name)
-		Post.IsLiked, err = CheckLikePost(userID, Post.ID)
+		Post.IsLiked, err = CheckLikePost(Post.ID, userID)
 		if err != nil {
 			global.JsonResponse(w, http.StatusInternalServerError, "some thing wrong")
 			return
@@ -301,7 +300,7 @@ func getPostGroup(w http.ResponseWriter, r *http.Request) {
 	for posts.Next() {
 		var Post PostData
 		posts.Scan(&Post.ID, &Post.Avatar, &Post.Likes, &Post.Comments, &Post.Nickname, &Post.First_name, &Post.Last_name, &Post.Content, &Post.CreatedAt, &Post.Updated_at, &Post.Image, &Post.Privacy, &Post.Group_name)
-		Post.IsLiked, err = CheckLikePost(userID, Post.ID)
+		Post.IsLiked, err = CheckLikePost(Post.ID, userID)
 		if err != nil {
 			global.JsonResponse(w, http.StatusInternalServerError, "some thing was wrong")
 			return
@@ -445,20 +444,20 @@ func getSpesificPost(w http.ResponseWriter, r *http.Request) {
 		OR (p.privacy = 'private' AND pv.post_id IS NOT NULL)
 	    )AND p.id = $2
 	`
-	posts, err := database.SelectQuery(query, userID, postID)
+	posts, err := database.SelectOneRow(query, userID, postID) // tas7i7
 	if err != nil {
 		global.JsonResponse(w, http.StatusInternalServerError, "some thing was wrong")
 		return
 	}
 	var Post PostData
 	posts.Scan(&Post.ID, &Post.Avatar, &Post.Likes, &Post.Comments, &Post.Nickname, &Post.First_name, &Post.Last_name, &Post.Content, &Post.CreatedAt, &Post.Updated_at, &Post.Image, &Post.Group_name)
-	Post.IsLiked, err = CheckLikePost(userID, Post.ID)
+	Post.IsLiked, err = CheckLikePost(postID, userID) // tas7i7
 	if err != nil {
 		global.JsonResponse(w, http.StatusInternalServerError, "some thing was wrong")
 		return
 	}
 
-	if Post.Group_name != "" {
+	if Post.Group_name != nil { // tas7i7
 		id, err := getGroupid(userID, Post.Group_name)
 		if err != nil {
 			global.JsonResponse(w, http.StatusInternalServerError, "some thing was wrong")

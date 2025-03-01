@@ -6,7 +6,7 @@ export default function Home() {
     <>
       <aside className="feed">
         <CreatePost />
-        <FetchPosts endpoint="posts?last_id=0" edit={true} />
+        <FetchPosts endpoint="posts?last_id=0" />
       </aside>
 
       <div className="rightSidebar">
