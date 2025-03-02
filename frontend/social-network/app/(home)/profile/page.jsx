@@ -34,6 +34,7 @@ export default function Profile() {
       </aside>
 
       <div className="rightSidebar">
+        {/* ProfileComponent */}
         <ProfileComponent profile={profile} />
       </div>
     </>

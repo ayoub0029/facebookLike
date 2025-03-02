@@ -1,16 +1,38 @@
 import style from "./profile.module.css"
 import { useState } from "react"
-import Modal from "./popupUsers.jsx"
+import Modal from "./popup.jsx"
+
+const UserItem = ({ avatar, name, username, onActionClick, actionText }) => (
+  <div className="user-item">
+    <img src={avatar || "http://localhost:8080/public/test.jpg"} className="smallImg" alt={name} />
+    <div className="user-info">
+      <p className="user-name">{name}</p>
+      <p className="user-username">@{username}</p>
+    </div>
+    {actionText && (
+      <button className="user-action-btn" onClick={onActionClick}>
+        {actionText}
+      </button>
+    )}
+  </div>
+);
 
 export default function ProfileComponent({ profile }) {
+  const [modals, setModals] = useState({
+    followers: false,
+    following: false,
+    editProfile: false,
+    settings: false,
+    shareProfile: false
+  });
 
-  const [followersOpen, setFollowersOpen] = useState(false);
-  const openModal1 = () => setFollowersOpen(true);
-  const closeModal1 = () => setFollowersOpen(false);
+  const openModal = (modalName) => {
+    setModals({ ...modals, [modalName]: true });
+  };
 
-  const [followengOpen, setFollowengOpen] = useState(false);
-  const openModal2 = () => setFollowengOpen(true);
-  const closeModal2 = () => setFollowengOpen(false);
+  const closeModal = (modalName) => {
+    setModals({ ...modals, [modalName]: false });
+  };
 
   return profile.ProfileStatus === 'private' && !profile.isOwner ? (
     <div className={style["profiletHeader"]}>
@@ -43,12 +65,12 @@ export default function ProfileComponent({ profile }) {
       <span className={style["date_brith"]}>{formateDOB(profile.DOB)}</span>
 
       <div className={style["follow"]}>
-        <div onClick={openModal1}>
+        <div onClick={() => openModal('followers')}>
           <span className={style["follow_number"]}> {profile.Follower}</span>
           <span> Followers</span>
         </div>
 
-        <div onClick={openModal2}>
+        <div onClick={() => openModal('following')}>
           <span className={style["follow_number"]}> {profile.Follwoed}</span>
           <span> Following</span>
         </div>
@@ -61,37 +83,95 @@ export default function ProfileComponent({ profile }) {
         <p>{profile.AboutMe}</p>
       </div>
 
-      <Modal isOpen={followersOpen} onClose={closeModal1}>
-        <div className="directMessages">
-          <h2 className={style.modalTitle}>Followers</h2>
-          <div className="postHeader">
-            <img src="http://localhost:8080/public/test.jpg" className="smallImg" />
-            <p>Ayoub Lahmami</p>
-          </div>
-          <div className="postHeader">
-            <img src="http://localhost:8080/public/test.jpg" className="smallImg" />
-            <p>Ayoub Lahmami</p>
-          </div>
-          <div className="postHeader">
-            <img src="http://localhost:8080/public/test.jpg" className="smallImg" />
-            <p>Ayoub Lahmami</p>
-          </div>
+      {/* Followers Modal */}
+      <Modal
+        isOpen={modals.followers}
+        onClose={() => closeModal('followers')}
+        title="Followers"
+      >
+        <div className="user-list">
 
         </div>
       </Modal>
 
-      <Modal isOpen={followengOpen} onClose={closeModal2}>
-        <h2 className={style.modalTitle}>Followeng</h2>
-        <p>This is your custom popup content!</p>
-        <p>This is your custom popup content!</p>
-        <p>This is your custom popup content!</p>
-        <p>This is your custom popup content!</p>
-        <p>This is your custom popup content!</p>
-        <p>This is your custom popup content!</p>
-        <p>This is your custom popup content!</p>
-        <p>This is your custom popup content!</p>
-        <p>This is your custom popup content!</p>
+      {/* Following Modal */}
+      <Modal
+        isOpen={modals.following}
+        onClose={() => closeModal('following')}
+        title="Following"
+      >
+        <div className="user-list">
+
+        </div>
       </Modal>
+
+      {/* Edit Profile Modal */}
+      <Modal
+        isOpen={modals.editProfile}
+        onClose={() => closeModal('editProfile')}
+        title="Edit Profile"
+      >
+      </Modal>
+
+      {/* Settings Modal */}
+      <Modal
+        isOpen={modals.settings}
+        onClose={() => closeModal('settings')}
+        title="Profile Settings"
+      >
+        <div className="settings-list">
+          <div className="setting-item">
+            <label>Profile Visibility</label>
+            <select defaultValue={profile.ProfileStatus}>
+              <option value="public">Public</option>
+              <option value="private">Private</option>
+            </select>
+          </div>
+          <div className="setting-item">
+            <label>Email Notifications</label>
+            <input type="checkbox" defaultChecked />
+          </div>
+          <div className="setting-item">
+            <label>Push Notifications</label>
+            <input type="checkbox" defaultChecked />
+          </div>
+          <div className="form-buttons">
+            <button onClick={() => closeModal('settings')}>Cancel</button>
+            <button>Save Settings</button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Share Profile Modal */}
+      <Modal
+        isOpen={modals.shareProfile}
+        onClose={() => closeModal('shareProfile')}
+        title="Share Profile"
+      >
+        <div className="share-options">
+          <button className="share-btn">
+            <span className="share-icon">📱</span>
+            Copy Link
+          </button>
+          <button className="share-btn">
+            <span className="share-icon">✉️</span>
+            Email
+          </button>
+          <button className="share-btn">
+            <span className="share-icon">📘</span>
+            Facebook
+          </button>
+          <button className="share-btn">
+            <span className="share-icon">🐦</span>
+            Twitter
+          </button>
+          <button className="share-btn">
+            <span className="share-icon">💼</span>
+            LinkedIn
+          </button>
+        </div>
+      </Modal>
+
     </div>
   )
 }

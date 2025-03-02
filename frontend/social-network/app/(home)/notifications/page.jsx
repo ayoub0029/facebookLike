@@ -4,7 +4,7 @@ export default function Notification() {
         <aside className="feed">
           test test
         </aside>
-  
+
         <div className="rightSidebar">
         </div>
       </>
