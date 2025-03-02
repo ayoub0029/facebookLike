@@ -2,6 +2,7 @@ package groups
 
 import (
 	//"fmt"
+	"fmt"
 	d "socialNetwork/Database"
 	profiles "socialNetwork/Profiles"
 )
@@ -14,20 +15,19 @@ type group_data struct {
 	Created_At  string
 }
 
-
-func getGroupInfo(groupID int)  *group{
+func getGroupInfo(groupID int) *group {
 	query := `SELECT g.id,g.name,g.description,g.owner_id,g.created_at,count(gm.user_id) members FROM groups g LEFT JOIN group_members gm
-			ON g.id = gm.group_id WHERE g.id = ? GROUP BY g.id;`;
-	res, err := d.SelectOneRow(query, groupID);
+			ON g.id = gm.group_id WHERE g.id = ? GROUP BY g.id;`
+	res, err := d.SelectOneRow(query, groupID)
 	if err != nil {
-		return nil;
+		return nil
 	}
 	MyGroup := &group{}
-	err = res.Scan(&MyGroup.ID,&MyGroup.Name,&MyGroup.Description,&MyGroup.Owner,&MyGroup.CreatedAt,&MyGroup.Members);
+	err = res.Scan(&MyGroup.ID, &MyGroup.Name, &MyGroup.Description, &MyGroup.Owner, &MyGroup.CreatedAt, &MyGroup.Members)
 	if err != nil {
-		return nil;
+		return nil
 	}
-	return MyGroup;
+	return MyGroup
 }
 
 func createGroup(name, description string, owner int) int {
@@ -123,6 +123,9 @@ func getAllGroupsCreatedBy(userID, page int) []group {
 		MyGroup := group{}
 		_ = data_Rows.Scan(&MyGroup.ID, &MyGroup.Name, &MyGroup.Description, &MyGroup.Owner, &MyGroup.CreatedAt)
 		groupsList = append(groupsList, MyGroup)
+	}
+	for i := 0; i < len(groupsList); i++ {
+		fmt.Println(groupsList[i].ID, page)
 	}
 	return groupsList
 }

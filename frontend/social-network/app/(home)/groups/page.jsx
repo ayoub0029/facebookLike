@@ -1,14 +1,14 @@
 import  GroupRequests  from "@/components/Groups/GroupRequests"
-import  MyGroups  from "@/components/Groups/MyGroups"
+import  JoinedGrp  from "@/components/Groups/JoinedGrp"
 import CreateGroup from "@/components/Groups/CreateGroup";
-import GrpIjoined from "@/components/Groups/GrpIjoined";
+import MyGroups from "@/components/Groups/MyGroups";
 export default function Groups() {
   return (
     <>
       <div>
         <CreateGroup />
+        <JoinedGrp/>
         <MyGroups />
-        {/* <GrpIjoined /> */}
         {/* <GroupRequests /> */}
       </div>
     </>

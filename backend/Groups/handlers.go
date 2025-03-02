@@ -45,14 +45,17 @@ func GetAllGroups_handler(res http.ResponseWriter, req *http.Request) {
 }
 
 func GetGroupsCreatedBy_handler(res http.ResponseWriter, req *http.Request) {
-	owner, err := strconv.Atoi(req.FormValue("owner"))
+	user, ok := req.Context().Value(middleware.UserContextKey).(middleware.User)
+	if !ok {
+		return
+	}
 	page, err2 := strconv.Atoi(req.FormValue("page"))
 
-	if err != nil || err2 != nil {
+	if err2 != nil {
 		global.JsonResponse(res, 400, "data Error")
 		return
 	}
-	groupsArray := GetGroupsCreatedBy(owner, page)
+	groupsArray := GetGroupsCreatedBy(int(user.ID), page)
 	if groupsArray == nil {
 		global.JsonResponse(res, 404, "data Not Found")
 		return
@@ -61,14 +64,17 @@ func GetGroupsCreatedBy_handler(res http.ResponseWriter, req *http.Request) {
 }
 
 func GetGroupsJoinedBy_handler(res http.ResponseWriter, req *http.Request) {
-	owner, err := strconv.Atoi(req.FormValue("owner"))
+	user, ok := req.Context().Value(middleware.UserContextKey).(middleware.User)
+	if !ok {
+		return
+	}
 	page, err2 := strconv.Atoi(req.FormValue("page"))
 
-	if err != nil || err2 != nil {
+	if err2 != nil {
 		global.JsonResponse(res, 400, "data Error")
 		return
 	}
-	groupsArray := GetGroupsJoinedBy(owner, page)
+	groupsArray := GetGroupsJoinedBy(int(user.ID), page)
 	if groupsArray == nil {
 		global.JsonResponse(res, 404, "data Not Found")
 		return
