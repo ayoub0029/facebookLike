@@ -50,7 +50,6 @@ export default function useLazyLoad(fetchData) {
             (entries) => {
                 console.log("im here in observation");
                 if (entries[0].isIntersecting && !loadingRef.current) {
-
                     console.log("now i see, current page:", page, "nextPage:", nextPage);
                     if (page !== nextPage) {
                         setPage(nextPage);
@@ -59,6 +58,8 @@ export default function useLazyLoad(fetchData) {
             },
             { threshold: 0.1 }
         )
+        console.log(loaderRef.current);
+        
         if (loaderRef.current) observer.observe(loaderRef.current)
         return () => {
             if (loaderRef.current) observer.disconnect()
