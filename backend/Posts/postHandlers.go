@@ -185,6 +185,7 @@ func getPosts(w http.ResponseWriter, r *http.Request) {
 	if lastId == 0 {
 		lastId = 9223372036854775806
 	}
+	// tas7i7 zet edit
 	query := `
 	SELECT
 		p.id,
@@ -198,7 +199,12 @@ func getPosts(w http.ResponseWriter, r *http.Request) {
 	    p.created_at,
 	    p.updated_at,
 	    p.media,
-	    (SELECT g.name FROM groups AS g WHERE g.id = p.group_id) AS group_name
+	    (SELECT g.name FROM groups AS g WHERE g.id = p.group_id) AS group_name,
+		CASE u.id 
+           WHEN $1 
+               THEN true 
+           ELSE false 
+       	END edit
 	FROM
 	    posts AS p
 	    JOIN users AS u ON p.user_id = u.id
@@ -223,7 +229,7 @@ func getPosts(w http.ResponseWriter, r *http.Request) {
 	var AllPosts []PostData
 	for posts.Next() {
 		var Post PostData
-		posts.Scan(&Post.ID, &Post.Avatar, &Post.Likes, &Post.Comments, &Post.Nickname, &Post.First_name, &Post.Last_name, &Post.Content, &Post.CreatedAt, &Post.Updated_at, &Post.Image, &Post.Group_name)
+		posts.Scan(&Post.ID, &Post.Avatar, &Post.Likes, &Post.Comments, &Post.Nickname, &Post.First_name, &Post.Last_name, &Post.Content, &Post.CreatedAt, &Post.Updated_at, &Post.Image, &Post.Group_name, &Post.Edit)
 		Post.IsLiked, err = CheckLikePost(Post.ID, userID)
 		if err != nil {
 			global.JsonResponse(w, http.StatusInternalServerError, "some thing wrong")

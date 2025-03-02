@@ -42,4 +42,5 @@ type PostData struct {
 	Group_name any       `json:"group_name"`
 	IsLiked    any       `json:"is_liked"`
 	Privacy    string    `json:"privacy"`
+	Edit       bool      `json:"edit"`
 }

@@ -35,6 +35,7 @@ body {
   background: var(--background);
   padding: 20px;
   border-right: 1px solid var(--third-color);
+  z-index: 1;
 }
 
 .logo {
@@ -321,9 +322,9 @@ body {
     margin-bottom: 5px;
   }
 
-  .imgPrivacyPost {
+  /* .imgPrivacyPost {
     grid-template-columns: 45% 53%;
-  }
+  } */
 }
 
 .rightMenuToggle {

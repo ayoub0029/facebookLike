@@ -12,6 +12,7 @@ export function Navigation() {
             height={100}
             src={process.env.NEXT_PUBLIC_API_BASE_URL + "/public/logo.png"}
             alt="logo"
+            unoptimized={true}
             layout="responsive" />
         </a>
       </div>

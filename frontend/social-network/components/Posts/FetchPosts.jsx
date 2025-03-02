@@ -10,7 +10,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 export function FetchPosts({ endpoint }) {
     const [posts, setPosts] = useState([]);
     const [error, setError] = useState(null);
-    const [menuVisible, setMenuVisible] = useState(null);
+    const [editVisible, setEditVisible] = useState(null);
     const menuRef = useRef(null);
 
     useEffect(() => {
@@ -37,7 +37,7 @@ export function FetchPosts({ endpoint }) {
     useEffect(() => {
         function handleClickOutside(event) {
             if (menuRef.current && !menuRef.current.contains(event.target)) {
-                setMenuVisible(null);
+                setEditVisible(null);
             }
         }
         document.addEventListener("mousedown", handleClickOutside);
@@ -45,7 +45,7 @@ export function FetchPosts({ endpoint }) {
     }, []);
 
     const toggleMenu = (postId) => {
-        setMenuVisible(menuVisible === postId ? null : postId);
+        setEditVisible(editVisible === postId ? null : postId);
     };
 
     const handleLike = async (postId, isLiked) => {
@@ -72,12 +72,13 @@ export function FetchPosts({ endpoint }) {
 
     return (
         <div>
+            {console.log(posts)}
             {posts.map((post) => (
                 <div key={post.id} className="post">
                     {post.edit && (
                         <>
                             <div className="editPoints" onClick={() => toggleMenu(post.id)}>...</div>
-                            {menuVisible === post.id && (
+                            {editVisible === post.id && (
                                 <div className="editMenu" ref={menuRef}>
                                     <button onClick={() => alert("Update" + post.id)}>Update</button>
                                     <button onClick={() => alert("Delete" + post.id)}>Delete</button>
@@ -100,6 +101,7 @@ export function FetchPosts({ endpoint }) {
                             className="profileImg"
                             width={40}
                             height={40}
+                            unoptimized={true}
                         />
                         <div className="postInfo">
                             <span className="postName">{post.first_name} {post.last_name}</span>
@@ -112,9 +114,9 @@ export function FetchPosts({ endpoint }) {
                             <Image
                                 src={`${API_BASE_URL}/public/${post.image}`}
                                 alt="Post Image"
-                                layout="responsive"
-                                width={500}
+                                width={1000}
                                 height={500}
+                                unoptimized={true}
                             />
                         ) : null}
                     </div>
@@ -133,5 +135,24 @@ export function FetchPosts({ endpoint }) {
                 </div>
             ))}
         </div>
+    );
+}
+
+
+export function editModel() {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    
+    const openModal = () => setIsModalOpen(true);
+    const closeModal = () => setIsModalOpen(false);
+    
+    return (
+      <div>
+        <Modal 
+          isOpen={isModalOpen} 
+          onClose={closeModal}
+        >
+          
+        </Modal>
+      </div>
     );
 }

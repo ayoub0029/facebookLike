@@ -1,7 +1,6 @@
 package posts
 
 import (
-	"database/sql"
 	"errors"
 	"net/http"
 	database "socialNetwork/Database"
@@ -57,15 +56,16 @@ func ApplyUserReaction(w http.ResponseWriter, r *http.Request) {
 }
 
 func userprevstate(postID, userID, statusLike int) error {
-	query := `SELECT status_like FROM user_reaction WHERE post_id = ? AND user_id = ?`
+	query := `SELECT reaction_type FROM post_reactions WHERE post_id = ? AND user_id = ?`
+
+	prevStatus := -1
 	row, err := database.SelectOneRow(query, postID, userID)
-	if err == sql.ErrNoRows && statusLike == 0 {
-		return errors.New("you already removed like of this post")
+	if row.Scan(&prevStatus) != nil && statusLike == 0 {
+		return errors.New("you didn't like this post")
 	} else if err != nil {
 		return err
 	}
-	prevStatus := -1
-	row.Scan(&prevStatus)
+
 	if prevStatus == statusLike {
 		return errors.New("you have already reacted")
 	}
