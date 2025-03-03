@@ -1,6 +1,7 @@
 import style from "./profile.module.css"
 import { useState } from "react"
 import Modal from "./popup.jsx"
+import InfiniteScrollDiv from "./users.jsx"
 
 const UserItem = ({ avatar, name, username, onActionClick, actionText }) => (
   <div className="user-item">
@@ -22,8 +23,6 @@ export default function ProfileComponent({ profile }) {
     followers: false,
     following: false,
     editProfile: false,
-    settings: false,
-    shareProfile: false
   });
 
   const openModal = (modalName) => {
@@ -33,6 +32,7 @@ export default function ProfileComponent({ profile }) {
   const closeModal = (modalName) => {
     setModals({ ...modals, [modalName]: false });
   };
+console.log(profile);
 
   return profile.ProfileStatus === 'private' && !profile.isOwner ? (
     <div className={style["profiletHeader"]}>
@@ -101,7 +101,7 @@ export default function ProfileComponent({ profile }) {
         title="Following"
       >
         <div className="user-list">
-
+          <InfiniteScrollDiv userID={profile.Id}/>
         </div>
       </Modal>
 
@@ -139,36 +139,6 @@ export default function ProfileComponent({ profile }) {
             <button onClick={() => closeModal('settings')}>Cancel</button>
             <button>Save Settings</button>
           </div>
-        </div>
-      </Modal>
-
-      {/* Share Profile Modal */}
-      <Modal
-        isOpen={modals.shareProfile}
-        onClose={() => closeModal('shareProfile')}
-        title="Share Profile"
-      >
-        <div className="share-options">
-          <button className="share-btn">
-            <span className="share-icon">📱</span>
-            Copy Link
-          </button>
-          <button className="share-btn">
-            <span className="share-icon">✉️</span>
-            Email
-          </button>
-          <button className="share-btn">
-            <span className="share-icon">📘</span>
-            Facebook
-          </button>
-          <button className="share-btn">
-            <span className="share-icon">🐦</span>
-            Twitter
-          </button>
-          <button className="share-btn">
-            <span className="share-icon">💼</span>
-            LinkedIn
-          </button>
         </div>
       </Modal>
 

@@ -9,6 +9,8 @@ import (
 	global "socialNetwork/Global"
 )
 
+var logger = global.NewLogger()
+
 // GET /profiles?user_id=123 → Get user profile
 // GET /profiles → Get Your user profile Info
 func GetProfile(w http.ResponseWriter, r *http.Request) {
@@ -331,6 +333,7 @@ func GetFollowers(w http.ResponseWriter, r *http.Request) {
 	UserID, err := strconv.Atoi(Param2)
 	if err != nil {
 		global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": global.ErrInvalidRequest.Error()})
+		logger.Error("%v", err)
 		return
 	}
 
@@ -346,6 +349,7 @@ func GetFollowers(w http.ResponseWriter, r *http.Request) {
 		Public, err := IsPublic(UserID)
 		if err == ErrUserNotExist {
 			global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": err.Error()})
+			logger.Error("%v", err)
 			return
 		}
 		if err != nil {
@@ -353,7 +357,7 @@ func GetFollowers(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if !Public {
+		if !Public && CurrentUserID != UserID {
 			_, err := IsFollowed(CurrentUserID, UserID)
 			if err == ErrUserNotExist || err == ErrFollowYourself {
 				global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": err.Error()})
