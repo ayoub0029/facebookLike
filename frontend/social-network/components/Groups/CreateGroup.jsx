@@ -20,7 +20,7 @@ export default function CreateGroup() {
         event.preventDefault()
         const data = new FormData(event.target)
         console.log("data: ", data);
-        const res = await fetchApi('AddGroup', 'POST', data, true)
+        const res = await fetchApi('group', 'POST', data, true)
         if (res.status != undefined) {
             console.error('Failed to create group')
             useError(`Error`)

@@ -39,7 +39,7 @@ const JoinedGrp = () => {
         try {
             setLeavingGroup(true)
             setLeaveError(null)
-            const response = await fetchApi(`handler/${groupId}`, 'DELETE', null, false)
+            const response = await fetchApi(`group/leav/${groupId}`, 'DELETE', null, false)
             if (response && response.status !== undefined && response.status !== 200) {
                 setLeaveError(`Error: ${response.error || 'Unknown error'} (Status: ${response.status})`);
                 return;

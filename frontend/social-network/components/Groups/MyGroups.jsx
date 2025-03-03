@@ -9,11 +9,11 @@ const fetchUserGroups = async (page) => {
 
     try {
         console.log("im here in fetchuser");
-        const data = await fetchApi(`groupsCreatedBy?page=${page}`, 'GET', null, false)
+        const data = await fetchApi(`/groups/CreatedBy?page=${page}`, 'GET', null, false)
         console.log('API response:', data);
         console.log("in case error:",data.error);
         if (data.status !== undefined) {
-            return { error: "login please", status: 401 }
+            return { error: "error", status: data.status }
         }
         const groups = Array.isArray(data) ? data : []
         return {
