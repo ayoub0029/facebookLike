@@ -1,8 +1,6 @@
 package posts
 
 import (
-	"fmt"
-	"html"
 	"net/http"
 	database "socialNetwork/Database"
 	global "socialNetwork/Global"
@@ -30,7 +28,6 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	imagePublic := "" // image path if exist
 
 	content := r.FormValue("content")
-	content = html.EscapeString(content)
 	if len(content) >= 2500 || len(content) <= 2 {
 		global.JsonResponse(w, http.StatusBadRequest, "Size of content isn't valid")
 		return
@@ -200,6 +197,7 @@ func getPosts(w http.ResponseWriter, r *http.Request) {
 	    p.updated_at,
 	    p.media,
 	    (SELECT g.name FROM groups AS g WHERE g.id = p.group_id) AS group_name,
+		p.privacy,
 		CASE u.id 
            WHEN $1 
                THEN true 
@@ -211,8 +209,9 @@ func getPosts(w http.ResponseWriter, r *http.Request) {
 	    LEFT JOIN post_visibility AS pv ON pv.post_id = p.id AND pv.user_id = $1
 		LEFT JOIN followers AS f ON f.followed_id = u.id AND f.status != 'pending' AND f.follower_id = $1
 	WHERE
-		p.group_id = 0 AND(
-	    p.privacy = 'public' 
+		p.group_id = 0 
+		AND ((u.profile_status = 'public') OR (f.follower_id IS NOT NULL) OR (p.user_id = $1))
+		AND (p.privacy = 'public' 
 		OR (p.privacy = 'almost private' AND f.followed_id IS NOT NULL) 
 		OR (p.privacy = 'private' AND pv.post_id IS NOT NULL) 
 	    OR p.user_id = $1) AND p.id < $2  
@@ -229,7 +228,7 @@ func getPosts(w http.ResponseWriter, r *http.Request) {
 	var AllPosts []PostData
 	for posts.Next() {
 		var Post PostData
-		posts.Scan(&Post.ID, &Post.Avatar, &Post.Likes, &Post.Comments, &Post.Nickname, &Post.First_name, &Post.Last_name, &Post.Content, &Post.CreatedAt, &Post.Updated_at, &Post.Image, &Post.Group_name, &Post.Edit)
+		posts.Scan(&Post.ID, &Post.Avatar, &Post.Likes, &Post.Comments, &Post.Nickname, &Post.First_name, &Post.Last_name, &Post.Content, &Post.CreatedAt, &Post.Updated_at, &Post.Image, &Post.Group_name, &Post.Privacy, &Post.Edit)
 		Post.IsLiked, err = CheckLikePost(Post.ID, userID)
 		if err != nil {
 			global.JsonResponse(w, http.StatusInternalServerError, "some thing wrong")
@@ -330,7 +329,9 @@ func postUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	postID, err := strconv.Atoi(r.URL.Query().Get("post_id"))
+	// tas7i7 FormValue instead of .Query().Get(
+	// postID, err := strconv.Atoi(r.URL.Query().Get("post_id"))
+	postID, err := strconv.Atoi(r.FormValue("post_id"))
 	if err != nil {
 		global.JsonResponse(w, http.StatusBadRequest, "Invalid post id")
 		return
@@ -338,7 +339,6 @@ func postUpdate(w http.ResponseWriter, r *http.Request) {
 
 	isAuthorized, err := is_user_authorized(userID, postID, "posts")
 	if err != nil {
-		fmt.Println(err)
 		global.JsonResponse(w, http.StatusInternalServerError, "Error checking authorization")
 		return
 	}
@@ -349,7 +349,6 @@ func postUpdate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	newContent := r.FormValue("newContent")
-	newContent = html.EscapeString(newContent)
 	if len(newContent) <= 2 || len(newContent) > 2500 {
 		global.JsonResponse(w, http.StatusBadRequest, "Content length is not valid")
 		return
@@ -438,7 +437,12 @@ func getSpesificPost(w http.ResponseWriter, r *http.Request) {
 	    p.created_at,
 	    p.updated_at,
 	    p.media,
-	    (SELECT g.name FROM groups AS g WHERE g.id = p.group_id) AS group_name
+	    (SELECT g.name FROM groups AS g WHERE g.id = p.group_id) AS group_name,
+		CASE u.id 
+           WHEN $1 
+               THEN true 
+           ELSE false 
+       	END edit
 	FROM
 	    posts AS p
 	    JOIN users AS u ON p.user_id = u.id
@@ -448,6 +452,7 @@ func getSpesificPost(w http.ResponseWriter, r *http.Request) {
 		(p.privacy = 'public'
 		OR (p.privacy = 'almost private' AND f.followed_id IS NOT NULL)
 		OR (p.privacy = 'private' AND pv.post_id IS NOT NULL)
+		OR (p.user_id = $1)
 	    )AND p.id = $2
 	`
 	posts, err := database.SelectOneRow(query, userID, postID) // tas7i7
@@ -456,7 +461,7 @@ func getSpesificPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var Post PostData
-	posts.Scan(&Post.ID, &Post.Avatar, &Post.Likes, &Post.Comments, &Post.Nickname, &Post.First_name, &Post.Last_name, &Post.Content, &Post.CreatedAt, &Post.Updated_at, &Post.Image, &Post.Group_name)
+	posts.Scan(&Post.ID, &Post.Avatar, &Post.Likes, &Post.Comments, &Post.Nickname, &Post.First_name, &Post.Last_name, &Post.Content, &Post.CreatedAt, &Post.Updated_at, &Post.Image, &Post.Group_name, &Post.Edit)
 	Post.IsLiked, err = CheckLikePost(postID, userID) // tas7i7
 	if err != nil {
 		global.JsonResponse(w, http.StatusInternalServerError, "some thing was wrong")

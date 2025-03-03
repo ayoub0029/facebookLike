@@ -164,14 +164,18 @@ body {
   margin-bottom: 10px;
 }
 
+.postContent {
+  word-wrap: break-word;
+}
+
 .postImage {
   background-color: var(--secondary-hover);
   display: flex;
-  justify-content: center; 
+  justify-content: center;
   align-items: center;
 }
 
-.editPoints{
+.editPoints {
   position: absolute;
   right: 15px;
   top: 0px;
@@ -194,7 +198,7 @@ body {
   top: 5px;
 }
 
-.editMenu button {
+.editMenu .editBtn {
   background: none;
   border: none;
   padding: 5px 10px;
@@ -203,7 +207,7 @@ body {
   width: 100%;
 }
 
-.editMenu button:hover {
+.editMenu .editBtn:hover {
   background: #f0f0f0;
 }
 
@@ -211,7 +215,7 @@ body {
 .postImage img {
   max-width: 100%;
   max-height: 300px;
-  object-fit: contain; 
+  object-fit: contain;
 }
 
 .profileImg {

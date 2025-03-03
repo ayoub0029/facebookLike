@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { fetchApi } from "@/api/fetchApi";
 import { formatTime } from "@/utiles/dateFormat";
 import Image from "next/image";
+import Modal from "../model";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -12,6 +13,16 @@ export function FetchPosts({ endpoint }) {
     const [error, setError] = useState(null);
     const [editVisible, setEditVisible] = useState(null);
     const menuRef = useRef(null);
+
+    // for edit post
+    const [isModalEdit, setIsModalEdit] = useState(false);
+    const openModal = () => setIsModalEdit(true);
+    const closeModal = () => setIsModalEdit(false);
+
+    // for delete post
+    const [isModalDelete, setIsModalDelete] = useState(false);
+    const openModalDelete = () => setIsModalDelete(true);
+    const closeModalDelete = () => setIsModalDelete(false);
 
     useEffect(() => {
         async function loadPosts() {
@@ -56,6 +67,8 @@ export function FetchPosts({ endpoint }) {
             const response = await fetchApi(`/post?post_id=${postId}`);
 
             if (response && response[0]) {
+                console.log(response[0]);
+
                 setPosts((allPosts) =>
                     allPosts.map((post) =>
                         post.id === postId ? { ...post, is_liked: response[0].is_liked, likes: response[0].likes } : post
@@ -64,6 +77,76 @@ export function FetchPosts({ endpoint }) {
             }
         } catch (err) {
             console.error("Failed to like the post", err);
+        }
+    };
+
+    const handleEdit = async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const newContent = e.target.newContent.value;
+        const response = await fetchApi("/posts/update", "PUT", formData, true);
+
+        if (response.status != undefined) {
+            alert(`Error: ${response.error} Status: ${response.status}`);
+            return;
+        }
+
+        // success
+        closeModal();
+        setEditVisible(null);
+
+        setPosts((allPosts) =>
+            allPosts.map((post) =>
+                post.id == e.target.post_id.value ? { ...post, content: `${newContent}`, updated_at_at: `${new Date()}` } : post
+            )
+        );
+
+        e.target.reset();
+    }
+
+
+    const handleDelete = async (e) => {
+        e.preventDefault();
+        const postIdToDelete = e.target.post_id.value;
+
+        const response = await fetchApi(`/posts/delete?post_id=${postIdToDelete}`, "DELETE");
+
+        if (response.status != undefined) {
+            alert(`Error: ${response.error} Status: ${response.status}`);
+            return;
+        }
+
+        // success
+        setPosts((allPosts) => allPosts.filter(post => post.id != postIdToDelete));
+        closeModalDelete();
+        setEditVisible(null);
+        e.target.reset();
+    }
+
+    const PrivacyText = (privacy) => {
+        privacy = privacy.privacy
+        
+        if (privacy === "public") {
+            return (
+                <>
+                    <i className="fa-solid fa-globe"></i>
+                    <span> public</span>
+                </>
+            )
+        } else if (privacy === "almost private") {
+            return (
+                <>
+                    <i className="fa-solid fa-user-group"></i>
+                    <span> almost private</span>
+                </>
+            )
+        } else {
+            return (
+                <>
+                    <i className="fa-solid fa-lock"></i>
+                    <span> private</span>
+                </>
+            )
         }
     };
 
@@ -80,8 +163,33 @@ export function FetchPosts({ endpoint }) {
                             <div className="editPoints" onClick={() => toggleMenu(post.id)}>...</div>
                             {editVisible === post.id && (
                                 <div className="editMenu" ref={menuRef}>
-                                    <button onClick={() => alert("Update" + post.id)}>Update</button>
-                                    <button onClick={() => alert("Delete" + post.id)}>Delete</button>
+                                    <div>
+                                        <button className="editBtn" onClick={openModal}>Update</button>
+                                        <Modal
+                                            isOpen={isModalEdit}
+                                            onClose={closeModal}
+                                        >
+                                            <form className="newPost" onSubmit={handleEdit}>
+                                                <input type="hidden" name="post_id" value={post.id} />
+                                                <textarea placeholder="Write something here..." name="newContent" defaultValue={post.content}></textarea>
+                                                <button type="submit" className="btn btnGreen">Edit</button>
+                                            </form>
+                                        </Modal>
+                                    </div>
+                                    <button className="editBtn" onClick={openModalDelete}>Delete</button>
+                                    <Modal
+                                        isOpen={isModalDelete}
+                                        onClose={closeModalDelete}
+                                    >
+                                        <form className="newPost" onSubmit={handleDelete}>
+                                            <label>Do you want to delete post : "{(post.content).slice(0, 50)}..."</label>
+                                            <input type="hidden" name="post_id" value={post.id} />
+                                            <div style={{ display: "flex", gap: "10px", alignItems: "end", direction: "rtl" }}>
+                                                <button type="button" onClick={closeModalDelete} className="btn btnGray">Cancel</button>
+                                                <button type="submit" className="btn btnRed">Delete</button>
+                                            </div>
+                                        </form>
+                                    </Modal>
                                 </div>
                             )}
                         </>
@@ -92,7 +200,7 @@ export function FetchPosts({ endpoint }) {
                             src={
                                 post.avatar?.startsWith("http")
                                     ? post.avatar
-                                    : post.avatar
+                                    : (post.avatar && post.avatar !== "undefined")
                                         ? `${API_BASE_URL}/public/${post.avatar}`
                                         : "/images/test.jpg"
                             }
@@ -105,7 +213,7 @@ export function FetchPosts({ endpoint }) {
                         />
                         <div className="postInfo">
                             <span className="postName">{post.first_name} {post.last_name}</span>
-                            <span className="postTime">{formatTime(post.created_at)}</span>
+                            <span className="postTime"><PrivacyText privacy={post.privacy} />{" | " + formatTime(post.created_at) + " " + (post.updated_at_at ? `Edited : ${formatTime(post.updated_at_at)}` : "")}</span>
                         </div>
                     </div>
                     <div className="postContent">{post.content}</div>
@@ -135,24 +243,5 @@ export function FetchPosts({ endpoint }) {
                 </div>
             ))}
         </div>
-    );
-}
-
-
-export function editModel() {
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    
-    const openModal = () => setIsModalOpen(true);
-    const closeModal = () => setIsModalOpen(false);
-    
-    return (
-      <div>
-        <Modal 
-          isOpen={isModalOpen} 
-          onClose={closeModal}
-        >
-          
-        </Modal>
-      </div>
     );
 }
