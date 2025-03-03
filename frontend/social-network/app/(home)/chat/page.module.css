@@ -63,7 +63,7 @@
     justify-content: space-around;
 }
 
-#MessageText{
+.MessageText{
     height: 50%;
     width: 70%;
     padding-left: 15px;

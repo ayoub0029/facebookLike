@@ -10,7 +10,7 @@ import (
 // function return message from database
 func GetMsgFromPrvChatDB(receiverID, page int, r *http.Request) ([]privateMsg, error) {
 	var msgs []privateMsg
-	userID, err := auth.IsLoggedIn(r, "token")
+	userID, err := auth.IsLoggedIn(r, "token");
 	if err != nil {
 		log.Fatal(err) // ma3rftch wach n exiter wlla chii 7aja ukhra
 		return []privateMsg{}, err

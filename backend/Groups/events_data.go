@@ -34,7 +34,7 @@ func getAllEvents(group, page int) []event {
 	return events_list
 }
 
-func vote(member,event int)  {
+/*func vote(member,event int)  {
 	query := `INSERT INTO event_votes (user_id,event_id,option_id) VALUES(?,?,?);`;
 
-}
+}*/
