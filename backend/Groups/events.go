@@ -38,3 +38,7 @@ func (e *event) Create() bool {
 func GetEvents(group, page int) []event {
 	return getAllEvents(group, page)
 }
+
+func Vote(member,event int)  {
+	
+}

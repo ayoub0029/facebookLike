@@ -9,6 +9,22 @@ import (
 	middleware "socialNetwork/Middlewares"
 )
 
+func Routes(mux *http.ServeMux) {
+	mux.HandleFunc("POST /group", CreateGroup_handler);
+	mux.HandleFunc("GET /group", GetGroupInfo_handler);
+	mux.HandleFunc("GET /groups", GetAllGroups_handler);
+	mux.HandleFunc("GET /group/members", GetGroupMembers_handler);
+	mux.HandleFunc("POST /group/event", CreateEvent_handler);
+	mux.HandleFunc("GET /group/events", GetEvents_handler);
+	mux.HandleFunc("GET /groups/CreatedBy", GetGroupsCreatedBy_handler);
+	mux.HandleFunc("GET /groups/JoinedBy", GetGroupsJoinedBy_handler);//POST /groups/join
+	mux.HandleFunc("POST /group/join", JoinGroup_handler);
+	mux.HandleFunc("POST /group/leave", LeaveGroup_handler);
+	mux.HandleFunc("POST /group/vote", Vote_handler);
+
+
+
+}
 func CreateGroup_handler(res http.ResponseWriter, req *http.Request) {
 	name := req.FormValue("name")
 	description := req.FormValue("description")
@@ -24,7 +40,7 @@ func CreateGroup_handler(res http.ResponseWriter, req *http.Request) {
 	myGroup := NewGroup(name, description, int(user.ID))
 	status := myGroup.Create()
 	if !status {
-		global.JsonResponse(res, 500, "Enternal Server 500")
+		global.JsonResponse(res, 500, "Enternal Server 500");
 		return
 	}
 	global.JsonResponse(res, 200, "Mrigla")
@@ -58,7 +74,7 @@ func GetGroupsCreatedBy_handler(res http.ResponseWriter, req *http.Request) {
 	groupsArray := GetGroupsCreatedBy(int(user.ID), page)
 	if groupsArray == nil {
 		global.JsonResponse(res, 404, "data Not Found")
-		return
+		return;
 	}
 	global.JsonResponse(res, 200, groupsArray)
 }
@@ -113,7 +129,7 @@ func CreateEvent_handler(res http.ResponseWriter, req *http.Request) {
 	global.JsonResponse(res, 200, "event created succesfuly")
 }
 
-func GetEvent_handler(res http.ResponseWriter, req *http.Request) {
+func GetEvents_handler(res http.ResponseWriter, req *http.Request) {
 	group, err := strconv.Atoi(req.FormValue("group"))
 	page, err2 := strconv.Atoi(req.FormValue("page"))
 
@@ -128,15 +144,35 @@ func GetEvent_handler(res http.ResponseWriter, req *http.Request) {
 	global.JsonResponse(res, 200, events)
 }
 
-/*func JoinGroup_handler(res http.ResponseWriter,req *http.Request)  {
+func JoinGroup_handler(res http.ResponseWriter,req *http.Request)  {
 	member,err := strconv.Atoi(req.FormValue("member"));
 	groupId,err2 := strconv.Atoi(req.FormValue("group"));
 	if err != nil || err2 != nil {
 		global.JsonResponse(res,400,"data Error");
 		return;
 	}
+	status := RequestToJoin(groupId,member);
+	if !status {
+		global.JsonResponse(res, 500, "Enternal Server 500");
+		return;
+	}
+	global.JsonResponse(res, 200, "Request have sent succesfuly");
+}
 
-}*/
+func LeaveGroup_handler(res http.ResponseWriter,req *http.Request)  {
+	member,err := strconv.Atoi(req.FormValue("member"));
+	groupId,err2 := strconv.Atoi(req.FormValue("group"));
+	if err != nil || err2 != nil {
+		global.JsonResponse(res,400,"data Error");
+		return;
+	}
+	status := Leave(groupId,member);
+	if !status {
+		global.JsonResponse(res, 500, "Enternal Server 500");
+		return;
+	}
+	global.JsonResponse(res, 200, "Request have sent succesfuly");
+}
 
 func GetGroupInfo_handler(res http.ResponseWriter, req *http.Request) {
 	group, err := strconv.Atoi(req.FormValue("group"))
@@ -150,4 +186,13 @@ func GetGroupInfo_handler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 	global.JsonResponse(res, 200, *groupInfo)
+}
+
+func Vote_handler(res http.ResponseWriter, req *http.Request) {
+	member,err := strconv.Atoi(req.FormValue("member"));
+	event,err2 := strconv.Atoi(req.FormValue("event"));
+	if err != nil || err2 != nil {
+		global.JsonResponse(res,400,"data Error");
+		return;
+	}
 }

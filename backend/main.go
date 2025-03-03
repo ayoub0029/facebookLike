@@ -24,30 +24,20 @@ func main() {
 		os.Exit(1)
 	}
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/public/", handleStaticFile)
-	profiles.Routes(mux)
-	auth.Routes(mux)
-	posts.Routes(mux)
-	chats.Routes(mux)
-	socket.Routes(mux)
-	notifications.Routes(mux)
-	search.Routes(mux)
-	mux.HandleFunc("/", notFound)
+	mux := http.NewServeMux();
+	mux.HandleFunc("/public/", handleStaticFile);
+	profiles.Routes(mux);
+	auth.Routes(mux);
+	posts.Routes(mux);
+	chats.Routes(mux);
+	groups.Routes(mux);
+	socket.Routes(mux);
+	notifications.Routes(mux);
+	search.Routes(mux);
+	mux.HandleFunc("/", notFound);
 
 	//-------------------------------------------------------khiri temporary
 	// groups.Routes(mux)
-	mux.HandleFunc("POST /AddGroup", groups.CreateGroup_handler)
-	mux.HandleFunc("GET /groups", groups.GetAllGroups_handler)
-	mux.HandleFunc("GET /group/members", groups.GetGroupMembers_handler)
-	mux.HandleFunc("POST /groups/events", groups.CreateEvent_handler)
-	mux.HandleFunc("GET /group/events", groups.GetEvent_handler);
-	mux.HandleFunc("GET /groupInfo", groups.GetGroupInfo_handler);
-	mux.HandleFunc("GET /groupsCreatedBy", groups.GetGroupsCreatedBy_handler);
-	mux.HandleFunc("GET /groupsJoinedBy", groups.GetGroupsJoinedBy_handler);
-
-
-
 	//----------------------------------------------------------------------
 
 	// ayoub---

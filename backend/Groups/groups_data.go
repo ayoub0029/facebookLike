@@ -78,7 +78,7 @@ func getAllMembers(groupID, page int) []profiles.Profile {
 	query := `SELECT u.id,u.first_name,u.last_name,u.avatar
 				FROM users u INNER JOIN group_members gm
 				on u.id = gm.user_id
-				WHERE gm.group_id = ? LIMIT 2 OFFSET ?;`
+				WHERE gm.group_id = ? LIMIT 5 OFFSET ?;`
 	data_Rows, err := d.SelectQuery(query, groupID, page)
 	if err != nil {
 		return nil
@@ -146,3 +146,5 @@ func getAllGroupsJoinedBy(userID, page int) []group {
 	}
 	return groupsList
 }
+
+

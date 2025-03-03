@@ -52,3 +52,31 @@
     width: 7%;
     border-radius: 50%;
 }
+
+.ContentMessages{
+    height: 80%;
+}
+
+.Footer{
+    height: 10%;
+    display: flex;
+    justify-content: space-around;
+}
+
+#MessageText{
+    height: 50%;
+    width: 70%;
+    padding-left: 15px;
+    border-radius: 5px;
+    font-size: 15px;
+}
+
+#ButtonSend{
+    height: 50%;
+    width: 20%;
+    font-size: 15px;
+    color: white;
+    border: none;
+    background-color: #18e118;
+    border-radius: 10px;
+}
