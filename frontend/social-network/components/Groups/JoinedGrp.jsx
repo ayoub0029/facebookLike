@@ -1,11 +1,9 @@
 "use client"
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { fetchApi } from '@/api/fetchApi'
 import useLazyLoad from '@/hooks/lazyload'
-
 import '../../styles/GroupRequests.css'
-import Link from 'next/link';
-import { data } from 'react-router-dom'
+import Link from 'next/link'
 
 const fetchJoinedGrp = async (page) => {
     try {
@@ -19,72 +17,48 @@ const fetchJoinedGrp = async (page) => {
             nextPage: groups.length > 0 ? page + 5 : null
         }
     } catch (err) {
-        console.error(`Error fetch groups : ${err}`);
+        console.error(`Error fetch groups: ${err}`);
         return { items: [], nextPage: null }
     }
 }
 
 const JoinedGrp = () => {
-    /*     const [DataGrp, setusergrpjoined] = useState([])
-        const [loading, setLoading] = useState(true)
-        const [error, setError] = useState(null)
-    
-        useEffect(() => {
-            const fetchusergrpjoined = async () => {
-                try {
-                    setLoading(true)
-                    const data = await fetchApi('groups?page=0', 'GET', null, false)
-                    if (data.status !== undefined) {
-                        setError(`Error: ${data.error} (Status: ${data.status})`);
-                        return;
-                    }
-                    console.log('User groups data:', data)
-                    setusergrpjoined(data || [])
-                    setError(null)
-                } catch (err) {
-                    console.error('Error fetching groups:', err)
-                    setError('Failed to load group data')
-                } finally {
-                    setLoading(false)
-                }
-            }
-            fetchusergrpjoined()
-        }, [])
-     */
     console.log("im here in mygroups");
     const {
         data,
         loaderRef,
         loading,
         error,
-        nextPage
+        nextPage,
     } = useLazyLoad(fetchJoinedGrp)
 
+    const [leavingGroup, setLeavingGroup] = useState(false)
+    const [leaveError, setLeaveError] = useState(null)
+
     const leaveTheGroup = async (groupId) => {
-        const [DataGrp, setusergrpjoined] = useState([])
-        const [loading, setLoading] = useState(true)
-        const [error, setError] = useState(null)
         try {
-            setLoading(true)
-            await fetchApi(`groups/${groupId}`, 'DELETE', null, false)
-            if (response.status !== undefined) {
-                setError(`Error: ${response.error} (Status: ${response.status})`);
+            setLeavingGroup(true)
+            setLeaveError(null)
+            const response = await fetchApi(`handler/${groupId}`, 'DELETE', null, false)
+            if (response && response.status !== undefined && response.status !== 200) {
+                setLeaveError(`Error: ${response.error || 'Unknown error'} (Status: ${response.status})`);
                 return;
             }
-            setusergrpjoined(DataGrp.filter(group => group.id !== groupId))
-            setError(null)
+            setGroupsData(groupsData.filter(group => group.id !== groupId))
         } catch (err) {
             console.error('Error leaving group:', err)
-            setError('Failed to leave the group')
+            setLeaveError('Failed to leave the group')
         } finally {
-            setLoading(false)
+            setLeavingGroup(false)
         }
     }
 
     return (
         <div className='userGroups-container'>
             <h2>Joined Groups</h2>
-            {error && <p className='error-message'>{error}</p>}
+            {(error || leaveError) && (
+                <p className='error-message'>{error || leaveError}</p>
+            )}
             <div
                 className='scrollable-container'
                 style={{
@@ -106,7 +80,6 @@ const JoinedGrp = () => {
                         <div
                             className='groupCard'
                             key={`${group.id}`}
-                            role='article'
                         >
                             <div className="groupInfo">
                                 <h3 id={`group-name-${group.id}`}>{group.name}</h3>
@@ -116,8 +89,9 @@ const JoinedGrp = () => {
                                 <button
                                     className='btn btnGray'
                                     onClick={() => leaveTheGroup(group.id)}
+                                    disabled={leavingGroup}
                                 >
-                                    Leave the group
+                                    {leavingGroup ? 'Leaving...' : 'Leave the group'}
                                 </button>
                                 <button className='btn btnGray'>
                                     <Link href={`/groups/${group.id}`}>
@@ -131,9 +105,7 @@ const JoinedGrp = () => {
                 {loading && nextPage !== null && (
                     <p className="loading-more">Loading more groups...</p>
                 )}
-                <div
-                    ref={loaderRef}
-                ></div>
+                <div ref={loaderRef}></div>
             </div>
         </div>
     );

@@ -1,19 +1,18 @@
 "use client"
 import { useState, useEffect } from "react"
-import { usePathname, useSearchParams } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { fetchApi } from "@/api/fetchApi"
+import '../../styles/groupProfile.css'
+
 export default function ProfileGrp() {
     const fullPath = usePathname();
     const pathParts = fullPath.split("/");
     const pathname = pathParts[pathParts.length - 1];
-    console.log("path: ",pathname);
-
     const [GroupProfile, setGroupProfile] = useState([])
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
 
     useEffect(() => {
-
         const fetchGroupProfile = async () => {
             try {
                 setLoading(true)
@@ -35,12 +34,14 @@ export default function ProfileGrp() {
     return (
         <div className="ProfileContainer">
             {loading && <p>Loading Data</p>}
-            {error && <p>{error}</p>}
+            {error && <p className="error">{error}</p>}
             {!loading && !error && GroupProfile.length === 0 ? (
                 <p>No Data Found</p>
             ) : (
-                <div>
-                    {/* handling profile data */}
+                <div className="GroupHeader">
+                    <h1 className="GroupName">{GroupProfile.name}</h1>
+                    <h3 className="GroupDescription">{GroupProfile.description}</h3>
+                    <p className="MemberCount">{GroupProfile.members + 1} Members</p>
                 </div>
             )}
         </div>
