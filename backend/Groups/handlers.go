@@ -10,17 +10,19 @@ import (
 )
 
 func Routes(mux *http.ServeMux) {
-	mux.HandleFunc("POST /group", CreateGroup_handler)
-	mux.HandleFunc("GET /group", GetGroupInfo_handler)
-	mux.HandleFunc("GET /groups", GetAllGroups_handler)
-	mux.HandleFunc("GET /group/members", GetGroupMembers_handler)
-	mux.HandleFunc("POST /group/event", CreateEvent_handler)
-	mux.HandleFunc("GET /group/events", GetEvents_handler)
-	mux.HandleFunc("GET /groups/CreatedBy", GetGroupsCreatedBy_handler)
-	mux.HandleFunc("GET /groups/JoinedBy", GetGroupsJoinedBy_handler) //POST /groups/join
-	mux.HandleFunc("POST /group/join", JoinGroup_handler)
-	mux.HandleFunc("POST /group/leave", LeaveGroup_handler)
-	//mux.HandleFunc("POST /group/vote", Vote_handler)
+	mux.HandleFunc("POST /group", CreateGroup_handler);
+	mux.HandleFunc("GET /group", GetGroupInfo_handler);
+	mux.HandleFunc("GET /groups", GetAllGroups_handler);
+	mux.HandleFunc("GET /group/members", GetGroupMembers_handler);
+	mux.HandleFunc("POST /group/event", CreateEvent_handler);
+	mux.HandleFunc("GET /group/events", GetEvents_handler);
+	mux.HandleFunc("GET /groups/CreatedBy", GetGroupsCreatedBy_handler);
+	mux.HandleFunc("GET /groups/JoinedBy", GetGroupsJoinedBy_handler);//POST /groups/join
+	mux.HandleFunc("POST /group/join", JoinGroup_handler);
+	mux.HandleFunc("POST /group/leave", LeaveGroup_handler);
+	//mux.HandleFunc("POST /group/vote", Vote_handler);
+
+
 
 }
 func CreateGroup_handler(res http.ResponseWriter, req *http.Request) {
@@ -189,11 +191,11 @@ func GetGroupInfo_handler(res http.ResponseWriter, req *http.Request) {
 	global.JsonResponse(res, 200, *groupInfo)
 }
 
-/* func Vote_handler(res http.ResponseWriter, req *http.Request) {
+/*func Vote_handler(res http.ResponseWriter, req *http.Request) {
 	member,err := strconv.Atoi(req.FormValue("member"));
 	event,err2 := strconv.Atoi(req.FormValue("event"));
 	if err != nil || err2 != nil {
 		global.JsonResponse(res,400,"data Error");
 		return;
 	}
-} */
+}*/
