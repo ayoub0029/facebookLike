@@ -84,8 +84,13 @@ func Join(groupId, memberId int) bool {
 	return join(groupId, memberId)
 }
 
+
 func Leave(groupId, memberId int) bool {
-	return leaveGroup(groupId, memberId)
+	if leaveGroup(groupId, memberId) {
+		// notification to group members
+		return true;
+	}
+	return false;
 }
 
 func GetGroupsCreatedBy(userID, page int) []group {
