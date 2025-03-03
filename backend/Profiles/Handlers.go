@@ -352,7 +352,7 @@ func GetFollowers(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if !Public {
+		if !Public && CurrentUserID != UserID {
 			_, err := IsFollowed(CurrentUserID, UserID)
 			if err == ErrUserNotExist || err == ErrFollowYourself {
 				global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": err.Error()})

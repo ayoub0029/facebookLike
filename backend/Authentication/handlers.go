@@ -131,7 +131,11 @@ func status(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	global.JsonResponse(w, http.StatusOK, userID)
+	global.JsonResponse(w, http.StatusOK, map[string]any{
+		"id":       userID,
+		"fullname": "khas n9ad hadi",
+		"avatar":   "khas n9as hadi",
+	})
 }
 
 // GithubLogin redirects users to GitHub's OAuth login page

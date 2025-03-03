@@ -5,14 +5,37 @@ import { fetchApi } from "@/api/fetchApi";
 import { formatTime } from "@/utiles/dateFormat";
 import Image from "next/image";
 import Modal from "../model";
+import useLazyLoadById from "@/hooks/lazyloadById";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-export function FetchPosts({ endpoint }) {
-    const [posts, setPosts] = useState([]);
-    const [error, setError] = useState(null);
+export function FetchPosts({ endpoint , lastId }) {
     const [editVisible, setEditVisible] = useState(null);
     const menuRef = useRef(null);
+
+    const getInitialId = () => {
+        return  parseInt(lastId);
+    };
+
+    // Function to fetch posts that will be passed to the hook
+    const fetchPosts = async (lastId) => {
+        try {
+            const response = await fetchApi(`${endpoint}${lastId}`);
+            
+            if (response.status !== undefined) {
+                console.error("FetchPosts: API error:", response.status, response.error);
+                return { status: response.status, error: response.error };
+            }
+            return { 
+                items: response
+            };
+        } catch (err) {
+            console.error("FetchPosts: Error fetching:", err);
+            return { status: 500, error: "Failed to fetch posts" };
+        }
+    };
+
+    const { data: posts, setData: setPosts, loaderRef, loading, error, hasMore } = useLazyLoadById(fetchPosts, getInitialId());
 
     const [modals, setModals] = useState({
         followers: false,
@@ -33,27 +56,6 @@ export function FetchPosts({ endpoint }) {
             setModals({ ...modals, [modalName]: false });
         };
     };
-
-    useEffect(() => {
-        async function loadPosts() {
-            try {
-                const response = await fetchApi(endpoint);
-
-                if (response.status !== undefined) {
-                    setError(`Error: ${response.error} (Status: ${response.status})`);
-                    return;
-                }
-
-                if (response) {
-                    setPosts(response);
-                }
-            } catch (err) {
-                setError("No posts to fetch.");
-            }
-        }
-
-        loadPosts();
-    }, [endpoint]);
 
     useEffect(() => {
         function handleClickOutside(event) {
@@ -77,7 +79,6 @@ export function FetchPosts({ endpoint }) {
             const response = await fetchApi(`/post?post_id=${postId}`);
 
             if (response && response[0]) {
-                console.log(response[0]);
 
                 setPosts((allPosts) =>
                     allPosts.map((post) =>
@@ -113,7 +114,6 @@ export function FetchPosts({ endpoint }) {
 
         e.target.reset();
     }
-
 
     const handleDelete = async (e) => {
         e.preventDefault();
@@ -160,12 +160,11 @@ export function FetchPosts({ endpoint }) {
         }
     };
 
-    if (error) return <div className="error">{error}</div>;
-    if (posts.length === 0) return <div>Loading posts...</div>;
+    if (error && posts.length === 0) return <div className="error">{error}</div>;
+    if (posts.length === 0 && loading) return <div>Loading posts...</div>;
 
     return (
         <div>
-            {console.log(posts)}
             {posts.map((post) => (
                 <div key={post.id} className="post">
                     {post.edit && (
@@ -252,6 +251,17 @@ export function FetchPosts({ endpoint }) {
                     </div>
                 </div>
             ))}
+            
+            {/* Loader element for intersection observer */}
+            {hasMore && (
+                <div ref={loaderRef} className="loaderElement">
+                    {loading && <div className="loading-spinner">Loading more posts...</div>}
+                </div>
+            )}
+            
+            {!hasMore && posts.length > 0 && (
+                <div className="end-message">No more posts to load</div>
+            )}
         </div>
     );
 }
