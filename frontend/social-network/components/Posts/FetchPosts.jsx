@@ -14,15 +14,25 @@ export function FetchPosts({ endpoint }) {
     const [editVisible, setEditVisible] = useState(null);
     const menuRef = useRef(null);
 
-    // for edit post
-    const [isModalEdit, setIsModalEdit] = useState(false);
-    const openModal = () => setIsModalEdit(true);
-    const closeModal = () => setIsModalEdit(false);
-
-    // for delete post
-    const [isModalDelete, setIsModalDelete] = useState(false);
-    const openModalDelete = () => setIsModalDelete(true);
-    const closeModalDelete = () => setIsModalDelete(false);
+    const [modals, setModals] = useState({
+        followers: false,
+        editPost: false,
+        deletePost: false,
+        editComment: false,
+        deleteComment: false
+    });
+    
+    const openModal = (modalName) => {
+        return () => {
+            setModals({ ...modals, [modalName]: true });
+        };
+    };
+    
+    const closeModal = (modalName) => {
+        return () => {
+            setModals({ ...modals, [modalName]: false });
+        };
+    };
 
     useEffect(() => {
         async function loadPosts() {
@@ -92,7 +102,7 @@ export function FetchPosts({ endpoint }) {
         }
 
         // success
-        closeModal();
+        closeModal('editPost')();
         setEditVisible(null);
 
         setPosts((allPosts) =>
@@ -118,7 +128,7 @@ export function FetchPosts({ endpoint }) {
 
         // success
         setPosts((allPosts) => allPosts.filter(post => post.id != postIdToDelete));
-        closeModalDelete();
+        closeModal('deletePost')();
         setEditVisible(null);
         e.target.reset();
     }
@@ -164,10 +174,10 @@ export function FetchPosts({ endpoint }) {
                             {editVisible === post.id && (
                                 <div className="editMenu" ref={menuRef}>
                                     <div>
-                                        <button className="editBtn" onClick={openModal}>Update</button>
+                                        <button className="editBtn" onClick={openModal('editPost')}>Update</button>
                                         <Modal
-                                            isOpen={isModalEdit}
-                                            onClose={closeModal}
+                                            isOpen={modals.editPost}
+                                            onClose={closeModal('editPost')}
                                         >
                                             <form className="newPost" onSubmit={handleEdit}>
                                                 <input type="hidden" name="post_id" value={post.id} />
@@ -176,16 +186,16 @@ export function FetchPosts({ endpoint }) {
                                             </form>
                                         </Modal>
                                     </div>
-                                    <button className="editBtn" onClick={openModalDelete}>Delete</button>
+                                    <button className="editBtn" onClick={openModal('deletePost')}>Delete</button>
                                     <Modal
-                                        isOpen={isModalDelete}
-                                        onClose={closeModalDelete}
+                                        isOpen={modals.deletePost}
+                                        onClose={closeModal('deletePost')}
                                     >
                                         <form className="newPost" onSubmit={handleDelete}>
                                             <label>Do you want to delete post : "{(post.content).slice(0, 50)}..."</label>
                                             <input type="hidden" name="post_id" value={post.id} />
                                             <div style={{ display: "flex", gap: "10px", alignItems: "end", direction: "rtl" }}>
-                                                <button type="button" onClick={closeModalDelete} className="btn btnGray">Cancel</button>
+                                                <button type="button" onClick={closeModal('deletePost')} className="btn btnGray">Cancel</button>
                                                 <button type="submit" className="btn btnRed">Delete</button>
                                             </div>
                                         </form>
