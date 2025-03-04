@@ -5,6 +5,8 @@ import (
 	"strconv"
 
 	global "socialNetwork/Global"
+	middleware "socialNetwork/Middlewares"
+
 )
 
 func Routes(mux *http.ServeMux) {
