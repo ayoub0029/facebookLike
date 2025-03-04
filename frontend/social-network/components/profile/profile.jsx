@@ -1,22 +1,9 @@
+"use client"
+
 import style from "./profile.module.css"
 import { useState } from "react"
 import Modal from "./popup.jsx"
-import InfiniteScrollDiv from "./users.jsx"
-
-const UserItem = ({ avatar, name, username, onActionClick, actionText }) => (
-  <div className="user-item">
-    <img src={avatar || "http://localhost:8080/public/test.jpg"} className="smallImg" alt={name} />
-    <div className="user-info">
-      <p className="user-name">{name}</p>
-      <p className="user-username">@{username}</p>
-    </div>
-    {actionText && (
-      <button className="user-action-btn" onClick={onActionClick}>
-        {actionText}
-      </button>
-    )}
-  </div>
-);
+import { UsersFollowers, UsersFollowing } from "./users.jsx"
 
 export default function ProfileComponent({ profile }) {
   const [modals, setModals] = useState({
@@ -32,7 +19,7 @@ export default function ProfileComponent({ profile }) {
   const closeModal = (modalName) => {
     setModals({ ...modals, [modalName]: false });
   };
-console.log(profile);
+  console.log(profile);
 
   return profile.ProfileStatus === 'private' && !profile.isOwner ? (
     <div className={style["profiletHeader"]}>
@@ -75,7 +62,9 @@ console.log(profile);
           <span> Following</span>
         </div>
       </div>
-
+      <div onClick={() => openModal('editProfile')}>
+        Edite profile
+      </div>
       {isShowBtnFollow(profile)}
 
       <div className={style["about"]}>
@@ -90,7 +79,7 @@ console.log(profile);
         title="Followers"
       >
         <div className="user-list">
-
+          <UsersFollowers userID={profile.Id} />
         </div>
       </Modal>
 
@@ -101,7 +90,7 @@ console.log(profile);
         title="Following"
       >
         <div className="user-list">
-          <InfiniteScrollDiv userID={profile.Id}/>
+          <UsersFollowing userID={profile.Id} />
         </div>
       </Modal>
 
@@ -111,37 +100,55 @@ console.log(profile);
         onClose={() => closeModal('editProfile')}
         title="Edit Profile"
       >
-      </Modal>
 
-      {/* Settings Modal */}
-      <Modal
-        isOpen={modals.settings}
-        onClose={() => closeModal('settings')}
-        title="Profile Settings"
-      >
-        <div className="settings-list">
-          <div className="setting-item">
-            <label>Profile Visibility</label>
-            <select defaultValue={profile.ProfileStatus}>
-              <option value="public">Public</option>
-              <option value="private">Private</option>
-            </select>
-          </div>
-          <div className="setting-item">
-            <label>Email Notifications</label>
-            <input type="checkbox" defaultChecked />
-          </div>
-          <div className="setting-item">
-            <label>Push Notifications</label>
-            <input type="checkbox" defaultChecked />
-          </div>
-          <div className="form-buttons">
-            <button onClick={() => closeModal('settings')}>Cancel</button>
-            <button>Save Settings</button>
-          </div>
-        </div>
-      </Modal>
+        <form className={style["update_form"]} onSubmit={UpdateInfo} >
+          <input className={style["update_input"]} name="input" type="text" placeholder="first name..." required />
+          <button type="submit" className={style["update_button confirm"]}>Confirm</button>
+        </form>
 
+        <form className={style["update_form"]}>
+          <input className={style["update_input"]} type="text" placeholder="last name..." required />
+          <button type="submit" className={style["update_button confirm"]}>Confirm</button>
+        </form>
+
+        <form className={style["update_form"]}>
+          <input className={style["update_input"]} type="text" placeholder="nickname..." required />
+          <button type="submit" className={style["update_button confirm"]}>Confirm</button>
+        </form>
+
+        <form className={style["update_form"]}>
+          <input className={style["update_input"]} type="text" placeholder="password..." required />
+          <button type="submit" className={style["update_button confirm"]}>Confirm</button>
+        </form>
+
+        <form className={style["update_form"]}>
+          <input className={style["update_input"]} type="text" placeholder="gmail..." required />
+          <button type="submit" className={style["update_button confirm"]}>Confirm</button>
+        </form>
+
+        <form className={style["update_form"]}>
+          <input className={style["update_input"]} type="text" placeholder="date of birth..." required />
+          <button type="submit" className={style["update_button confirm"]}>Confirm</button>
+        </form>
+
+        <form className={style["update_form"]}>
+          <input className={style["update_input"]} type="text" placeholder="about me..." required />
+          <button type="submit" className={style["update_button confirm"]}>Confirm</button>
+        </form>
+
+        <form className={style["update_form"]}>
+          <input className={style["update_input"]} type="file" placeholder="avatar..." required />
+          <button type="submit" className={style["update_button confirm"]}>Confirm</button>
+        </form>
+
+        <form className={style["update_form"]}>
+          <input type="radio" id="public" name="type_profile" value="public" />
+          <label htmlFor="public">public</label>
+          <input type="radio" id="private" name="type_profile" value="private" />
+          <label htmlFor="private">private</label>
+          <button type="submit" className={style["update_button confirm"]}>Confirm</button>
+        </form>
+      </Modal>
     </div>
   )
 }
@@ -159,4 +166,12 @@ function isShowBtnFollow(profile) {
       </div>
     )
   }
+}
+
+function UpdateInfo(e) {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  console.log(formData.get("input"));
+
+
 }

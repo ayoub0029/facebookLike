@@ -4,7 +4,7 @@ import { useParams } from "next/navigation"
 import { fetchApi } from "@/api/fetchApi.jsx"
 import { FetchPosts } from "@/components/Posts/FetchPosts"
 import ProfileComponent from "@/components/profile/profile.jsx"
-
+      
 export default function Profile() {
   const params = useParams()
   console.log(params);

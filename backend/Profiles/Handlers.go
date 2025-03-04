@@ -302,6 +302,7 @@ func GetFollowers(w http.ResponseWriter, r *http.Request) {
 	CurrentUserID, err := auth.IsLoggedIn(r, "token")
 	if err != nil {
 		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": global.ErrServer.Error()})
+		logger.Error("%v", err)
 		return
 	}
 
@@ -322,6 +323,7 @@ func GetFollowers(w http.ResponseWriter, r *http.Request) {
 	LoggedUserId, err := auth.IsLoggedIn(r, "token")
 	if err != nil {
 		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": global.ErrServer.Error()})
+		logger.Error("%v", err)
 		return
 	}
 
@@ -354,6 +356,7 @@ func GetFollowers(w http.ResponseWriter, r *http.Request) {
 		}
 		if err != nil {
 			global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": global.ErrServer.Error()})
+			logger.Error("%v", err)
 			return
 		}
 
@@ -365,6 +368,7 @@ func GetFollowers(w http.ResponseWriter, r *http.Request) {
 			}
 			if err != nil {
 				global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error3": global.ErrServer.Error()})
+				logger.Error("%v", err)
 				return
 			}
 		}
@@ -377,6 +381,7 @@ func GetFollowers(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": global.ErrInvalidRequest.Error()})
+		logger.Error("%v", err)
 		return
 	}
 	global.JsonResponse(w, http.StatusOK, Followers)
@@ -429,7 +434,7 @@ func GetFollowing(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if !Public {
+		if !Public && CurrentUserID != UserID {
 			_, err := IsFollowed(CurrentUserID, UserID)
 			if err == ErrUserNotExist || err == ErrFollowYourself {
 				global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": err.Error()})
