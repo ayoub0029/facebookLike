@@ -1,0 +1,130 @@
+.CreateGroup {
+    padding: 20px;
+    position: relative;
+}
+
+.CreateGroup h2 {
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.btn {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btnGreen {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.btnGreen:hover {
+    background-color: #45a049;
+}
+
+.btnGrey {
+    background-color: #808080;
+    color: white;
+}
+
+.btnGrey:hover {
+    background-color: #6e6e6e;
+}
+
+.btnWhite {
+    background-color: transparent;
+    color: #333;
+    font-size: 18px;
+    padding: 5px 10px;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.btnWhite:hover {
+    color: #000;
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+.createGrp {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 500px;
+    z-index: 1000;
+}
+
+.createGrp form {
+    display: flex;
+    flex-direction: column;
+}
+
+.createGrp label {
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333;
+}
+
+.createGrp input,
+.createGrp textarea {
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.createGrp textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.createGrp p {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: 500;
+}
+
+.createGrp form p:first-of-type {
+    color: #d32f2f;
+    background-color: #ffebee;
+}
+
+.createGrp form p:last-of-type {
+    color: #388e3c;
+    background-color: #e8f5e9;
+}
+
+@media (max-width: 768px) {
+    .createGrp {
+        width: 95%;
+        padding: 20px;
+    }
+
+    .createGrp input,
+    .createGrp textarea,
+    .createGrp button {
+        font-size: 14px;
+    }
+}
