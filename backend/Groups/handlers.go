@@ -7,10 +7,6 @@ import (
 
 	global "socialNetwork/Global"
 	middleware "socialNetwork/Middlewares"
-<<<<<<< HEAD
-
-=======
->>>>>>> abdelilah
 )
 
 func Routes(mux *http.ServeMux) {
@@ -30,19 +26,12 @@ func Routes(mux *http.ServeMux) {
 
 }
 func CreateGroup_handler(res http.ResponseWriter, req *http.Request) {
-<<<<<<< HEAD
 	name := req.FormValue("name");
 	description := req.FormValue("description");
 	owner , ok := req.Context().Value(middleware.UserContextKey).(middleware.User);
 	//owner, err := strconv.Atoi(req.FormValue("owner"))
 	if  ok != nil {
 		global.JsonResponse(res, 400, "data Error")
-=======
-	name := req.FormValue("name")
-	description := req.FormValue("description")
-	user, ok := req.Context().Value(middleware.UserContextKey).(middleware.User)
-	if !ok {
->>>>>>> abdelilah
 		return
 	}
 	fmt.Println(name, description, user)
@@ -74,7 +63,6 @@ func GetAllGroups_handler(res http.ResponseWriter, req *http.Request) {
 }
 
 func GetGroupsCreatedBy_handler(res http.ResponseWriter, req *http.Request) {
-<<<<<<< HEAD
 	//owner, err := strconv.Atoi(req.FormValue("owner"))
 	owner , ok := req.Context().Value(middleware.UserContextKey).(middleware.User);
 
@@ -83,22 +71,6 @@ func GetGroupsCreatedBy_handler(res http.ResponseWriter, req *http.Request) {
 	if ok != nil || err2 != nil {
 		global.JsonResponse(res, 400, "data Error");
 		return;
-=======
-	user, ok := req.Context().Value(middleware.UserContextKey).(middleware.User)
-	if !ok {
-		return
-	}
-	page, err2 := strconv.Atoi(req.FormValue("page"))
-
-	if err2 != nil {
-		global.JsonResponse(res, 400, "data Error")
-		return
-	}
-	groupsArray := GetGroupsCreatedBy(int(user.ID), page)
-	if groupsArray == nil {
-		global.JsonResponse(res, 404, "data Not Found")
-		return
->>>>>>> abdelilah
 	}
 	groupsArray := GetGroupsCreatedBy(owner, page);
 	if groupsArray == nil {
@@ -109,22 +81,12 @@ func GetGroupsCreatedBy_handler(res http.ResponseWriter, req *http.Request) {
 }
 
 func GetGroupsJoinedBy_handler(res http.ResponseWriter, req *http.Request) {
-<<<<<<< HEAD
 	//owner, err := strconv.Atoi(req.FormValue("owner"))
 	owner , ok := req.Context().Value(middleware.UserContextKey).(middleware.User);
 
 	page, err2 := strconv.Atoi(req.FormValue("page"));
 
 	if ok != nil || err2 != nil {
-=======
-	user, ok := req.Context().Value(middleware.UserContextKey).(middleware.User)
-	if !ok {
-		return
-	}
-	page, err2 := strconv.Atoi(req.FormValue("page"))
-
-	if err2 != nil {
->>>>>>> abdelilah
 		global.JsonResponse(res, 400, "data Error")
 		return
 	}
@@ -184,7 +146,6 @@ func GetEvents_handler(res http.ResponseWriter, req *http.Request) {
 	global.JsonResponse(res, 200, events)
 }
 
-<<<<<<< HEAD
 func JoinGroup_handler(res http.ResponseWriter,req *http.Request)  {
 	//member,err := strconv.Atoi(req.FormValue("member"));
 	member , ok := req.Context().Value(middleware.UserContextKey).(middleware.User);
@@ -192,14 +153,6 @@ func JoinGroup_handler(res http.ResponseWriter,req *http.Request)  {
 	if ok != nil || err2 != nil {
 		global.JsonResponse(res,400,"data Error");
 		return;
-=======
-func JoinGroup_handler(res http.ResponseWriter, req *http.Request) {
-	member, err := strconv.Atoi(req.FormValue("member"))
-	groupId, err2 := strconv.Atoi(req.FormValue("group"))
-	if err != nil || err2 != nil {
-		global.JsonResponse(res, 400, "data Error")
-		return
->>>>>>> abdelilah
 	}
 	status := RequestToJoin(groupId, member)
 	if !status {
@@ -209,7 +162,6 @@ func JoinGroup_handler(res http.ResponseWriter, req *http.Request) {
 	global.JsonResponse(res, 200, "Request have sent succesfuly")
 }
 
-<<<<<<< HEAD
 func LeaveGroup_handler(res http.ResponseWriter,req *http.Request)  {
 	//member,err := strconv.Atoi(req.FormValue("member"));
 	member , ok := req.Context().Value(middleware.UserContextKey).(middleware.User);
@@ -217,12 +169,6 @@ func LeaveGroup_handler(res http.ResponseWriter,req *http.Request)  {
 	if ok != nil || err2 != nil {
 		global.JsonResponse(res,400,"data Error");
 		return;
-=======
-func LeaveGroup_handler(res http.ResponseWriter, req *http.Request) {
-	user, ok := req.Context().Value(middleware.UserContextKey).(middleware.User)
-	if !ok {
-		return
->>>>>>> abdelilah
 	}
 	groupId, err2 := strconv.Atoi(req.FormValue("group"))
 	if err2 != nil {
