@@ -24,10 +24,11 @@ func Routes(mux *http.ServeMux) {
 
 }
 func CreateGroup_handler(res http.ResponseWriter, req *http.Request) {
-	name := req.FormValue("name")
-	description := req.FormValue("description")
-	owner, err := strconv.Atoi(req.FormValue("owner"))
-	if err != nil {
+	name := req.FormValue("name");
+	description := req.FormValue("description");
+	owner , ok := req.Context().Value(middleware.UserContextKey).(middleware.User);
+	//owner, err := strconv.Atoi(req.FormValue("owner"))
+	if  ok != nil {
 		global.JsonResponse(res, 400, "data Error")
 		return
 	}
@@ -55,26 +56,30 @@ func GetAllGroups_handler(res http.ResponseWriter, req *http.Request) {
 }
 
 func GetGroupsCreatedBy_handler(res http.ResponseWriter, req *http.Request) {
-	owner, err := strconv.Atoi(req.FormValue("owner"))
-	page, err2 := strconv.Atoi(req.FormValue("page"))
+	//owner, err := strconv.Atoi(req.FormValue("owner"))
+	owner , ok := req.Context().Value(middleware.UserContextKey).(middleware.User);
 
-	if err != nil || err2 != nil {
-		global.JsonResponse(res, 400, "data Error")
-		return
-	}
-	groupsArray := GetGroupsCreatedBy(owner, page)
-	if groupsArray == nil {
-		global.JsonResponse(res, 404, "data Not Found")
+	page, err2 := strconv.Atoi(req.FormValue("page"));
+
+	if ok != nil || err2 != nil {
+		global.JsonResponse(res, 400, "data Error");
 		return;
 	}
-	global.JsonResponse(res, 200, groupsArray)
+	groupsArray := GetGroupsCreatedBy(owner, page);
+	if groupsArray == nil {
+		global.JsonResponse(res, 404, "data Not Found");
+		return;
+	}
+	global.JsonResponse(res, 200, groupsArray);
 }
 
 func GetGroupsJoinedBy_handler(res http.ResponseWriter, req *http.Request) {
-	owner, err := strconv.Atoi(req.FormValue("owner"))
-	page, err2 := strconv.Atoi(req.FormValue("page"))
+	//owner, err := strconv.Atoi(req.FormValue("owner"))
+	owner , ok := req.Context().Value(middleware.UserContextKey).(middleware.User);
 
-	if err != nil || err2 != nil {
+	page, err2 := strconv.Atoi(req.FormValue("page"));
+
+	if ok != nil || err2 != nil {
 		global.JsonResponse(res, 400, "data Error")
 		return
 	}
@@ -102,19 +107,21 @@ func GetGroupMembers_handler(res http.ResponseWriter, req *http.Request) {
 }
 
 func CreateEvent_handler(res http.ResponseWriter, req *http.Request) {
-	group, err2 := strconv.Atoi(req.FormValue("group"))
-	owner, err := strconv.Atoi(req.FormValue("owner"))
-	title := req.FormValue("title")
-	description := req.FormValue("description")
-	start := req.FormValue("start")
-	end := req.FormValue("end")
-	if err != nil || err2 != nil {
-		global.JsonResponse(res, 400, "data Error")
-		return
+	group, err2 := strconv.Atoi(req.FormValue("group"));
+	//owner, err := strconv.Atoi(req.FormValue("owner"))
+	owner , ok := req.Context().Value(middleware.UserContextKey).(middleware.User);
+
+	title := req.FormValue("title");
+	description := req.FormValue("description");
+	start := req.FormValue("start");
+	end := req.FormValue("end");
+	if ok != nil || err2 != nil {
+		global.JsonResponse(res, 400, "data Error");
+		return;
 	}
-	myevent := NewEvent(group, owner, title, description, start, end, "")
+	myevent := NewEvent(group, owner, title, description, start, end, "");
 	myevent.Create()
-	global.JsonResponse(res, 200, "event created succesfuly")
+	global.JsonResponse(res, 200, "event created succesfuly");
 }
 
 func GetEvents_handler(res http.ResponseWriter, req *http.Request) {
@@ -133,9 +140,10 @@ func GetEvents_handler(res http.ResponseWriter, req *http.Request) {
 }
 
 func JoinGroup_handler(res http.ResponseWriter,req *http.Request)  {
-	member,err := strconv.Atoi(req.FormValue("member"));
+	//member,err := strconv.Atoi(req.FormValue("member"));
+	member , ok := req.Context().Value(middleware.UserContextKey).(middleware.User);
 	groupId,err2 := strconv.Atoi(req.FormValue("group"));
-	if err != nil || err2 != nil {
+	if ok != nil || err2 != nil {
 		global.JsonResponse(res,400,"data Error");
 		return;
 	}
@@ -148,9 +156,10 @@ func JoinGroup_handler(res http.ResponseWriter,req *http.Request)  {
 }
 
 func LeaveGroup_handler(res http.ResponseWriter,req *http.Request)  {
-	member,err := strconv.Atoi(req.FormValue("member"));
+	//member,err := strconv.Atoi(req.FormValue("member"));
+	member , ok := req.Context().Value(middleware.UserContextKey).(middleware.User);
 	groupId,err2 := strconv.Atoi(req.FormValue("group"));
-	if err != nil || err2 != nil {
+	if ok != nil || err2 != nil {
 		global.JsonResponse(res,400,"data Error");
 		return;
 	}

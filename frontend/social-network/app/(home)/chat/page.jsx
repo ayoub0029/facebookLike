@@ -1,12 +1,20 @@
 'use client';
 import { useState } from "react";
 import styles from "./page.module.css";
+import { M_PLUS_1 } from "next/font/google";
 
 async function getData(url){
     let response = await fetch(url).then((res) => res.json());
     return response;
 }
 
+let Profiles = [
+  {id: 1 , fullName: "khir abdelouahab"},
+  {id: 2 , fullName: "bouchikhi abdelilah"},
+  {id: 3 , fullName: "lahmami ayoub"},
+  {id: 4 , fullName: "kharkhach yassine"},
+  {id: 5 , fullName: "serraf rachid"},
+]
 
 export default function Chat() {
   const [counter,setCounter] = useState(5);
@@ -16,6 +24,8 @@ export default function Chat() {
     {id:3,fullName: "bochikhi abdelilah",avatar:"./images/profile.jpeg", date:"22-02-2025", message:"cv ?"},
     {id:4,fullName: "khir abdelouahab",avatar:"./images/profile.jpeg", date:"22-02-2025", message:"elhamdulilah"},
   ])
+  /*let response = getData('http://localhost:8080/chats/private?receiver_id=2&page=0');
+  console.log("messages : ",response);*/
   let ArrayOfMessages = messages.map((item)=>{
     return (
       <MessageSection key={item.id} fullName={item.fullName} avatar={item.avatar} date={item.date} message={item.message} />
@@ -28,7 +38,16 @@ export default function Chat() {
       setCounter(counter + 1);
     }
   }
-
+  function profileClick(profile) {
+    console.log(profile.fullName , " has clicked!, id : ",profile.id);
+    setMessages([{id:profile.id, fullName: profile.fullName,avatar:"./images/profile.jpeg", date:"22-02-2025", message:"wsh ?"},
+      {id:2,fullName: "elhmami ayoub",avatar:"./images/profile.jpeg", date:"22-02-2025", message:"kirak dayer"},])
+  }
+  let ArrayOfProfiles = Profiles.map((item)=>{
+    return (
+      <Profile key={item.id} onProfileClick={()=> profileClick(item)} profile={item} />
+    )
+  })
   return (
     <>
       <aside className={styles.ChatSection}>
@@ -46,12 +65,26 @@ export default function Chat() {
         </footer>
       </aside>
       <div className="rightSidebar">
+        {ArrayOfProfiles}
       </div>
     </>
   )
 }
 
 
+
+function Profile({profile,onProfileClick}) {
+    return (
+      <div onClick={onProfileClick} className={styles.ProfileContainer}>
+        <div className={styles.Image}>
+
+        </div>
+        <div className={styles.MessageHeaderContainer}>
+          <h3>{profile.fullName}</h3>
+        </div>
+      </div>
+    )
+}
 
 function MessageSection({ fullName, date, message }) {
   return (
