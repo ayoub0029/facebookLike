@@ -3,7 +3,8 @@ import { fetchApi } from "@/api/fetchApi.jsx"
 import { FetchPosts } from "@/components/Posts/FetchPosts"
 import { useEffect, useState } from "react"
 import ProfileComponent from "@/components/profile/profile.jsx"
-import { useParams } from "next/navigation"
+import { useParams, redirect } from "next/navigation"
+
 
 export default function Profile() {
   const params = useParams();
@@ -13,7 +14,12 @@ export default function Profile() {
     async function fetchProfile() {
       const response = await fetchApi(`profiles?user_id=${params.id}`, "GET");
       if (response.hasOwnProperty("error")) {
+        if (response.error.Error === "user does not exist") {
+          setProfile(404)
+          return
+        }
         alert(`Error get profile: ${response.error || 'Unknown error'} Status: ${response.status}`);
+
       } else {
         setProfile(response);
       }
@@ -21,7 +27,6 @@ export default function Profile() {
 
     fetchProfile();
   }, [params.id]);
-  console.log(params.id);
 
   const [isFollow, setIsfollow] = useState(false);
   useEffect(() => {
@@ -29,7 +34,15 @@ export default function Profile() {
       async function fetchIsFollow() {
         const response = await fetchApi(`profiles/follow/status?user_id=${params.id}`, "GET");
         if (response.hasOwnProperty("error")) {
-          alert(`Error followe check: ${response.error} Status: ${response.status}`);
+          if (response.error.Error === "user does not exist") {
+            setIsfollow(404)
+            return
+          } else if (response.error.Error === "you cant follow or unfollow youself") {
+            redirect('/profile')
+            return
+          }
+          alert(`Error get profile: ${response.error || 'Unknown error'} Status: ${response.status}`);
+
         } else {
           setIsfollow(response);
         }
@@ -38,9 +51,8 @@ export default function Profile() {
       fetchIsFollow();
     }
   }, [profile])
-
   if (!profile) return <div> Loading... </div>
-  console.log(isFollow);
+  else if (profile === 404 || isFollow === 404) return <div>not found</div>
 
   profile["Status"] = isFollow.Status
 

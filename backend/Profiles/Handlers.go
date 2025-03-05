@@ -74,13 +74,15 @@ func GetProfile(w http.ResponseWriter, r *http.Request) {
 			struct {
 				Id            uint64
 				ProfileStatus string
+				First_Name    string
+				Last_Name     string
 				Avatar        string
-				Nickname      string
 			}{
 				Id:            NewProfile.ProfileData.Id,
 				ProfileStatus: NewProfile.ProfileData.ProfileStatus,
+				First_Name:    NewProfile.ProfileData.First_Name,
+				Last_Name:     NewProfile.ProfileData.Last_Name,
 				Avatar:        NewProfile.ProfileData.Avatar,
-				Nickname:      NewProfile.ProfileData.Nickname,
 			},
 		)
 		return

@@ -29,12 +29,10 @@ export default function ProfileComponent({ profile }) {
           alt={profile.Nickname} />
       </div>
 
-      <span className={style["nickname"]}>@{profile.Nickname}</span>
+      <span className={style["full_name"]}>{profile.First_Name} {profile.Last_Name}</span>
       <br></br>
 
-      <div className={style["btn_follow"]}>
-        <button>follow</button>
-      </div>
+      {isShowBtnFollow(profile)}
 
       <div className={style["about"]}>
         <span>Private acount</span>
@@ -63,9 +61,7 @@ export default function ProfileComponent({ profile }) {
           <span> Following</span>
         </div>
       </div>
-      <div onClick={() => openModal('editProfile')}>
-        Edite profile
-      </div>
+      {isShowEditeProfile(profile)}
       {isShowBtnFollow(profile)}
 
       <div className={style["about"]}>
@@ -153,6 +149,13 @@ export default function ProfileComponent({ profile }) {
     </div>
   )
 }
+function isShowEditeProfile(profile) {
+  if (profile.isOwner)
+    return <div onClick={() => openModal('editProfile')}>
+      Edite profile
+    </div>
+}
+
 
 function formateDOB(date) {
   var d = new Date(date)
@@ -160,12 +163,29 @@ function formateDOB(date) {
 }
 
 function isShowBtnFollow(profile) {
+  console.log(profile);
+
+  if (profile.Status === "false") {
+    return (
+      <div className={style["btn_follow"]}>
+        <button>follow</button>
+      </div>)
+  } else if (profile.Status === "pending") {
+    return (
+      <div className={style["btn_follow"]}>
+        <button>pending</button>
+      </div>)
+  } else if (profile.Status === "accept") {
+    return (
+      <div className={style["btn_follow"]}>
+        <button>unfollow</button>
+      </div>)
+  }
   if (!profile.isOwner) {
     return (
       <div className={style["btn_follow"]}>
         <button>follow</button>
-      </div>
-    )
+      </div>)
   }
 }
 
