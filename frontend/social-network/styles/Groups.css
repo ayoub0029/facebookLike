@@ -1,0 +1,19 @@
+.groupImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.groupInfos{
+    flex-direction: column;
+    display: flex;
+    font-weight: bold;
+    align-items: center;
+    font-size: 18px;
+}
+.GroupHeader {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}

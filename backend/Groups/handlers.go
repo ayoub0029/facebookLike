@@ -10,20 +10,17 @@ import (
 )
 
 func Routes(mux *http.ServeMux) {
-	mux.HandleFunc("POST /group", CreateGroup_handler);
-	mux.HandleFunc("GET /group", GetGroupInfo_handler);
-	mux.HandleFunc("GET /groups", GetAllGroups_handler);
-	mux.HandleFunc("GET /group/members", GetGroupMembers_handler);
-	mux.HandleFunc("POST /group/event", CreateEvent_handler);
-	mux.HandleFunc("GET /group/events", GetEvents_handler);
-	mux.HandleFunc("GET /groups/CreatedBy", GetGroupsCreatedBy_handler);
-	mux.HandleFunc("GET /groups/JoinedBy", GetGroupsJoinedBy_handler);//POST /groups/join
-	mux.HandleFunc("POST /group/join", JoinGroup_handler);
-	mux.HandleFunc("POST /group/leave", LeaveGroup_handler);
+	mux.HandleFunc("POST /group", CreateGroup_handler)
+	mux.HandleFunc("GET /group", GetGroupInfo_handler)
+	mux.HandleFunc("GET /groups", GetAllGroups_handler)
+	mux.HandleFunc("GET /group/members", GetGroupMembers_handler)
+	mux.HandleFunc("POST /group/event", CreateEvent_handler)
+	mux.HandleFunc("GET /group/events", GetEvents_handler)
+	mux.HandleFunc("GET /groups/CreatedBy", GetGroupsCreatedBy_handler)
+	mux.HandleFunc("GET /groups/JoinedBy", GetGroupsJoinedBy_handler) //POST /groups/join
+	mux.HandleFunc("POST /group/join", JoinGroup_handler)
+	mux.HandleFunc("POST /group/leave", LeaveGroup_handler)
 	//mux.HandleFunc("POST /group/vote", Vote_handler);
-
-
-
 }
 func CreateGroup_handler(res http.ResponseWriter, req *http.Request) {
 	name := req.FormValue("name")
@@ -115,16 +112,23 @@ func GetGroupMembers_handler(res http.ResponseWriter, req *http.Request) {
 
 func CreateEvent_handler(res http.ResponseWriter, req *http.Request) {
 	group, err2 := strconv.Atoi(req.FormValue("group"))
-	owner, err := strconv.Atoi(req.FormValue("owner"))
+	user, ok := req.Context().Value(middleware.UserContextKey).(middleware.User)
+	if !ok {
+		fmt.Println("group:", group)
+		return
+	}
+	fmt.Println(user.ID, group)
+
 	title := req.FormValue("title")
 	description := req.FormValue("description")
 	start := req.FormValue("start")
 	end := req.FormValue("end")
-	if err != nil || err2 != nil {
+	if err2 != nil {
 		global.JsonResponse(res, 400, "data Error")
 		return
 	}
-	myevent := NewEvent(group, owner, title, description, start, end, "")
+	fmt.Println(group, title, description, start, end)
+	myevent := NewEvent(group, int(user.ID), title, description, start, end, "")
 	myevent.Create()
 	global.JsonResponse(res, 200, "event created succesfuly")
 }
@@ -145,13 +149,16 @@ func GetEvents_handler(res http.ResponseWriter, req *http.Request) {
 }
 
 func JoinGroup_handler(res http.ResponseWriter, req *http.Request) {
-	member, err := strconv.Atoi(req.FormValue("member"))
+	user, ok := req.Context().Value(middleware.UserContextKey).(middleware.User)
+	if !ok {
+		return
+	}
 	groupId, err2 := strconv.Atoi(req.FormValue("group"))
-	if err != nil || err2 != nil {
+	if err2 != nil {
 		global.JsonResponse(res, 400, "data Error")
 		return
 	}
-	status := RequestToJoin(groupId, member)
+	status := RequestToJoin(groupId, int(user.ID))
 	if !status {
 		global.JsonResponse(res, 500, "Enternal Server 500")
 		return

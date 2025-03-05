@@ -9,6 +9,8 @@ export default function Groups() {
         <CreateGroup />
         <JoinedGrp/>
         <MyGroups />
+      </div>
+      <div className="rightSidebar">
         {/* <GroupRequests /> */}
       </div>
     </>

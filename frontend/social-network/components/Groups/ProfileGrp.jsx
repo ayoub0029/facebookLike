@@ -2,7 +2,9 @@
 import { useState, useEffect } from "react"
 import { usePathname } from "next/navigation"
 import { fetchApi } from "@/api/fetchApi"
-import '../../styles/groupProfile.css'
+import groupImage from '../../Img/group.png'
+import Image from "next/image";
+import '../../styles/Groups.css'
 
 export default function ProfileGrp() {
     const fullPath = usePathname();
@@ -16,7 +18,7 @@ export default function ProfileGrp() {
         const fetchGroupProfile = async () => {
             try {
                 setLoading(true)
-                const data = await fetchApi(`/groupInfo?group=${pathname}`, 'GET', null, false)
+                const data = await fetchApi(`/group?group=${pathname}`, 'GET', null, false)
                 console.log('User data:', data)
                 setGroupProfile(data || [])
                 setError(null)
@@ -27,7 +29,6 @@ export default function ProfileGrp() {
                 setLoading(false)
             }
         }
-
         fetchGroupProfile()
     }, [])
 
@@ -39,9 +40,18 @@ export default function ProfileGrp() {
                 <p>No Data Found</p>
             ) : (
                 <div className="GroupHeader">
-                    <h1 className="GroupName">{GroupProfile.name}</h1>
-                    <h3 className="GroupDescription">{GroupProfile.description}</h3>
-                    <p className="MemberCount">{GroupProfile.members + 1} Members</p>
+                    <Image
+                        className="groupImage"
+                        src={groupImage}
+                        alt='Group Image'
+                        width={200}
+                        height={150}>
+                    </Image>
+                    <div className="groupInfos">
+                        <h1>{GroupProfile.name}</h1>
+                        <h3 className="GroupDescription">{GroupProfile.description}</h3>
+                        <p className="MemberCount">{GroupProfile.members + 1} Members</p>
+                    </div>
                 </div>
             )}
         </div>

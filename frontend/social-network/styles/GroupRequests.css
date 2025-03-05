@@ -1,5 +1,3 @@
-/* Group Requests Component Styles */
-
 .invitationRequests {
     max-height: 300px;
     overflow-y: auto;
@@ -25,7 +23,6 @@
     font-size: 14px;
 }
 
-/* Invitation list */
 .invitation-list {
     display: flex;
     flex-direction: column;
@@ -43,7 +40,6 @@
 .invitation-details {
     flex: 1;
     min-width: 0;
-    /* Ensures text truncation works */
 }
 
 .group-name {
@@ -59,7 +55,6 @@
     color: #6b7280;
 }
 
-/* Action buttons */
 .invitation-actions {
     display: flex;
     gap: 8px;
@@ -95,16 +90,15 @@
     background-color: #fecaca;
 }
 
-/* GroupRequests.css */
-
 .groupCard {
     display: flex;
     align-items: center;
     padding: 15px;
-    background-color: var(--lightGray-color);
     border-radius: 8px;
-    margin-bottom: 15px;
-    position: relative;
+    background-color: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    gap: 15px;
 }
 
 .groupCard img {
