@@ -97,7 +97,7 @@ func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	NewProfile, _ := NewProfile(CurrentUserID)
-
+	logger.InfoLogger.Println("[",Field, Data,"]")
 	if NewProfile.UpdateProfileInfo(w, r, Field, Data) {
 		global.JsonResponse(w, http.StatusOK, map[string]string{"Message": "Profile Updated Successfully"})
 	}

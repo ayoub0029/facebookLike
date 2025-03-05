@@ -2,8 +2,9 @@
 
 import style from "./profile.module.css"
 import { useState } from "react"
-import Modal from "./popup.jsx"
+import { Modal, Alert } from "./popup.jsx"
 import { UsersFollowers, UsersFollowing } from "./users.jsx"
+import { fetchApi } from "@/api/fetchApi"
 
 export default function ProfileComponent({ profile }) {
   const [modals, setModals] = useState({
@@ -101,50 +102,50 @@ export default function ProfileComponent({ profile }) {
         title="Edit Profile"
       >
 
-        <form className={style["update_form"]} onSubmit={UpdateInfo} >
+        <form className={style["update_form"]} onSubmit={(e) => UpdateInfo(e, "first_name")} >
           <input className={style["update_input"]} name="input" type="text" placeholder="first name..." required />
           <button type="submit" className={style["update_button confirm"]}>Confirm</button>
         </form>
 
-        <form className={style["update_form"]}>
-          <input className={style["update_input"]} type="text" placeholder="last name..." required />
+        <form className={style["update_form"]} onSubmit={(e) => UpdateInfo(e, "last_name")}>
+          <input className={style["update_input"]} name="input" type="text" placeholder="last name..." required />
           <button type="submit" className={style["update_button confirm"]}>Confirm</button>
         </form>
 
-        <form className={style["update_form"]}>
-          <input className={style["update_input"]} type="text" placeholder="nickname..." required />
+        <form className={style["update_form"]} onSubmit={(e) => UpdateInfo(e, "nickname")}>
+          <input className={style["update_input"]} name="input" type="text" placeholder="nickname..." required />
           <button type="submit" className={style["update_button confirm"]}>Confirm</button>
         </form>
 
-        <form className={style["update_form"]}>
-          <input className={style["update_input"]} type="text" placeholder="password..." required />
+        <form className={style["update_form"]} onSubmit={(e) => UpdateInfo(e, "password")}>
+          <input className={style["update_input"]} name="input" type="text" placeholder="password..." required />
           <button type="submit" className={style["update_button confirm"]}>Confirm</button>
         </form>
 
-        <form className={style["update_form"]}>
-          <input className={style["update_input"]} type="text" placeholder="gmail..." required />
+        <form className={style["update_form"]} onSubmit={(e) => UpdateInfo(e, "email")}>
+          <input className={style["update_input"]} name="input" type="text" placeholder="gmail..." required />
           <button type="submit" className={style["update_button confirm"]}>Confirm</button>
         </form>
 
-        <form className={style["update_form"]}>
-          <input className={style["update_input"]} type="text" placeholder="date of birth..." required />
+        <form className={style["update_form"]} onSubmit={(e) => UpdateInfo(e, "date_of_birth")}>
+          <input className={style["update_input"]} name="input" type="text" placeholder="date of birth..." required />
           <button type="submit" className={style["update_button confirm"]}>Confirm</button>
         </form>
 
-        <form className={style["update_form"]}>
-          <input className={style["update_input"]} type="text" placeholder="about me..." required />
+        <form className={style["update_form"]} onSubmit={(e) => UpdateInfo(e, "about_me")}>
+          <input className={style["update_input"]} name="input" type="text" placeholder="about me..." required />
           <button type="submit" className={style["update_button confirm"]}>Confirm</button>
         </form>
 
-        <form className={style["update_form"]}>
-          <input className={style["update_input"]} type="file" placeholder="avatar..." required />
+        <form className={style["update_form"]} onSubmit={(e) => UpdateInfo(e, "avatar")}>
+          <input className={style["update_input"]} name="input" type="file" placeholder="avatar..." required />
           <button type="submit" className={style["update_button confirm"]}>Confirm</button>
         </form>
 
-        <form className={style["update_form"]}>
-          <input type="radio" id="public" name="type_profile" value="public" />
+        <form className={style["update_form"]} onSubmit={(e) => UpdateInfo(e, "profile_status")}>
+          <input type="radio" id="public" name="input" value="public" />
           <label htmlFor="public">public</label>
-          <input type="radio" id="private" name="type_profile" value="private" />
+          <input type="radio" id="private" name="input" value="private" />
           <label htmlFor="private">private</label>
           <button type="submit" className={style["update_button confirm"]}>Confirm</button>
         </form>
@@ -168,10 +169,15 @@ function isShowBtnFollow(profile) {
   }
 }
 
-function UpdateInfo(e) {
+function UpdateInfo(e, field) {
   e.preventDefault();
   const formData = new FormData(e.target);
-  console.log(formData.get("input"));
 
-
+  let data = formData.get("input");
+  console.log(data, field)
+  async function putData() {
+    const resp = await fetchApi("profiles/update", "POST", JSON.stringify({ field: field, data: data }), true)
+    console.log(resp);
+  }
+  putData()
 }

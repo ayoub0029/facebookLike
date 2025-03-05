@@ -1,6 +1,8 @@
+// import { useState } from "react";
+// import React from "react";
 import style from "./profile.module.css"
 
-export default function Modal({ isOpen, onClose, title, children }) {
+export  function Modal({ isOpen, onClose, title, children }) {
   if (!isOpen) return null;
 
   return (
@@ -17,3 +19,26 @@ export default function Modal({ isOpen, onClose, title, children }) {
     </div>
   );
 };
+
+
+// export  function Alert({ children, type, message }) {
+//   const [isShow, setIsShow] = useState(true);
+
+//   const renderElAlert = function () {
+//     return React.cloneElement(children);
+//   };
+
+//   const handleClose = (e) => {
+//     e.preventDefault();
+//     setIsShow(false);
+//   };
+
+//   return (
+//     <div className={css(style.alert, style[type], !isShow && style.hide)}>
+//       <span className={style.closebtn} onClick={handleClose}>
+//         &times;
+//       </span>
+//       {children ? renderElAlert() : message}
+//     </div>
+//   );
+// }
