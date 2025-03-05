@@ -1,6 +1,7 @@
 package profiles
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -8,6 +9,11 @@ import (
 	auth "socialNetwork/Authentication"
 	global "socialNetwork/Global"
 )
+
+type Data struct {
+	Field string
+	Value string
+}
 
 var logger = global.NewLogger()
 
@@ -58,6 +64,12 @@ func GetProfile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if NewProfile.ProfileData.ProfileStatus == ProfileStatus[Profile_Private] {
+		_, err := IsFollowed(CurrentUserID, NewProfile.Id)
+		if err == nil {
+			NewProfile.ProfileData.ProfileStatus = "public"
+			global.JsonResponse(w, http.StatusOK, NewProfile.ProfileData)
+			return
+		}
 		global.JsonResponse(w, http.StatusOK,
 			struct {
 				Id            uint64
@@ -89,16 +101,14 @@ func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var Field, Data string // From request Key = Field , Vale = Updated data
-
-	for Key, Value := range r.URL.Query() {
-		Field, Data = Key, Value[0]
-		break
+	var data Data
+	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+		global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": "Bad Request"})
+		return
 	}
 
 	NewProfile, _ := NewProfile(CurrentUserID)
-	logger.InfoLogger.Println("[",Field, Data,"]")
-	if NewProfile.UpdateProfileInfo(w, r, Field, Data) {
+	if NewProfile.UpdateProfileInfo(w, r, data.Field, data.Value) {
 		global.JsonResponse(w, http.StatusOK, map[string]string{"Message": "Profile Updated Successfully"})
 	}
 }
@@ -280,7 +290,6 @@ func CheckFollowStatus(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(global.ErrInvalidRequest.Error())
 		return
 	}
-
 	NewFollowRequest := NewFollowRequest(CurrentUserID, FollowedID)
 
 	Status, StatusCode, err := NewFollowRequest.CheckFollowStatus()
@@ -320,14 +329,7 @@ func GetFollowers(w http.ResponseWriter, r *http.Request) {
 
 	Param2 := r.FormValue("user_id")
 
-	LoggedUserId, err := auth.IsLoggedIn(r, "token")
-	if err != nil {
-		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": global.ErrServer.Error()})
-		logger.Error("%v", err)
-		return
-	}
-
-	if Param2 == "" && LoggedUserId == 0 {
+	if Param2 == "" {
 		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": ErrUnauthorized.Error()})
 		return
 	}

@@ -176,7 +176,7 @@ function UpdateInfo(e, field) {
   let data = formData.get("input");
   console.log(data, field)
   async function putData() {
-    const resp = await fetchApi("profiles/update", "POST", JSON.stringify({ field: field, data: data }), true)
+    const resp = await fetchApi("profiles/update", "POST", JSON.stringify({ Field: field, Value: data }), true)
     console.log(resp);
   }
   putData()

@@ -214,7 +214,7 @@
 
 .modal-body {
   padding: 20px;
-  /* max-height: 100px; */
+  max-height: 200px;
 }
 /* ================= update profile =========================== */
 /* .update_form {

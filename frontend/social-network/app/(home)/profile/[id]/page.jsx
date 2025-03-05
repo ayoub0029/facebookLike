@@ -21,13 +21,13 @@ export default function Profile() {
 
     fetchProfile();
   }, [params.id]);
-  console.log(profile);
+  console.log(params.id);
 
   const [isFollow, setIsfollow] = useState(false);
   useEffect(() => {
     if (profile) {
       async function fetchIsFollow() {
-        const response = await fetchApi(`profiles/follow/status?user_id=2`, "GET");
+        const response = await fetchApi(`profiles/follow/status?user_id=${params.id}`, "GET");
         if (response.hasOwnProperty("error")) {
           alert(`Error followe check: ${response.error} Status: ${response.status}`);
         } else {
@@ -40,6 +40,7 @@ export default function Profile() {
   }, [profile])
 
   if (!profile) return <div> Loading... </div>
+  console.log(isFollow);
 
   profile["Status"] = isFollow.Status
 

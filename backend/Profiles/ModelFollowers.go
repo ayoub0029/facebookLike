@@ -14,14 +14,14 @@ type Follow_Request struct {
 }
 
 type Following struct {
-	Id int
+	Id        int
 	FirstName string
 	LastName  string
 	Avatar    string
 }
 
 type Followers struct {
-	Id int
+	Id        int
 	FirstName string
 	LastName  string
 	Avatar    string
@@ -127,33 +127,23 @@ func (req *Follow_Request) Unfollow() (int, error) {
 // Check if there is a relationship between the user and the follower.
 // Return the status, status code, and any error encountered.
 func (req *Follow_Request) CheckFollowStatus() (string, int, error) {
-	_, err := IsFollowed(req.followedId, req.followerId)
-
-	if err == ErrFollowYourself || err == ErrUserNotExist || err == ErrCantFindRelationId {
+	status, err := GetStatus(req.followerId, req.followedId)
+	if err == ErrCantFindRelationId {
+		return "false", http.StatusOK, nil
+	}
+	if err == ErrFollowYourself || err == ErrUserNotExist {
 		return "", http.StatusBadRequest, err
 	}
 	if err != nil {
 		return "", http.StatusInternalServerError, err
 	}
 
-	Query := "SELECT status FROM followers WHERE follower_id = ? AND followed_id = ?"
-	Row, err := database.SelectOneRow(Query, req.followedId, req.followerId)
-	if err != nil {
-		return "", http.StatusInternalServerError, err
-	}
-
-	var Status string
-
-	if err := Row.Scan(&Status); err != nil {
-		return "", http.StatusInternalServerError, err
-	}
-
-	return Status, http.StatusOK, nil
+	return status, http.StatusOK, nil
 }
 
 // Accept the follow request and return the status code, along with any errors encountered.
 func (req *Follow_Request) AccepteRequest() (int, error) {
-	_, err := IsFollowed(req.followedId, req.followerId)
+	_, err := GetStatus(req.followedId, req.followerId)
 	if err == ErrFollowYourself || err == ErrUserNotExist || err == ErrCantFindRelationId {
 		return http.StatusBadRequest, err
 	}

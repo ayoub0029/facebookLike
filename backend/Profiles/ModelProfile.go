@@ -66,7 +66,7 @@ func (p *Profile) GetUserField(Field string) (any, error) {
 // Retrieve profile information, and allow joining with /posts to get the user's posts for the front end.
 func (p *Profile) GetProfileInfo() error {
 	Query := `
-	SELECT 
+	SELECT
 		id,
     	profile_status,
     	avatar,
@@ -86,26 +86,38 @@ func (p *Profile) GetProfileInfo() error {
 	if err != nil {
 		return err
 	}
+
+	var Nickname *string
+	var Aboutme *string
+	var Avatar *string
 	err = Row.Scan(
 		&p.ProfileData.Id,
 		&p.ProfileData.ProfileStatus,
-		&p.ProfileData.Avatar,
-		&p.ProfileData.Nickname,
+		&Avatar,
+		&Nickname,
 		&p.ProfileData.First_Name,
 		&p.ProfileData.Last_Name,
-		&p.ProfileData.AboutMe,
+		&Aboutme,
 		&p.ProfileData.Email,
 		&p.ProfileData.DOB,
 		&p.ProfileData.Created_at,
 		&p.ProfileData.Follower,
 		&p.ProfileData.Follwoed,
 	)
+	p.ProfileData.Nickname, p.ProfileData.Avatar, p.ProfileData.AboutMe = PointerValidation(Nickname), PointerValidation(Avatar), PointerValidation(Aboutme)
 	if err != nil {
 		fmt.Println(err)
 		return err
 	}
 
 	return nil
+}
+
+func PointerValidation(str *string) string {
+	if str == nil {
+		return ""
+	}
+	return *str
 }
 
 // Return True If the Field Is Allowed And The Data is valid
