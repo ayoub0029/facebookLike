@@ -23,17 +23,15 @@ func Routes(mux *http.ServeMux) {
 	//mux.HandleFunc("POST /group/vote", Vote_handler);
 }
 func CreateGroup_handler(res http.ResponseWriter, req *http.Request) {
-	name := req.FormValue("name")
-	description := req.FormValue("description")
-	user, ok := req.Context().Value(middleware.UserContextKey).(middleware.User)
-	if !ok {
+	name := req.FormValue("name");
+	description := req.FormValue("description");
+	user , ok := req.Context().Value(middleware.UserContextKey).(middleware.User);
+	//owner, err := strconv.Atoi(req.FormValue("owner"))
+	if  !ok {
+		global.JsonResponse(res, 400, "data Error")
 		return
 	}
 	fmt.Println(name, description, user)
-	/* if err != nil {
-		global.JsonResponse(res, 400, "data Error")
-		return
-	} */
 	myGroup := NewGroup(name, description, int(user.ID))
 	status := myGroup.Create()
 	if !status {
@@ -58,36 +56,34 @@ func GetAllGroups_handler(res http.ResponseWriter, req *http.Request) {
 }
 
 func GetGroupsCreatedBy_handler(res http.ResponseWriter, req *http.Request) {
-	user, ok := req.Context().Value(middleware.UserContextKey).(middleware.User)
-	if !ok {
-		return
-	}
-	page, err2 := strconv.Atoi(req.FormValue("page"))
+	//owner, err := strconv.Atoi(req.FormValue("owner"))
+	owner , ok := req.Context().Value(middleware.UserContextKey).(middleware.User);
 
-	if err2 != nil {
-		global.JsonResponse(res, 400, "data Error")
-		return
+	page, err2 := strconv.Atoi(req.FormValue("page"));
+
+	if !ok || err2 != nil {
+		global.JsonResponse(res, 400, "data Error");
+		return;
 	}
-	groupsArray := GetGroupsCreatedBy(int(user.ID), page)
+	groupsArray := GetGroupsCreatedBy(int(owner.ID), page);
 	if groupsArray == nil {
-		global.JsonResponse(res, 404, "data Not Found")
-		return
+		global.JsonResponse(res, 404, "data Not Found");
+		return;
 	}
-	global.JsonResponse(res, 200, groupsArray)
+	global.JsonResponse(res, 200, groupsArray);
 }
 
 func GetGroupsJoinedBy_handler(res http.ResponseWriter, req *http.Request) {
-	user, ok := req.Context().Value(middleware.UserContextKey).(middleware.User)
-	if !ok {
-		return
-	}
-	page, err2 := strconv.Atoi(req.FormValue("page"))
+	//owner, err := strconv.Atoi(req.FormValue("owner"))
+	owner , ok := req.Context().Value(middleware.UserContextKey).(middleware.User);
 
-	if err2 != nil {
+	page, err2 := strconv.Atoi(req.FormValue("page"));
+
+	if !ok || err2 != nil {
 		global.JsonResponse(res, 400, "data Error")
 		return
 	}
-	groupsArray := GetGroupsJoinedBy(int(user.ID), page)
+	groupsArray := GetGroupsJoinedBy(int(owner.ID), page)
 	if groupsArray == nil {
 		global.JsonResponse(res, 404, "data Not Found")
 		return
@@ -111,26 +107,21 @@ func GetGroupMembers_handler(res http.ResponseWriter, req *http.Request) {
 }
 
 func CreateEvent_handler(res http.ResponseWriter, req *http.Request) {
-	group, err2 := strconv.Atoi(req.FormValue("group"))
-	user, ok := req.Context().Value(middleware.UserContextKey).(middleware.User)
-	if !ok {
-		fmt.Println("group:", group)
-		return
-	}
-	fmt.Println(user.ID, group)
+	group, err2 := strconv.Atoi(req.FormValue("group"));
+	//owner, err := strconv.Atoi(req.FormValue("owner"))
+	owner , ok := req.Context().Value(middleware.UserContextKey).(middleware.User);
 
-	title := req.FormValue("title")
-	description := req.FormValue("description")
-	start := req.FormValue("start")
-	end := req.FormValue("end")
-	if err2 != nil {
-		global.JsonResponse(res, 400, "data Error")
-		return
+	title := req.FormValue("title");
+	description := req.FormValue("description");
+	start := req.FormValue("start");
+	end := req.FormValue("end");
+	if !ok  || err2 != nil {
+		global.JsonResponse(res, 400, "data Error");
+		return;
 	}
-	fmt.Println(group, title, description, start, end)
-	myevent := NewEvent(group, int(user.ID), title, description, start, end, "")
+	myevent := NewEvent(group, int(owner.ID), title, description, start, end, "");
 	myevent.Create()
-	global.JsonResponse(res, 200, "event created succesfuly")
+	global.JsonResponse(res, 200, "event created succesfuly");
 }
 
 func GetEvents_handler(res http.ResponseWriter, req *http.Request) {
@@ -148,17 +139,15 @@ func GetEvents_handler(res http.ResponseWriter, req *http.Request) {
 	global.JsonResponse(res, 200, events)
 }
 
-func JoinGroup_handler(res http.ResponseWriter, req *http.Request) {
-	user, ok := req.Context().Value(middleware.UserContextKey).(middleware.User)
-	if !ok {
-		return
+func JoinGroup_handler(res http.ResponseWriter,req *http.Request)  {
+	//member,err := strconv.Atoi(req.FormValue("member"));
+	member , ok := req.Context().Value(middleware.UserContextKey).(middleware.User);
+	groupId,err2 := strconv.Atoi(req.FormValue("group"));
+	if !ok || err2 != nil {
+		global.JsonResponse(res,400,"data Error");
+		return;
 	}
-	groupId, err2 := strconv.Atoi(req.FormValue("group"))
-	if err2 != nil {
-		global.JsonResponse(res, 400, "data Error")
-		return
-	}
-	status := RequestToJoin(groupId, int(user.ID))
+	status := RequestToJoin(groupId, int(member.ID));
 	if !status {
 		global.JsonResponse(res, 500, "Enternal Server 500")
 		return
@@ -166,17 +155,15 @@ func JoinGroup_handler(res http.ResponseWriter, req *http.Request) {
 	global.JsonResponse(res, 200, "Request have sent succesfuly")
 }
 
-func LeaveGroup_handler(res http.ResponseWriter, req *http.Request) {
-	user, ok := req.Context().Value(middleware.UserContextKey).(middleware.User)
-	if !ok {
-		return
+func LeaveGroup_handler(res http.ResponseWriter,req *http.Request)  {
+	//member,err := strconv.Atoi(req.FormValue("member"));
+	member , ok := req.Context().Value(middleware.UserContextKey).(middleware.User);
+	groupId,err2 := strconv.Atoi(req.FormValue("group"));
+	if !ok || err2 != nil {
+		global.JsonResponse(res,400,"data Error");
+		return;
 	}
-	groupId, err2 := strconv.Atoi(req.FormValue("group"))
-	if err2 != nil {
-		global.JsonResponse(res, 400, "data Error")
-		return
-	}
-	status := Leave(groupId, int(user.ID))
+	status := Leave(groupId, int(member.ID))
 	if !status {
 		global.JsonResponse(res, 500, "Enternal Server 500")
 		return
@@ -185,12 +172,14 @@ func LeaveGroup_handler(res http.ResponseWriter, req *http.Request) {
 }
 
 func GetGroupInfo_handler(res http.ResponseWriter, req *http.Request) {
-	group, err := strconv.Atoi(req.FormValue("group"))
-	if err != nil {
+	group, err := strconv.Atoi(req.FormValue("group"));
+	user , ok := req.Context().Value(middleware.UserContextKey).(middleware.User);
+
+	if !ok || err != nil {
 		global.JsonResponse(res, 400, "data Error")
 		return
 	}
-	groupInfo := GetGroupInfo(group)
+	groupInfo := GetGroupInfo(int(user.ID),group)
 	if groupInfo == nil {
 		global.JsonResponse(res, 404, "data Not Found")
 		return

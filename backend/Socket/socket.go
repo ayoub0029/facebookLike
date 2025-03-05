@@ -64,7 +64,7 @@ func WsHandling(w http.ResponseWriter, r *http.Request) {
 	}
 	
 	AddClient(client)
-	fmt.Println(Clients)
+	fmt.Println(client.UserId);
 	go SocketListner(client, r)
 }
 
@@ -119,6 +119,7 @@ func SocketListner(client *global.Client, r *http.Request) {
 
 		var wsMessage WebSocketMessage
 		if err := client.Conn.ReadJSON(&wsMessage); err != nil {
+			fmt.Println("eeorr");
 			log.Println(err)
 			break
 		}
