@@ -9,9 +9,9 @@ import Link from 'next/link'
 
 const fetchJoinedGrp = async (page) => {
     try {
-        const data = await fetchApi(`groups?page=${page}`, 'GET', null, false)
+        const data = await fetchApi(`groups/JoinedBy?page=${page}`, 'GET', null, false)
         if (data.status !== undefined) {
-            return { error: "login please", status: 401 }
+            return { error: data.error, status: data.status }
         }
         const groups = Array.isArray(data) ? data : []
         return {
@@ -41,7 +41,7 @@ const JoinedGrp = () => {
         try {
             setLeavingGroup(true)
             setLeaveError(null)
-            const response = await fetchApi(`group/leav/${groupId}`, 'DELETE', null, false)
+            const response = await fetchApi(`group/leave/${groupId}`, 'DELETE', null, false)
             if (response && response.status !== undefined && response.status !== 200) {
                 setLeaveError(`Error: ${response.error || 'Unknown error'} (Status: ${response.status})`);
                 return;

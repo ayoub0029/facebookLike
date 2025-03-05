@@ -14,7 +14,7 @@ const fetchUserGroups = async (page) => {
         console.log('API response:', data);
         console.log("in case error:", data.error);
         if (data.status !== undefined) {
-            return { error: "error", status: data.status }
+            return { error: data.error, status: data.status }
         }
         const groups = Array.isArray(data) ? data : []
         return {
