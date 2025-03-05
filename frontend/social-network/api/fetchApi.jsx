@@ -18,7 +18,6 @@ export async function fetchApi(endpoint, method = "GET", body = null, isFormData
         const response = await fetch(url, options);
 
         const result = await response.json();
-
         if (!response.ok) {
             return { error: result, status: response.status };
         }

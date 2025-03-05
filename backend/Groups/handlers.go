@@ -28,17 +28,13 @@ func Routes(mux *http.ServeMux) {
 func CreateGroup_handler(res http.ResponseWriter, req *http.Request) {
 	name := req.FormValue("name");
 	description := req.FormValue("description");
-	owner , ok := req.Context().Value(middleware.UserContextKey).(middleware.User);
+	user , ok := req.Context().Value(middleware.UserContextKey).(middleware.User);
 	//owner, err := strconv.Atoi(req.FormValue("owner"))
-	if  ok != nil {
+	if  !ok {
 		global.JsonResponse(res, 400, "data Error")
 		return
 	}
 	fmt.Println(name, description, user)
-	/* if err != nil {
-		global.JsonResponse(res, 400, "data Error")
-		return
-	} */
 	myGroup := NewGroup(name, description, int(user.ID))
 	status := myGroup.Create()
 	if !status {
@@ -68,11 +64,11 @@ func GetGroupsCreatedBy_handler(res http.ResponseWriter, req *http.Request) {
 
 	page, err2 := strconv.Atoi(req.FormValue("page"));
 
-	if ok != nil || err2 != nil {
+	if !ok || err2 != nil {
 		global.JsonResponse(res, 400, "data Error");
 		return;
 	}
-	groupsArray := GetGroupsCreatedBy(owner, page);
+	groupsArray := GetGroupsCreatedBy(int(owner.ID), page);
 	if groupsArray == nil {
 		global.JsonResponse(res, 404, "data Not Found");
 		return;
@@ -86,11 +82,11 @@ func GetGroupsJoinedBy_handler(res http.ResponseWriter, req *http.Request) {
 
 	page, err2 := strconv.Atoi(req.FormValue("page"));
 
-	if ok != nil || err2 != nil {
+	if !ok || err2 != nil {
 		global.JsonResponse(res, 400, "data Error")
 		return
 	}
-	groupsArray := GetGroupsJoinedBy(int(user.ID), page)
+	groupsArray := GetGroupsJoinedBy(int(owner.ID), page)
 	if groupsArray == nil {
 		global.JsonResponse(res, 404, "data Not Found")
 		return
@@ -122,11 +118,11 @@ func CreateEvent_handler(res http.ResponseWriter, req *http.Request) {
 	description := req.FormValue("description");
 	start := req.FormValue("start");
 	end := req.FormValue("end");
-	if ok != nil || err2 != nil {
+	if !ok  || err2 != nil {
 		global.JsonResponse(res, 400, "data Error");
 		return;
 	}
-	myevent := NewEvent(group, owner, title, description, start, end, "");
+	myevent := NewEvent(group, int(owner.ID), title, description, start, end, "");
 	myevent.Create()
 	global.JsonResponse(res, 200, "event created succesfuly");
 }
@@ -150,11 +146,11 @@ func JoinGroup_handler(res http.ResponseWriter,req *http.Request)  {
 	//member,err := strconv.Atoi(req.FormValue("member"));
 	member , ok := req.Context().Value(middleware.UserContextKey).(middleware.User);
 	groupId,err2 := strconv.Atoi(req.FormValue("group"));
-	if ok != nil || err2 != nil {
+	if !ok || err2 != nil {
 		global.JsonResponse(res,400,"data Error");
 		return;
 	}
-	status := RequestToJoin(groupId, member)
+	status := RequestToJoin(groupId, int(member.ID));
 	if !status {
 		global.JsonResponse(res, 500, "Enternal Server 500")
 		return
@@ -166,16 +162,11 @@ func LeaveGroup_handler(res http.ResponseWriter,req *http.Request)  {
 	//member,err := strconv.Atoi(req.FormValue("member"));
 	member , ok := req.Context().Value(middleware.UserContextKey).(middleware.User);
 	groupId,err2 := strconv.Atoi(req.FormValue("group"));
-	if ok != nil || err2 != nil {
+	if !ok || err2 != nil {
 		global.JsonResponse(res,400,"data Error");
 		return;
 	}
-	groupId, err2 := strconv.Atoi(req.FormValue("group"))
-	if err2 != nil {
-		global.JsonResponse(res, 400, "data Error")
-		return
-	}
-	status := Leave(groupId, int(user.ID))
+	status := Leave(groupId, int(member.ID))
 	if !status {
 		global.JsonResponse(res, 500, "Enternal Server 500")
 		return
@@ -184,12 +175,14 @@ func LeaveGroup_handler(res http.ResponseWriter,req *http.Request)  {
 }
 
 func GetGroupInfo_handler(res http.ResponseWriter, req *http.Request) {
-	group, err := strconv.Atoi(req.FormValue("group"))
-	if err != nil {
+	group, err := strconv.Atoi(req.FormValue("group"));
+	user , ok := req.Context().Value(middleware.UserContextKey).(middleware.User);
+
+	if !ok || err != nil {
 		global.JsonResponse(res, 400, "data Error")
 		return
 	}
-	groupInfo := GetGroupInfo(group)
+	groupInfo := GetGroupInfo(int(user.ID),group)
 	if groupInfo == nil {
 		global.JsonResponse(res, 404, "data Not Found")
 		return
