@@ -5,7 +5,7 @@ import { fetchApi } from "@/api/fetchApi"
 import groupImage from '../../Img/group.png'
 import Image from "next/image"
 import '../../styles/Groups.css'
-
+import Link from "next/link"
 export default function ProfileGrp() {
     const fullPath = usePathname()
     const pathParts = fullPath.split("/")
@@ -101,7 +101,7 @@ export default function ProfileGrp() {
                         {groupProfile.description || 'No description available'}
                     </h3>
                     <p className="MemberCount">
-                        {`${groupProfile.members + 1} Members`}
+                        {`${groupProfile.members} Members`}
                     </p>
                     {groupProfile.status === "nothing" && (
                         <div className="reqToJoin">
@@ -114,6 +114,15 @@ export default function ProfileGrp() {
                         <div className="reqToJoin">
                             <button onClick={() => cancelJoin(groupProfile.id)} className="btn btnGray">
                                 Cancel Request
+                            </button>
+                        </div>
+                    )}
+                    {(groupProfile.status === "accepted" || groupProfile.status === "owner") && (
+                        <div className='groupCard'>
+                            <button className='btn btnGreen'>
+                                <Link href={`/groupsChat`}>
+                                    Group Chat
+                                </Link>
                             </button>
                         </div>
                     )}

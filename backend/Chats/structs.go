@@ -7,12 +7,13 @@ type privateMsg struct {
 	ReceiverID  uint64 `json:"receiverid"`
 	Message     string `json:"message"`
 	CreatedDate string `json:"createdDate"`
+	MessageID   uint64 `json:"messageid"`
 }
 
 type groupMsg struct {
 	GroupId     uint64 `json:"groupid"`
 	SenderID    uint64 `json:"senderid"`
-	Message     string `json:"message"`	
+	Message     string `json:"message"`
 	CreatedDate string `json:"createdDate"`
 }
 

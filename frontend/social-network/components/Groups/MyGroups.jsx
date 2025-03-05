@@ -6,8 +6,6 @@ import '../../styles/mygroups.css'
 import groupImage from '../../Img/group.png'
 import Image from "next/image";
 const fetchUserGroups = async (page) => {
-
-
     try {
         console.log("im here in fetchuser");
         const data = await fetchApi(`/groups/CreatedBy?page=${page}`, 'GET', null, false)

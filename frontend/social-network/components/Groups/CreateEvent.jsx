@@ -2,7 +2,7 @@
 import React, { useState } from 'react'
 import { fetchApi } from '@/api/fetchApi'
 import { usePathname } from "next/navigation"
-
+import Link from 'next/link'
 import '../../styles/creategroup.css'
 
 export default function CreateEvent() {

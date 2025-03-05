@@ -2,7 +2,7 @@
 import React, { useState } from 'react'
 import { fetchApi } from '@/api/fetchApi'
 import '../../styles/creategroup.css'
-
+import Link from 'next/link'
 export default function CreateGroup() {
     const [isClicked, useIsClicked] = useState(false)
     const [error, useError] = useState(null)

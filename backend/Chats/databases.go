@@ -16,7 +16,7 @@ func GetMsgFromPrvChatDB(receiverID, page int, r *http.Request) ([]privateMsg, e
 	if !ok {
 		return nil, fmt.Errorf("user not login")
 	}
-	query := `SELECT m.sender_id, m.receiver_id, m.message, m.created_at FROM private_chat m
+	query := `SELECT m.id, m.sender_id, m.receiver_id, m.message, m.created_at FROM private_chat m
 	        	WHERE (m.sender_id = ? or m.sender_id = ?) and (m.receiver_id = ? or m.receiver_id =?)
 				ORDER BY m.created_at DESC LIMIT 10 OFFSET ?;`
 	rows, err := database.SelectQuery(query, user.ID, receiverID, user.ID, receiverID, page)
@@ -26,7 +26,7 @@ func GetMsgFromPrvChatDB(receiverID, page int, r *http.Request) ([]privateMsg, e
 	}
 	msg := privateMsg{}
 	for rows.Next() {
-		err := rows.Scan(&msg.SenderID, &msg.ReceiverID, &msg.Message, &msg.CreatedDate)
+		err := rows.Scan(&msg.MessageID, &msg.SenderID, &msg.ReceiverID, &msg.Message, &msg.CreatedDate)
 		if err != nil {
 			log.Println("Scan error: ", err)
 			return nil, err
