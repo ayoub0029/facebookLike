@@ -4,7 +4,7 @@ import style from "./profile.module.css"
 import { useState } from "react"
 import { useRouter } from 'next/navigation';
 import { Modal, Alert } from "./popup.jsx"
-import { UsersFollowers, UsersFollowing } from "./users.jsx"
+import { UsersFollowers, UsersFollowing } from "./users_follow.jsx"
 import { fetchApi } from "@/api/fetchApi"
 
 export default function ProfileComponent({ profile }) {
@@ -50,7 +50,7 @@ export default function ProfileComponent({ profile }) {
       <span className={style["full_name"]}>{profile.First_Name} {profile.Last_Name}</span>
       <br></br>
 
-      {isShowBtnFollow(profile)}
+      {typeBtnShowFollow(profile)}
 
       <div className={style["about"]}>
         <span>Private acount</span>
@@ -80,7 +80,7 @@ export default function ProfileComponent({ profile }) {
         </div>
       </div>
       {isShowEditeProfile(profile.isOwner, openModal)}
-      {isShowBtnFollow(profile)}
+      {typeBtnShowFollow(profile)}
 
       <div className={style["about"]}>
         <span>About Me</span>
@@ -176,40 +176,47 @@ function formateDOB(date) {
   return `${d.getFullYear()} / ${d.getMonth() + 1} / ${d.getDate()}`
 }
 
-function isShowBtnFollow(profile) {
-  if (profile.Status === "false") {
-    return (
-      <div className={style["btn_follow"]}>
-        <button>follow</button>
-      </div>)
-  } else if (profile.Status === "pending") {
-    return (
-      <div className={style["btn_follow"]}>
-        <button>pending</button>
-      </div>)
-  } else if (profile.Status === "accept") {
-    return (
-      <div className={style["btn_follow"]}>
-        <button>unfollow</button>
-      </div>)
-  }
-  if (!profile.isOwner) {
-    return (
-      <div className={style["btn_follow"]}>
-        <button>follow</button>
-      </div>)
+function typeBtnShowFollow(profile) {
+  switch (profile.Status) {
+    case "false":
+      return (
+        <div className={style["btn_follow"]}>
+          <button onClick={() => Follow(profile.Id)}>follow</button>
+        </div>)
+    case "pending":
+      return (
+        <div className={style["btn_follow"]}>
+          <button >pending</button>
+        </div>)
+
+    case "accept":
+      return (
+        <div className={style["btn_follow"]}>
+          <button onClick={()=> Unfollow(profile.Id)}>unfollow</button>
+        </div>)
   }
 }
 
-// function UpdateInfo(e, field, handleReload) {
-//   e.preventDefault();
-//   const formData = new FormData(e.target);
+ async function Follow(userID) {
+  let form = new FormData()
+  form.append("followedid", userID)
 
-//   let data = formData.get("input");
-//   console.log(data, field)
-//   const resp = fetchApi("profiles/update", "POST", JSON.stringify({ Field: field, Value: data }), true)
-//   console.log(resp);
-//   if (resp.ok) {
-//     handleReload()
-//   }
-// }
+  const resp = await fetchApi('profiles/follow', 'POST', form, true)
+  if (resp.hasOwnProperty("error")) {
+    alert(`Error: ${resp.error} Status: ${resp.status}`);
+    return
+  }
+  console.log(resp);
+}
+
+async function Unfollow(userID) {
+  let form = new FormData()
+  form.append("followedid", userID)
+
+  const resp = await fetchApi('profiles/unfollow', 'POST', form, true)
+  if (resp.hasOwnProperty("error")) {
+    alert(`Error: ${resp.error} Status: ${resp.status}`);
+    return
+  }
+  console.log(resp);
+}

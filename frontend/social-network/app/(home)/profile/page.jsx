@@ -34,7 +34,7 @@ export default function Profile() {
   return (
     <>
       <aside className="feed">
-        <FetchPosts key={reloadKey} endpoint={`posts?last_id=${profile.Id}`} lastId={0} />
+        <FetchPosts key={reloadKey} endpoint={`posts?last_id=`} lastId={0} />
       </aside>
 
       <div className="rightSidebar">

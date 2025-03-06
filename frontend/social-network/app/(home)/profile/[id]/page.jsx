@@ -1,7 +1,7 @@
 "use client"
 import { fetchApi } from "@/api/fetchApi.jsx"
 import { FetchPosts } from "@/components/Posts/FetchPosts"
-import { useEffect, useState,useCallback } from "react"
+import { useEffect, useState, useCallback } from "react"
 import ProfileComponent from "@/components/profile/profile.jsx"
 import { useParams, redirect } from "next/navigation"
 
@@ -18,7 +18,7 @@ export default function Profile() {
           setProfile(404)
           return
         }
-        alert(`Error get profile: ${response.error || 'Unknown error'} Status: ${response.status}`);
+        alert(`Error get profile: ${response.error.Error || 'Unknown error'} Status: ${response.status}`);
 
       } else {
         setProfile(response);
@@ -67,7 +67,11 @@ export default function Profile() {
   return (
     <>
       <aside className="feed">
-      <FetchPosts key={reloadKey} endpoint={`posts?last_id=${profile.Id}`} lastId={0} />
+        {profile.ProfileStatus === 'private' ? (
+          <div>private account</div>
+        ) : (
+          <FetchPosts key={reloadKey} endpoint={`posts?last_id=`} lastId={0} />
+        )}
       </aside>
 
       <div className="rightSidebar">
@@ -75,4 +79,5 @@ export default function Profile() {
       </div>
     </>
   );
+
 }
