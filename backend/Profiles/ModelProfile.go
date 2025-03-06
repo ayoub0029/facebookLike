@@ -77,8 +77,8 @@ func (p *Profile) GetProfileInfo() error {
     	email,
     	date_of_birth,
     	created_at,
-    	(SELECT COUNT(id) FROM followers AS follower WHERE followed_id = $1) AS follower,
-    	(SELECT COUNT(id) FROM followers AS followed WHERE follower_id = $1) AS followed
+    	(SELECT COUNT(id) FROM followers WHERE status = 'accept' AND followed_id = $1) AS follower,
+    	(SELECT COUNT(id) FROM followers WHERE status = 'accept' AND follower_id = $1) AS followed
 	FROM users
 	WHERE id = $1;`
 

@@ -1,7 +1,7 @@
 "use client"
 import { fetchApi } from "@/api/fetchApi.jsx"
 import { FetchPosts } from "@/components/Posts/FetchPosts"
-import { useEffect, useState } from "react"
+import { useEffect, useState,useCallback } from "react"
 import ProfileComponent from "@/components/profile/profile.jsx"
 import { useParams, redirect } from "next/navigation"
 
@@ -51,6 +51,14 @@ export default function Profile() {
       fetchIsFollow();
     }
   }, [profile])
+
+  const [reloadKey, setReloadKey] = useState(0);
+
+  const handleReload = useCallback(() => {
+    setReloadKey((key) => key + 1);
+  }, []);
+
+
   if (!profile) return <div> Loading... </div>
   else if (profile === 404 || isFollow === 404) return <div>not found</div>
 
@@ -59,7 +67,7 @@ export default function Profile() {
   return (
     <>
       <aside className="feed">
-        <FetchPosts last_id={0} />
+      <FetchPosts key={reloadKey} endpoint={`posts?last_id=${profile.Id}`} lastId={0} />
       </aside>
 
       <div className="rightSidebar">

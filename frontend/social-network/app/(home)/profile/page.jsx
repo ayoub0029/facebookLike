@@ -1,10 +1,10 @@
 "use client"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { useParams } from "next/navigation"
 import { fetchApi } from "@/api/fetchApi.jsx"
 import { FetchPosts } from "@/components/Posts/FetchPosts"
 import ProfileComponent from "@/components/profile/profile.jsx"
-      
+
 export default function Profile() {
   const params = useParams()
   console.log(params);
@@ -15,7 +15,7 @@ export default function Profile() {
       const response = await fetchApi("profiles", "GET")
       if (response.hasOwnProperty("error")) {
         alert(`Error: ${response.error} Status: ${response.status}`);
-      }else{
+      } else {
         setProfile(response)
       }
     }
@@ -23,6 +23,11 @@ export default function Profile() {
     fetchProfile()
   }, [])
   // console.log(profile);
+  const [reloadKey, setReloadKey] = useState(0);
+
+  const handleReload = useCallback(() => {
+    setReloadKey((key) => key + 1);
+  }, []);
 
   if (!profile) return <div> Loading... </div>
 
@@ -30,7 +35,7 @@ export default function Profile() {
   return (
     <>
       <aside className="feed">
-        <FetchPosts last_id={0} />
+        <FetchPosts key={reloadKey} endpoint={`posts?last_id=${profile.Id}`} lastId={0} />
       </aside>
 
       <div className="rightSidebar">

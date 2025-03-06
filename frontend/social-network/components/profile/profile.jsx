@@ -2,6 +2,7 @@
 
 import style from "./profile.module.css"
 import { useState } from "react"
+import { useRouter } from 'next/navigation';
 import { Modal, Alert } from "./popup.jsx"
 import { UsersFollowers, UsersFollowing } from "./users.jsx"
 import { fetchApi } from "@/api/fetchApi"
@@ -20,6 +21,25 @@ export default function ProfileComponent({ profile }) {
   const closeModal = (modalName) => {
     setModals({ ...modals, [modalName]: false });
   };
+
+  const router = useRouter();
+  async function UpdateInfo(e, field) {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+
+    let data = formData.get("input");
+    console.log(data, field)
+
+    const resp = await fetchApi("profiles/update", "POST", JSON.stringify({ Field: field, Value: data }), true)
+    if (resp.hasOwnProperty("error")) {
+      alert(`Error get profile: ${resp.error.Error || 'Unknown error'} Status: ${resp.status}`);
+      return
+    }
+    setTimeout(() => {
+      window.location.reload();
+    }, 100);
+  }
+
   console.log(profile);
 
   return profile.ProfileStatus === 'private' && !profile.isOwner ? (
@@ -61,7 +81,7 @@ export default function ProfileComponent({ profile }) {
           <span> Following</span>
         </div>
       </div>
-      {isShowEditeProfile(profile)}
+      {isShowEditeProfile(profile.isOwner, openModal)}
       {isShowBtnFollow(profile)}
 
       <div className={style["about"]}>
@@ -149,8 +169,8 @@ export default function ProfileComponent({ profile }) {
     </div>
   )
 }
-function isShowEditeProfile(profile) {
-  if (profile.isOwner)
+function isShowEditeProfile(isOwner, openModal) {
+  if (isOwner)
     return <div onClick={() => openModal('editProfile')}>
       Edite profile
     </div>
@@ -189,15 +209,15 @@ function isShowBtnFollow(profile) {
   }
 }
 
-function UpdateInfo(e, field) {
-  e.preventDefault();
-  const formData = new FormData(e.target);
+// function UpdateInfo(e, field, handleReload) {
+//   e.preventDefault();
+//   const formData = new FormData(e.target);
 
-  let data = formData.get("input");
-  console.log(data, field)
-  async function putData() {
-    const resp = await fetchApi("profiles/update", "POST", JSON.stringify({ Field: field, Value: data }), true)
-    console.log(resp);
-  }
-  putData()
-}
+//   let data = formData.get("input");
+//   console.log(data, field)
+//   const resp = fetchApi("profiles/update", "POST", JSON.stringify({ Field: field, Value: data }), true)
+//   console.log(resp);
+//   if (resp.ok) {
+//     handleReload()
+//   }
+// }
