@@ -54,9 +54,9 @@ export default function Profile() {
 
   const [reloadKey, setReloadKey] = useState(0);
 
-  const handleReload = useCallback(() => {
-    setReloadKey((key) => key + 1);
-  }, []);
+  // const handleReload = useCallback(() => {
+  //   setReloadKey((key) => key + 1);
+  // }, []);
 
 
   if (!profile) return <div> Loading... </div>

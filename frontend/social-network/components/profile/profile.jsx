@@ -28,7 +28,7 @@ export default function ProfileComponent({ profile }) {
     const formData = new FormData(e.target);
 
     let data = formData.get("input");
-    console.log(data, field)
+    // console.log(data, field)
 
     const resp = await fetchApi("profiles/update", "POST", JSON.stringify({ Field: field, Value: data }), true)
     if (resp.hasOwnProperty("error")) {
@@ -39,8 +39,6 @@ export default function ProfileComponent({ profile }) {
       window.location.reload();
     }, 100);
   }
-
-  console.log(profile);
 
   return profile.ProfileStatus === 'private' && !profile.isOwner ? (
     <div className={style["profiletHeader"]}>
@@ -95,9 +93,7 @@ export default function ProfileComponent({ profile }) {
         onClose={() => closeModal('followers')}
         title="Followers"
       >
-        <div className="user-list">
-          <UsersFollowers userID={profile.Id} />
-        </div>
+        <UsersFollowers userID={profile.Id} />
       </Modal>
 
       {/* Following Modal */}
@@ -106,9 +102,7 @@ export default function ProfileComponent({ profile }) {
         onClose={() => closeModal('following')}
         title="Following"
       >
-        <div className="user-list">
-          <UsersFollowing userID={profile.Id} />
-        </div>
+        <UsersFollowing userID={profile.Id} />
       </Modal>
 
       {/* Edit Profile Modal */}
@@ -183,8 +177,6 @@ function formateDOB(date) {
 }
 
 function isShowBtnFollow(profile) {
-  console.log(profile);
-
   if (profile.Status === "false") {
     return (
       <div className={style["btn_follow"]}>

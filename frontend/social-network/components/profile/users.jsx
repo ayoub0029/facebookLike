@@ -1,8 +1,8 @@
-"use client";
-import { useState, useEffect, useRef } from "react";
-import { fetchApi } from "@/api/fetchApi.jsx";
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { fetchApi } from "@/api/fetchApi"
+import style from "./profile.module.css"
 
-export function UsersFollowers({ userID}) {
+export function UsersFollowers({ userID }) {
   const [data, setData] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -10,21 +10,50 @@ export function UsersFollowers({ userID}) {
   const scrollContainerRef = useRef(null);
   const isFetching = useRef(false);
 
+  const fetchMoreData = useCallback(async (currentPage) => {
+    if (isFetching.current) return;
+    isFetching.current = true;
+    setLoading(true);
+
+    try {
+      const response = await fetchApi(`profiles/followers?user_id=${userID}&page=${currentPage}&limit=10`, "GET");
+
+      if (!response || !Array.isArray(response)) {
+        setHasMore(false);
+        return;
+      }
+
+      setData((prev) => [...prev, ...response]);
+
+      if (response.length < 10) {
+        setHasMore(false);
+      }
+    } catch (error) {
+      console.error("Fetch error:", error);
+      setHasMore(false);
+    } finally {
+      setLoading(false);
+      isFetching.current = false;
+    }
+  }, [userID]);
+
   useEffect(() => {
     fetchMoreData(page);
-  }, [page]);
+  }, [page, fetchMoreData]);
 
   useEffect(() => {
     const container = scrollContainerRef.current;
+
     if (!container) return;
 
     const handleScroll = () => {
       if (
-        container.scrollTop + container.clientHeight >= container.scrollHeight - 50 &&
+        container.scrollTop + container.clientHeight >= container.scrollHeight - 100 &&
         !loading &&
         hasMore &&
         !isFetching.current
       ) {
+
         setPage((prev) => prev + 1);
       }
     };
@@ -33,42 +62,40 @@ export function UsersFollowers({ userID}) {
     return () => container.removeEventListener("scroll", handleScroll);
   }, [loading, hasMore]);
 
-  async function fetchMoreData(currentPage) {
-    if (isFetching.current) return;
-    isFetching.current = true;
-    setLoading(true);
-
-    try {
-      const response = await fetchApi(`profiles/followers?user_id=${userID}&page=${currentPage}`, "GET");
-
-      if (!response || !Array.isArray(response)) {
-        console.error("Invalid API response:", response);
-        setHasMore(false);
-        return;
-      }
-
-      setData((prev) => [...prev, ...response]);
-
-      if (response.length < 10) setHasMore(false);
-    } catch (error) {
-      console.error("Fetch error:", error);
-      setHasMore(false);
-    } finally {
-      setLoading(false);
-      isFetching.current = false;
-    }
-  }
+  useEffect(() => {
+    setData([]);
+    setPage(1);
+    setHasMore(true);
+  }, [userID]);
 
   return (
-    <div ref={scrollContainerRef}>
-      <User data={data} />
-      {loading && <div>Loading more...</div>}
-      {!hasMore && <div>No more followers</div>}
+    <div
+      ref={scrollContainerRef}
+      style={{
+        height: "150px",
+        maxHeight: "150px",
+        overflowY: "auto",
+      }}
+    >
+      {data.length > 0 ? (
+        <User data={data} />
+      ) : !loading && (
+        <div>No followers found</div>
+      )}
+
+      {loading && (
+        <div>Loading more followers...</div>
+      )}
+
+      {!hasMore && data.length > 0 && (
+        <div>No more followers</div>
+      )}
     </div>
   );
 }
 
-export function UsersFollowing({ userID}) {
+
+export function UsersFollowing({ userID }) {
   const [data, setData] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -76,21 +103,50 @@ export function UsersFollowing({ userID}) {
   const scrollContainerRef = useRef(null);
   const isFetching = useRef(false);
 
+  const fetchMoreData = useCallback(async (currentPage) => {
+    if (isFetching.current) return;
+    isFetching.current = true;
+    setLoading(true);
+
+    try {
+      const response = await fetchApi(`profiles/following?user_id=${userID}&page=${currentPage}&limit=10`, "GET");
+
+      if (!response || !Array.isArray(response)) {
+        setHasMore(false);
+        return;
+      }
+
+      setData((prev) => [...prev, ...response]);
+
+      if (response.length < 10) {
+        setHasMore(false);
+      }
+    } catch (error) {
+      console.error("Fetch error:", error);
+      setHasMore(false);
+    } finally {
+      setLoading(false);
+      isFetching.current = false;
+    }
+  }, [userID]);
+
   useEffect(() => {
     fetchMoreData(page);
-  }, [page]);
+  }, [page, fetchMoreData]);
 
   useEffect(() => {
     const container = scrollContainerRef.current;
+
     if (!container) return;
 
     const handleScroll = () => {
       if (
-        container.scrollTop + container.clientHeight >= container.scrollHeight - 50 &&
+        container.scrollTop + container.clientHeight >= container.scrollHeight - 100 &&
         !loading &&
         hasMore &&
         !isFetching.current
       ) {
+
         setPage((prev) => prev + 1);
       }
     };
@@ -99,37 +155,34 @@ export function UsersFollowing({ userID}) {
     return () => container.removeEventListener("scroll", handleScroll);
   }, [loading, hasMore]);
 
-  async function fetchMoreData(currentPage) {
-    if (isFetching.current) return;
-    isFetching.current = true;
-    setLoading(true);
-
-    try {
-      const response = await fetchApi(`profiles/following?user_id=${userID}&page=${currentPage}`, "GET");
-
-      if (!response || !Array.isArray(response)) {
-        console.error("Invalid API response:", response);
-        setHasMore(false);
-        return;
-      }
-
-      setData((prev) => [...prev, ...response]);
-
-      if (response.length < 10) setHasMore(false);
-    } catch (error) {
-      console.error("Fetch error:", error);
-      setHasMore(false);
-    } finally {
-      setLoading(false);
-      isFetching.current = false;
-    }
-  }
+  useEffect(() => {
+    setData([]);
+    setPage(1);
+    setHasMore(true);
+  }, [userID]);
 
   return (
-    <div ref={scrollContainerRef}>
-      <User data={data} />
-      {loading && <div>Loading more...</div>}
-      {!hasMore && <div>No more followers</div>}
+    <div
+      ref={scrollContainerRef}
+      style={{
+        height: "150px",
+        maxHeight: "150px",
+        overflowY: "auto",
+      }}
+    >
+      {data.length > 0 ? (
+        <User data={data} />
+      ) : !loading && (
+        <div>No followers found</div>
+      )}
+
+      {loading && (
+        <div>Loading more followers...</div>
+      )}
+
+      {!hasMore && data.length > 0 && (
+        <div>No more followers</div>
+      )}
     </div>
   );
 }

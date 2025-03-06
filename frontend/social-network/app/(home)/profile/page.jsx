@@ -7,7 +7,6 @@ import ProfileComponent from "@/components/profile/profile.jsx"
 
 export default function Profile() {
   const params = useParams()
-  console.log(params);
 
   const [profile, setProfile] = useState(null)
   useEffect(() => {
@@ -25,9 +24,9 @@ export default function Profile() {
   // console.log(profile);
   const [reloadKey, setReloadKey] = useState(0);
 
-  const handleReload = useCallback(() => {
-    setReloadKey((key) => key + 1);
-  }, []);
+  // const handleReload = useCallback(() => {
+  //   setReloadKey((key) => key + 1);
+  // }, []);
 
   if (!profile) return <div> Loading... </div>
 
