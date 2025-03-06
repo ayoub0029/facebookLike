@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 
-export default function useLazyLoadById(fetchFunction, initialId = 0) {
+export default function useLazyLoadById(fetchFunction, initialId = 0, endpoint = "", parentId = "", initialLoad = true) {
     const [data, setData] = useState([]);
     const [lastId, setLastId] = useState(initialId);
     const [loading, setLoading] = useState(false);
@@ -9,9 +9,8 @@ export default function useLazyLoadById(fetchFunction, initialId = 0) {
     const loaderRef = useRef(null);
     const loadingRef = useRef(false);
 
-    // Scroll tracking
     const lastScrollY = useRef(0);
-    const scrollThreshold = useRef(100); // 100px threshold
+    const scrollThreshold = useRef(100);
     const scrolledEnough = useRef(false);
 
     const loadData = useCallback(async () => {
@@ -24,21 +23,27 @@ export default function useLazyLoadById(fetchFunction, initialId = 0) {
             setLoading(true);
             setError(null);
 
-            const result = await fetchFunction(lastId);
+            const result = await fetchFunction(lastId, endpoint !== "" ? endpoint : parentId);
 
-            if (result.status !== undefined) {
-                console.error("API returned error:", result.status, result.error);
-                setError(`Error: ${result.error}, Status: ${result.status}`);
+            if (!result) {
+                setError("Failed to load data");
                 setHasMore(false);
                 return;
             }
 
-            if (result.items && result.items.length > 0) {
+            if (result.status !== undefined) {
+                setError(`Error: ${result.error || 'Unknown error'}, Status: ${result.status}`);
+                setHasMore(false);
+                return;
+            }
+
+            const items = result.items || [];
+
+            if (items.length > 0) {
                 setData(prevData => {
-                    const newItems = result.items.filter(
+                    const newItems = items.filter(
                         newItem => !prevData.some(existingItem => existingItem.id === newItem.id)
                     );
-
 
                     if (newItems.length === 0) {
                         setHasMore(false);
@@ -53,25 +58,31 @@ export default function useLazyLoadById(fetchFunction, initialId = 0) {
         } catch (err) {
             console.error('Error in lazy loading by ID:', err);
             setError('Failed to load data. Please try again.');
+            setHasMore(false);
         } finally {
             setLoading(false);
             loadingRef.current = false;
         }
-    }, [lastId, fetchFunction, hasMore]);
+    }, [lastId, fetchFunction, parentId, hasMore]);
 
-    // Initial load
     useEffect(() => {
-        loadData();
+        const loadInitialData = async () => {
+            if ((initialLoad && parentId) || endpoint !== "") {
+                await loadData();
+            } else if (initialId !== 0) {
+                await loadData();
+            }
+        };
+
+        loadInitialData();
     }, []);
 
-    // Effect to load data when lastId changes
     useEffect(() => {
         if (lastId !== initialId) {
             loadData();
         }
     }, [lastId, loadData, initialId]);
 
-    // Track scroll with threshold
     useEffect(() => {
         const initialScrollPosition = window.scrollY;
         lastScrollY.current = initialScrollPosition;
@@ -80,10 +91,9 @@ export default function useLazyLoadById(fetchFunction, initialId = 0) {
             const currentScrollY = window.scrollY;
             const scrollDifference = currentScrollY - lastScrollY.current;
 
-            // Check if scrolled down at least 100px from last position
             if (scrollDifference >= scrollThreshold.current) {
                 scrolledEnough.current = true;
-                lastScrollY.current = currentScrollY; // Reset the reference point
+                lastScrollY.current = currentScrollY;
             } else if (scrollDifference < 0) {
                 lastScrollY.current = currentScrollY;
             }
@@ -96,7 +106,6 @@ export default function useLazyLoadById(fetchFunction, initialId = 0) {
         };
     }, []);
 
-    // Intersection observer for scrolling
     useEffect(() => {
         if (!hasMore) {
             return;
@@ -127,12 +136,20 @@ export default function useLazyLoadById(fetchFunction, initialId = 0) {
         };
     }, [data, hasMore, lastId]);
 
+    const reset = () => {
+        setData([]);
+        setLastId(initialId);
+        setHasMore(true);
+        setError(null);
+    };
+
     return {
         data,
         setData,
         loaderRef,
         loading,
         error,
-        hasMore
+        hasMore,
+        reset
     };
 }

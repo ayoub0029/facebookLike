@@ -1,60 +1,65 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import { fetchApi } from "@/api/fetchApi";
 import { formatTime } from "@/utiles/dateFormat";
-import Image from "next/image";
+import { fetchPosts } from "./func_fetchposts";
+import { handleLike } from "./func_handleLike";
+import { PrivacyText } from "./func_privateText";
+import { fetchComments } from "./func_fetchcomments";
 import Modal from "../model";
 import useLazyLoadById from "@/hooks/lazyloadById";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-export function FetchPosts({ endpoint , lastId }) {
+export function FetchPosts({ endpoint, lastId }) {
     const [editVisible, setEditVisible] = useState(null);
     const menuRef = useRef(null);
+    const [openCommentsPostId, setOpenCommentsPostId] = useState(null);
 
-    const getInitialId = () => {
-        return  parseInt(lastId);
-    };
+    const {
+        data: posts,
+        setData: setPosts,
+        loaderRef,
+        loading,
+        error,
+        hasMore
+    } = useLazyLoadById(fetchPosts, parseInt(lastId), endpoint, "");
 
-    // Function to fetch posts that will be passed to the hook
-    const fetchPosts = async (lastId) => {
-        try {
-            const response = await fetchApi(`${endpoint}${lastId}`);
-            
-            if (response.status !== undefined) {
-                console.error("FetchPosts: API error:", response.status, response.error);
-                return { status: response.status, error: response.error };
-            }
-            return { 
-                items: response
-            };
-        } catch (err) {
-            console.error("FetchPosts: Error fetching:", err);
-            return { status: 500, error: "Failed to fetch posts" };
+    const {
+        data: comments,
+        setData: setComments,
+        loaderRef: commentsLoaderRef,
+        loading: commentsLoading,
+        error: commentsError,
+        hasMore: hasMoreComments,
+        reset: resetComments
+    } = useLazyLoadById(fetchComments, 0, "", openCommentsPostId, false);
+
+    const initialLoad = async (postId) => {
+        
+        const result = await fetchComments(0, postId);
+        if (result.items && result.items.length > 0) {
+            setComments(result.items);
         }
+        
     };
 
-    const { data: posts, setData: setPosts, loaderRef, loading, error, hasMore } = useLazyLoadById(fetchPosts, getInitialId());
+    const toggleComments = (postId) => {
+        if (!postId || postId === 0) {
+            console.error("Invalid post ID for fetching comments");
+            return;
+        }
 
-    const [modals, setModals] = useState({
-        followers: false,
-        editPost: false,
-        deletePost: false,
-        editComment: false,
-        deleteComment: false
-    });
-    
-    const openModal = (modalName) => {
-        return () => {
-            setModals({ ...modals, [modalName]: true });
-        };
-    };
-    
-    const closeModal = (modalName) => {
-        return () => {
-            setModals({ ...modals, [modalName]: false });
-        };
+        if (openCommentsPostId === postId) {
+            setOpenCommentsPostId(null);
+            resetComments();
+        } else {
+            setOpenCommentsPostId(postId);
+            resetComments();
+            initialLoad(postId);
+        }
     };
 
     useEffect(() => {
@@ -71,27 +76,7 @@ export function FetchPosts({ endpoint , lastId }) {
         setEditVisible(editVisible === postId ? null : postId);
     };
 
-    const handleLike = async (postId, isLiked) => {
-        const status = isLiked ? 0 : 1;
-        await fetchApi(`/posts/reactions?post_id=${postId}&status_like=${status}`);
-
-        try {
-            const response = await fetchApi(`/post?post_id=${postId}`);
-
-            if (response && response[0]) {
-
-                setPosts((allPosts) =>
-                    allPosts.map((post) =>
-                        post.id === postId ? { ...post, is_liked: response[0].is_liked, likes: response[0].likes } : post
-                    )
-                );
-            }
-        } catch (err) {
-            console.error("Failed to like the post", err);
-        }
-    };
-
-    const handleEdit = async (e) => {
+    const handleEditPost = async (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
         const newContent = e.target.newContent.value;
@@ -113,9 +98,9 @@ export function FetchPosts({ endpoint , lastId }) {
         );
 
         e.target.reset();
-    }
+    };
 
-    const handleDelete = async (e) => {
+    const handleDeletePost = async (e) => {
         e.preventDefault();
         const postIdToDelete = e.target.post_id.value;
 
@@ -131,33 +116,44 @@ export function FetchPosts({ endpoint , lastId }) {
         closeModal('deletePost')();
         setEditVisible(null);
         e.target.reset();
-    }
+    };
 
-    const PrivacyText = (privacy) => {
-        privacy = privacy.privacy
+    const handleCreateComment = async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const response = await fetchApi("posts/comments", "POST", formData, true);
+        const postId = e.target.post_id.value
+        console.log(postId);
         
-        if (privacy === "public") {
-            return (
-                <>
-                    <i className="fa-solid fa-globe"></i>
-                    <span> public</span>
-                </>
-            )
-        } else if (privacy === "almost private") {
-            return (
-                <>
-                    <i className="fa-solid fa-user-group"></i>
-                    <span> almost private</span>
-                </>
-            )
-        } else {
-            return (
-                <>
-                    <i className="fa-solid fa-lock"></i>
-                    <span> private</span>
-                </>
-            )
+
+        if (response.status !== undefined) {
+            alert(`Error: ${response.error} Status: ${response.status}`);
+            return;
         }
+
+        // Success
+        e.target.reset();
+        initialLoad(postId)
+    };
+
+    const [modals, setModals] = useState({
+        followers: false,
+        editPost: false,
+        deletePost: false,
+        editComment: false,
+        deleteComment: false
+    });
+
+    const openModal = (modalName) => {
+        return () => {
+            setModals({ ...modals, [modalName]: true });
+        };
+    };
+
+    const closeModal = (modalName) => {
+        return () => {
+            setModals({ ...modals, [modalName]: false });
+        };
     };
 
     if (error && posts.length === 0) return <div className="error">{error}</div>;
@@ -178,7 +174,7 @@ export function FetchPosts({ endpoint , lastId }) {
                                             isOpen={modals.editPost}
                                             onClose={closeModal('editPost')}
                                         >
-                                            <form className="newPost" onSubmit={handleEdit}>
+                                            <form className="newPost" onSubmit={handleEditPost}>
                                                 <input type="hidden" name="post_id" value={post.id} />
                                                 <textarea placeholder="Write something here..." name="newContent" defaultValue={post.content}></textarea>
                                                 <button type="submit" className="btn btnGreen">Edit</button>
@@ -190,7 +186,7 @@ export function FetchPosts({ endpoint , lastId }) {
                                         isOpen={modals.deletePost}
                                         onClose={closeModal('deletePost')}
                                     >
-                                        <form className="newPost" onSubmit={handleDelete}>
+                                        <form className="newPost" onSubmit={handleDeletePost}>
                                             <label>Do you want to delete post : "{(post.content).slice(0, 50)}..."</label>
                                             <input type="hidden" name="post_id" value={post.id} />
                                             <div style={{ display: "flex", gap: "10px", alignItems: "end", direction: "rtl" }}>
@@ -213,7 +209,6 @@ export function FetchPosts({ endpoint , lastId }) {
                                         ? `${API_BASE_URL}/public/${post.avatar}`
                                         : "/images/test.jpg"
                             }
-
                             alt="Profile Image"
                             className="profileImg"
                             width={40}
@@ -231,34 +226,113 @@ export function FetchPosts({ endpoint , lastId }) {
                             <Image
                                 src={`${API_BASE_URL}/public/${post.image}`}
                                 alt="Post Image"
+                                layout="responsive"
                                 width={1000}
                                 height={500}
                                 unoptimized={true}
+                                objectFit="cover"
                             />
                         ) : null}
                     </div>
                     <div className="postActions">
                         {post.is_liked ? (
-                            <label onClick={() => handleLike(post.id, post.is_liked)}>
+                            <label onClick={() => handleLike(post.id, post.is_liked, setPosts)}>
                                 <i className="fa-solid fa-heart danger"></i> {post.likes}
                             </label>
                         ) : (
-                            <label onClick={() => handleLike(post.id, post.is_liked)}>
+                            <label onClick={() => handleLike(post.id, post.is_liked, setPosts)}>
                                 <i className="fa-regular fa-heart"></i> {post.likes}
                             </label>
                         )}
-                        <label><i className="fa-regular fa-comment"></i> {post.comments}</label>
+                        <label onClick={() => toggleComments(post.id)}>
+                            <i className="fa-regular fa-comment"></i> {post.comments}
+                        </label>
                     </div>
+
+                    {/* Comments Section */}
+                    {openCommentsPostId === post.id && (
+                        <div className="commentsSection">
+                            <form className="newComment" encType="multipart/form-data" onSubmit={handleCreateComment}>
+                                <Image
+                                    src="/images/test.jpg"
+                                    alt="Your Profile"
+                                    className="smallImg"
+                                    width={40}
+                                    height={40}
+                                    unoptimized={true}
+                                />
+                                <label htmlFor="commentImageUpload" className="commentImageLabel">
+                                    <i className="fa-regular fa-image"></i>
+                                </label>
+                                <input type="hidden" name="post_id" value={post.id} />
+                                <input type="file" id="commentImageUpload" name="image" className="commentImageUpload" accept="image/*" />
+                                <div className="commentInputContainer">
+                                    <input type="text" placeholder="Write a comment..." name="content" className="commentInput" required />
+                                    <button className="btnComment">
+                                        <i className="fas fa-paper-plane"></i>
+                                    </button>
+                                </div>
+                            </form>
+
+                            <div className="comments">
+                                {comments.map((comment) => (
+                                    <div key={comment.id} className="comment commentWithImage">
+                                        <Image
+                                            src={
+                                                comment.avatar?.startsWith("http")
+                                                    ? comment.avatar
+                                                    : (comment.avatar && comment.avatar !== "undefined")
+                                                        ? `${API_BASE_URL}/public/${comment.avatar}`
+                                                        : "/images/test.jpg"
+                                            }
+                                            alt="Commenter Profile"
+                                            className="smallImg"
+                                            width={40}
+                                            height={40}
+                                            unoptimized={true}
+                                        />
+                                        <div className="commentContent">
+                                            <span className="commentName">{comment.user_name}</span>
+                                            <p>{comment.comment_content}</p>
+                                            {comment.image && (
+                                                <Image
+                                                    src={`${API_BASE_URL}/public/${comment.image}`}
+                                                    alt="Comment Image"
+                                                    className="commentImage"
+                                                    layout="responsive"
+                                                    width={500}
+                                                    height={300}
+                                                    unoptimized={true}
+                                                    objectFit="cover"
+                                                />
+                                            )}
+                                            <span className="commentTime">{formatTime(comment.created_at)}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {hasMoreComments && (
+                                <div ref={commentsLoaderRef} className="loaderElement">
+                                    {commentsLoading && <div className="loading-spinner">Loading more comments...</div>}
+                                </div>
+                            )}
+
+                            {!hasMoreComments && comments.length > 0 && (
+                                <div className="end-message">No more comments to load</div>
+                            )}
+                        </div>
+                    )}
                 </div>
             ))}
-            
-            {/* Loader element for intersection observer */}
+
+            {/* Existing posts loader */}
             {hasMore && (
                 <div ref={loaderRef} className="loaderElement">
                     {loading && <div className="loading-spinner">Loading more posts...</div>}
                 </div>
             )}
-            
+
             {!hasMore && posts.length > 0 && (
                 <div className="end-message">No more posts to load</div>
             )}

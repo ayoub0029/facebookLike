@@ -1,7 +1,25 @@
+"use client"
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation"; 
+import { fetchApi } from "@/api/fetchApi";
 
 export function Navigation() {
+  const router = useRouter();
+
+  async function logout() {
+    try {
+      let response = await fetchApi('auth/logout', 'POST', {}, true)
+      if (response.error) {
+        throw new Error(response.error || 'Logout failed');
+      }
+      router.push("/auth/login")
+    } catch (error) {
+      console.log(error)
+      router.push("/auth/login")
+    }
+  }
+
   return (
     <>
       <div className="logo">
@@ -22,7 +40,7 @@ export function Navigation() {
         <Link href={"/groups"} className="menuItem secondary"><i className="fa-solid fa-user-group"></i> <span>&nbsp;Groups</span></Link>
         <Link href={"/chat"} className="menuItem secondary"><i className="fas fa-envelope"></i> <span>&nbsp;Chats</span></Link>
         <Link href={"/notifications"} className="menuItem secondary"><i className="fas fa-bell"></i> <span>&nbsp;Notifications</span></Link>
-        <Link href={"/auth/logout"} className="menuItem danger"><i className="fa-solid fa-arrow-right-from-bracket"></i> <span>&nbsp;Sign out</span></Link>
+        <div onClick={logout} className="menuItem danger"><i className="fa-solid fa-arrow-right-from-bracket"></i> <span>&nbsp;Sign out</span></div>
       </div>
     </>
   );

@@ -120,7 +120,7 @@ export default function Registerform() {
       />
       <input ref={bioRef} type="text" placeholder="bio" />
       <p className="redirect">
-        already have account <Link href={"/auth/login"}> register</Link>
+        already have account <Link href={"/auth/login"}> login</Link>
       </p>
       <input onClick={handleRegister} type="button" value="submit" />
     </div>

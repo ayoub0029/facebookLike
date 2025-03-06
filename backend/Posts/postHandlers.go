@@ -2,6 +2,7 @@ package posts
 
 import (
 	"net/http"
+	auth "socialNetwork/Authentication"
 	database "socialNetwork/Database"
 	global "socialNetwork/Global"
 	groups "socialNetwork/Groups"
@@ -24,8 +25,16 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if err := auth.ParseFormSize(w, r); err != nil {
+		return
+	}
+	resultPath := auth.UploadImage("image", w, r)
+	if resultPath == nil {
+		return
+	}
+	
 	// start handling image
-	imagePublic := "" // image path if exist
+	imagePublic := *resultPath
 
 	content := r.FormValue("content")
 	if len(content) >= 2500 || len(content) <= 2 {
@@ -34,18 +43,18 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 2500 for content
-	if r.ContentLength > (20*1024*1024)+2500 {
-		global.JsonResponse(w, http.StatusConflict, "The image is too big, max size is 20 MB")
-		return
-	}
-	img, _, err := r.FormFile("image")
+	// if r.ContentLength > (20*1024*1024)+2500 {
+	// 	global.JsonResponse(w, http.StatusConflict, "The image is too big, max size is 20 MB")
+	// 	return
+	// }
+	// img, _, err := r.FormFile("image")
 
-	if err == nil {
-		imagePublic, err = image_handler(w, img)
-		if err != nil {
-			return
-		}
-	}
+	// if err == nil {
+	// 	imagePublic, err = image_handler(w, img)
+	// 	if err != nil {
+	// 		return
+	// 	}
+	// }
 
 	groupIdString := r.FormValue("groupId")
 	groupID := 0

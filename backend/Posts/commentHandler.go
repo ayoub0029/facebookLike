@@ -102,6 +102,11 @@ func getComments(w http.ResponseWriter, r *http.Request) {
 
 	postId, _ := strconv.Atoi(r.URL.Query().Get("post_id"))
 	lastId, _ := strconv.Atoi(r.URL.Query().Get("last_id"))
+
+	if lastId == 0 {
+		lastId = 999999999999999999
+	}
+
 	if postId <= 0 || lastId < 0 {
 		global.JsonResponse(w, http.StatusBadRequest, "postID is invalid")
 		return
@@ -133,15 +138,16 @@ func getComments(w http.ResponseWriter, r *http.Request) {
     		cmt.id,
     		u.nickname,
     		cmt.comment_text,
-    		cmt.created_at
+    		cmt.created_at,
+			cmt.image
 		FROM
 		    comments AS cmt
 		    JOIN users AS u on cmt.user_id = u.id
 		    JOIN posts AS p on cmt.post_id = p.id
 
-		WHERE p.id = ? AND cmt.id > ?
+		WHERE p.id = ? AND cmt.id < ?
 
-		ORDER BY cmt.created_at DESC
+		ORDER BY cmt.id DESC
 		LIMIT 5
 `
 
@@ -160,6 +166,7 @@ func getComments(w http.ResponseWriter, r *http.Request) {
 			&comment.Username,
 			&comment.CommentContent,
 			&comment.CreatedAt,
+			&comment.Image,
 		); err != nil {
 			global.JsonResponse(w, http.StatusInternalServerError, "Failed to process comments")
 			return

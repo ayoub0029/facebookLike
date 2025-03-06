@@ -25,6 +25,7 @@ type Comment struct {
 	Username       string `json:"user_name"`
 	CommentContent string `json:"comment_content"`
 	CreatedAt      string `json:"created_at"`
+	Image          any    `json:"image"`
 }
 
 type PostData struct {

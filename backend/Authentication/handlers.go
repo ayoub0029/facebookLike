@@ -6,6 +6,7 @@ import (
 	"html"
 	"net/http"
 	"net/url"
+	database "socialNetwork/Database"
 	global "socialNetwork/Global"
 	"strconv"
 	"strings"
@@ -131,10 +132,22 @@ func status(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var firstname, lastname, avatar string
+	row, errQuery := database.SelectOneRow("SELECT first_name,last_name,avatar FROM users WHERE id = ?", userID)
+	if errQuery != nil {
+		global.JsonResponse(w, http.StatusUnauthorized, "Authentication failed")
+		return
+	}
+
+	if err := row.Scan(&firstname, &lastname, &avatar); err != nil {
+		global.JsonResponse(w, http.StatusUnauthorized, "Authentication failed")
+		return
+	}
+
 	global.JsonResponse(w, http.StatusOK, map[string]any{
 		"id":       userID,
-		"fullname": "khas n9ad hadi",
-		"avatar":   "khas n9as hadi",
+		"fullname": firstname + " " + lastname,
+		"avatar":   avatar,
 	})
 }
 

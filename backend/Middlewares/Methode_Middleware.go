@@ -58,6 +58,9 @@ func Auth(next http.Handler) http.Handler {
 			}
 			global.JsonResponse(res, http.StatusUnauthorized, "you need to login")
 			return
+		} else if auth.CheckIsNotNeedLogin(req.URL.Path) {
+			global.JsonResponse(res, http.StatusBadRequest, "you already logged in")
+			return
 		}
 
 		user := User{Name: "", ID: uint64(id)}

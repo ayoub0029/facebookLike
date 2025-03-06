@@ -291,12 +291,146 @@ body {
   top: 16px;
 }
 
+/* Comments Section Styles */
+.commentsSection {
+  border-top: 1px solid var(--third-color);
+  padding-top: 15px;
+  max-height: 250px;
+  overflow: auto;
+}
+
+.comments {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.comment {
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+}
+
+.smallImg {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.commentContent {
+  background-color: var(--third-color);
+  padding: 5px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.commentName {
+  font-weight: bold;
+  font-size: 13px;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.commentContent p {
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+
+.commentTime {
+  font-size: 11px;
+  color: var(--secondary-color);
+}
+
+.newComment {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  position: relative;
+  margin-bottom: 15px;
+  margin-top: 10px;
+}
+
+.commentImageUpload {
+  display: none;
+}
+
+.commentImageLabel {
+  cursor: pointer;
+  color: var(--secondary-color);
+  margin-right: 5px;
+  margin-left: 5px;
+}
+
+.commentImageLabel:hover {
+  color: var(--btn-color);
+}
+
+.commentInputContainer {
+  display: flex;
+  align-items: center;
+  background-color: var(--lightGray-color);
+  border-radius: 8px;
+  flex-grow: 1;
+  padding: 10px;
+}
+
+.commentInput {
+  flex-grow: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-family: "Poppins", sans-serif;
+  font-size: 14px;
+}
+
+.btnComment {
+  background: none;
+  border: none;
+  color: var(--btn-color);
+  cursor: pointer;
+  font-size: 16px;
+  margin-left: 10px;
+}
+
+.commentWithImage .commentImage {
+  max-width: 200px;
+  max-height: 200px;
+  border-radius: 8px;
+  margin-top: 5px;
+}
+
 .online {
   background-color: var(--btn-color);
 }
 
 .offline {
   background-color: var(--danger-color);
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100%;
+}
+
+.loading-spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top: 4px solid #3498db;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 /* Responsive Design */

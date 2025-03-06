@@ -1,9 +1,10 @@
-"use client"
+"use client";
 import { Geist, Geist_Mono } from "next/font/google";
 import "../../styles/globals.css";
 import { Navigation } from "@/components/navbar";
 import { checkIfLoggedIn } from "@/api/isLoggedIn";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,32 +17,53 @@ const geistMono = Geist_Mono({
 });
 
 export default function RootLayout({ children }) {
-  const [isLoggedIn, setIsLoggedIn] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchUser = async () => {
       const user = await checkIfLoggedIn();
-      setIsLoggedIn(user);
-      console.log("User:", user);
-      console.log(isLoggedIn); // mazal khedam hna
 
+      if (!user || user.id === null || user.state === 401 || user.id === undefined) {
+        router.push("/auth/login");
+      } else {
+        setIsLoading(false);
+      }
     };
+
     fetchUser();
-  }, []);
+  }, [router]);
+
   return (
     <html lang="en">
       <head>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+        <link
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
+          rel="stylesheet"
+        />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <button className="rightMenuToggle"><i className="fas fa-bars"></i></button>
-        <div className="container">
-          <div className="leftSidebar">
-            <Navigation />
+        {isLoading ? (
+          <div className="loading-container">
+            <div className="loading-spinner"></div>
           </div>
-          {children}
-        </div>
+        ) : (
+          <>
+            <button className="rightMenuToggle">
+              <i className="fas fa-bars"></i>
+            </button>
+            <div className="container">
+              <div className="leftSidebar">
+                <Navigation />
+              </div>
+              {children}
+            </div>
+          </>
+        )}
       </body>
     </html>
   );

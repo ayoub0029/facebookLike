@@ -21,7 +21,7 @@ export default function Loginform() {
       const result = await fetchApi('auth/login', 'POST', formData,true);
       
       if (result.error) {
-        throw new Error(result.error.message || 'Login failed');
+        throw new Error(result.error || 'Login failed');
       }
 
       router.push("/")
