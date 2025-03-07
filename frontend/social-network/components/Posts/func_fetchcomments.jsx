@@ -5,7 +5,6 @@ export async function fetchComments(lastCommentId = 0 , postId) {
         const response = await fetchApi(`posts/comments?post_id=${postId}&last_id=${lastCommentId}`);
 
         if (response && response.status !== undefined) {
-            // console.error("FetchComments: API error:", response.status, response.error);
             return { status: response.status, error: response.error };
         }
 
@@ -15,7 +14,6 @@ export async function fetchComments(lastCommentId = 0 , postId) {
             items: response
         };
     } catch (err) {
-        // console.error("FetchComments: Error fetching:", err);
         return { status: 500, error: "Failed to fetch comments" };
     }
 };

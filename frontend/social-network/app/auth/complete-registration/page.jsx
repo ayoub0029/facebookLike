@@ -11,12 +11,12 @@ import { useState } from "react";
 export default function Registerform() {
   async function github() {
     try {
-      const response = await fetchApi("auth/githublogin");
+      const response = await fetchApi("/auth/githublogin");
       if (response.error) {
         throw new Error(response.error);
       }
     } catch (error) {
-      alert(error);
+      alert(error)
     }
   }
 
@@ -197,11 +197,9 @@ export default function Registerform() {
       <p className={style.redirect}>
         already have account <Link href={"/auth/login"}> log in</Link>
       </p>
-      <Link href={process.env.NEXT_PUBLIC_API_BASE_URL + "/auth/githublogin"}>
-        <button className={style.github_button}>
-          register with git-hub <i className="fa-brands fa-github"></i>
-        </button>
-      </Link>
+      <button onClick={github} className={style.github_button}>
+        register with git-hub <i class="fa-brands fa-github"></i>
+      </button>
     </div>
   );
 }

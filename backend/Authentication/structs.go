@@ -30,4 +30,5 @@ const (
 	clientID     = "Ov23lizV08UkuxdzTzwM"
 	clientSecret = "0f442761d78a2527968ae65b45dc49d8117b77de"
 	redirectURI  = "http://localhost:8080/auth/github/callback"
+	NextHost = "http://localhost:3000"
 )

@@ -226,7 +226,7 @@ func githubCallBack(w http.ResponseWriter, r *http.Request) {
 			"githubid":  {fmt.Sprintf("%d", *newUser.GithubID)},
 		}
 
-		redirectURL := "/complete-registration?" + data.Encode()
+		redirectURL := NextHost + "/auth/complete-registration?" + data.Encode()
 		http.Redirect(w, r, redirectURL, http.StatusSeeOther)
 		return
 	}
@@ -237,5 +237,5 @@ func githubCallBack(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	http.Redirect(w, r, NextHost+"/", http.StatusSeeOther)
 }
