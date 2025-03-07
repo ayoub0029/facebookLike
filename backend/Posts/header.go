@@ -22,7 +22,10 @@ func Routes(mux *http.ServeMux) {
 
 type Comment struct {
 	ID             int    `json:"id"`
-	Username       string `json:"user_name"`
+	UserID         int    `json:"user_id"`
+	Avatar         any    `json:"avatar"`
+	First_name     string `json:"first_name"`
+	Last_name      string `json:"last_name"`
 	CommentContent string `json:"comment_content"`
 	CreatedAt      string `json:"created_at"`
 	Image          any    `json:"image"`
@@ -30,6 +33,7 @@ type Comment struct {
 
 type PostData struct {
 	ID         int       `json:"id"`
+	UserID     int       `json:"user_id"`
 	Avatar     any       `json:"avatar"`
 	Nickname   any       `json:"nickname"`
 	First_name string    `json:"first_name"`

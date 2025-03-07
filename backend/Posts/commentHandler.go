@@ -7,15 +7,17 @@ import (
 	database "socialNetwork/Database"
 	global "socialNetwork/Global"
 	groups "socialNetwork/Groups"
+	middleware "socialNetwork/Middlewares"
 	"strconv"
-	"time"
 )
 
 // add comment
 // link: POST /posts/comments&post_id=`id`&content=`content`
 func addComment(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		global.JsonResponse(w, http.StatusMethodNotAllowed, "Method not allowed")
+	user, ok := r.Context().Value(middleware.UserContextKey).(middleware.User)
+	userID := int(user.ID)
+	if !ok || userID == 0 {
+		global.JsonResponse(w, http.StatusUnauthorized, "Unauthorized")
 		return
 	}
 
@@ -32,11 +34,6 @@ func addComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID, err := get_userID(r)
-	if err != nil {
-		global.JsonResponse(w, http.StatusUnauthorized, "Unauthorized")
-		return
-	}
 	if group_id < 0 {
 		global.JsonResponse(w, http.StatusUnauthorized, "post is in group that you are not member in")
 		return
@@ -48,21 +45,35 @@ func addComment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	content := r.FormValue("content")
-	content = html.EscapeString(content)
 
-	ok, err := isAuthorized(post_id, userID)
+	okAuth, err := isAuthorized(post_id, userID)
 	if err != nil {
 		global.JsonResponse(w, http.StatusInternalServerError, "Something was wrong")
 		return
 	}
-	if !ok {
+
+	if !okAuth {
 		global.JsonResponse(w, http.StatusUnauthorized, "You are not authorized")
 		return
 	}
 
-	if len(content) >= 1100 || len(content) == 0 {
-		global.JsonResponse(w, http.StatusBadRequest, "Size of comment invalid")
+	imagePublic := ""
+
+	// 2500 for content
+	if r.ContentLength > (20*1024*1024)+2500 {
+		global.JsonResponse(w, http.StatusConflict, "The image is too big, max size is 20 MB")
 		return
+	}
+	img, _, err := r.FormFile("image")
+	if len(content) >= 2100 || (err != nil && (len(content) <= 2)) {
+		global.JsonResponse(w, http.StatusBadRequest, "Size of content isn't valid")
+		return
+	}
+	if err == nil {
+		imagePublic, err = image_handler(w, img)
+		if err != nil {
+			return
+		}
 	}
 
 	// -------------------------- check if post id exist
@@ -78,8 +89,8 @@ func addComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// --------------------------- inset to the data base
-	cmd := `INSERT INTO comments (user_id, post_id, comment_text, created_at) VALUES(?, ?, ?, ?)`
-	_, err = database.ExecQuery(cmd, userID, post_id, content, time.Now())
+	cmd := `INSERT INTO comments (user_id, post_id, comment_text, image) VALUES(?, ?, ?, ?)`
+	_, err = database.ExecQuery(cmd, userID, post_id, content, imagePublic)
 	if err != nil {
 		global.JsonResponse(w, http.StatusInternalServerError, "Something wrong")
 		return
@@ -90,12 +101,9 @@ func addComment(w http.ResponseWriter, r *http.Request) {
 // get the comment 10 by 10 in spesific post
 // link: GET /posts/comments&post_id=`id`&last_id=`id`&page=`page`
 func getComments(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		global.JsonResponse(w, http.StatusMethodNotAllowed, "Method not allowed")
-		return
-	}
-	userID, err := get_userID(r)
-	if err != nil {
+	user, ok := r.Context().Value(middleware.UserContextKey).(middleware.User)
+	userID := int(user.ID)
+	if !ok || userID == 0 {
 		global.JsonResponse(w, http.StatusUnauthorized, "Unauthorized")
 		return
 	}
@@ -123,12 +131,12 @@ func getComments(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ok, err := isAuthorized(postId, userID)
+	okAuth, err := isAuthorized(postId, userID)
 	if err != nil {
 		global.JsonResponse(w, http.StatusInternalServerError, "Something is wrong")
 		return
 	}
-	if !ok {
+	if !okAuth {
 		global.JsonResponse(w, http.StatusUnauthorized, "You are not authorized to react to this post")
 		return
 	}
@@ -136,7 +144,10 @@ func getComments(w http.ResponseWriter, r *http.Request) {
 	query := `
         SELECT
     		cmt.id,
-    		u.nickname,
+    		u.id,
+    		u.avatar,
+			u.first_name,
+			u.last_name,
     		cmt.comment_text,
     		cmt.created_at,
 			cmt.image
@@ -163,7 +174,10 @@ func getComments(w http.ResponseWriter, r *http.Request) {
 		var comment Comment
 		if err := sqlrows.Scan(
 			&comment.ID,
-			&comment.Username,
+			&comment.UserID,
+			&comment.Avatar,
+			&comment.First_name,
+			&comment.Last_name,
 			&comment.CommentContent,
 			&comment.CreatedAt,
 			&comment.Image,
@@ -180,13 +194,9 @@ func getComments(w http.ResponseWriter, r *http.Request) {
 // comment delete handler
 // link DELETE /posts/comments/delete?comment_id=`id`
 func commentDelete(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodDelete {
-		global.JsonResponse(w, http.StatusMethodNotAllowed, "method not allowed")
-		return
-	}
-
-	userID, err := get_userID(r)
-	if err != nil {
+	user, ok := r.Context().Value(middleware.UserContextKey).(middleware.User)
+	userID := int(user.ID)
+	if !ok || userID == 0 {
 		global.JsonResponse(w, http.StatusUnauthorized, "Unauthorized")
 		return
 	}
@@ -222,13 +232,9 @@ func commentDelete(w http.ResponseWriter, r *http.Request) {
 // comment update handler
 // link PUT /posts/comments/update?comment_id=`id`&content=`newcontentt`
 func commentUpdate(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPut {
-		global.JsonResponse(w, http.StatusMethodNotAllowed, "method not allowed")
-		return
-	}
-
-	userID, err := get_userID(r)
-	if err != nil {
+	user, ok := r.Context().Value(middleware.UserContextKey).(middleware.User)
+	userID := int(user.ID)
+	if !ok || userID == 0 {
 		global.JsonResponse(w, http.StatusUnauthorized, "Unauthorized")
 		return
 	}

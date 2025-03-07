@@ -6,6 +6,7 @@ import (
 	database "socialNetwork/Database"
 	global "socialNetwork/Global"
 	groups "socialNetwork/Groups"
+	middleware "socialNetwork/Middlewares"
 	"strconv"
 	"time"
 )
@@ -14,13 +15,9 @@ import (
 // the user sould be member of the group to post in it
 // link is POST /posts&content=`content`&image=`image`&group_id=`group_id`&privacy=`privacy“
 func CreatePost(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		global.JsonResponse(w, http.StatusMethodNotAllowed, "method not allowed")
-		return
-	}
-
-	userID, err := get_userID(r)
-	if err != nil {
+	user, ok := r.Context().Value(middleware.UserContextKey).(middleware.User)
+	userID := int(user.ID)
+	if !ok || userID == 0 {
 		global.JsonResponse(w, http.StatusUnauthorized, "Unauthorized")
 		return
 	}
@@ -32,7 +29,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	if resultPath == nil {
 		return
 	}
-	
+
 	// start handling image
 	imagePublic := *resultPath
 
@@ -41,20 +38,6 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 		global.JsonResponse(w, http.StatusBadRequest, "Size of content isn't valid")
 		return
 	}
-
-	// 2500 for content
-	// if r.ContentLength > (20*1024*1024)+2500 {
-	// 	global.JsonResponse(w, http.StatusConflict, "The image is too big, max size is 20 MB")
-	// 	return
-	// }
-	// img, _, err := r.FormFile("image")
-
-	// if err == nil {
-	// 	imagePublic, err = image_handler(w, img)
-	// 	if err != nil {
-	// 		return
-	// 	}
-	// }
 
 	groupIdString := r.FormValue("groupId")
 	groupID := 0
@@ -99,13 +82,9 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 // spesific profile posts
 // link is GET /posts/profile&user_id=`user_id`&last_id=`last_id`
 func UserProfilePosts(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		global.JsonResponse(w, http.StatusMethodNotAllowed, "Method Not Allowed")
-		return
-	}
-
-	userID, err := get_userID(r)
-	if err != nil {
+	user, ok := r.Context().Value(middleware.UserContextKey).(middleware.User)
+	userID := int(user.ID)
+	if !ok || userID == 0 {
 		global.JsonResponse(w, http.StatusUnauthorized, "Unauthorized")
 		return
 	}
@@ -122,48 +101,90 @@ func UserProfilePosts(w http.ResponseWriter, r *http.Request) {
 		lastId = 9223372036854775806
 	}
 
+	// Improved query that includes the edit flag and properly handles visibility
 	myQuery := `
 	SELECT
 		p.id,
+		u.id,
 		u.avatar,
-	    (SELECT COUNT(*) FROM post_reactions AS reaction WHERE reaction.post_id = p.id) AS likes,
-	    (SELECT COUNT(*) FROM comments AS com WHERE com.post_id = p.id) AS comments,
+		(SELECT COUNT(*) FROM post_reactions AS reaction WHERE reaction.post_id = p.id) AS likes,
+		(SELECT COUNT(*) FROM comments AS com WHERE com.post_id = p.id) AS comments,
 		u.nickname,
-	    p.content,
-	    p.created_at,
-	    p.media,
-	    p.updated_at,
-	    u.first_name,
+		u.first_name,
 		u.last_name,
-	    (SELECT g.name FROM groups AS g WHERE g.id = p.group_id) AS group_name
+		p.content,
+		p.created_at,
+		p.updated_at,
+		p.media,
+		(SELECT g.name FROM groups AS g WHERE g.id = p.group_id) AS group_name,
+		p.privacy,
+		CASE 
+			WHEN p.user_id = $1 THEN true 
+			ELSE false 
+		END AS edit
 	FROM
-	    posts AS p
-	    JOIN users AS u ON p.user_id = u.id
-	    LEFT JOIN post_visibility AS pv ON pv.post_id = p.id AND pv.user_id = $1
+		posts AS p
+		JOIN users AS u ON p.user_id = u.id
+		LEFT JOIN post_visibility AS pv ON pv.post_id = p.id AND pv.user_id = $1
 		LEFT JOIN followers AS f ON f.followed_id = u.id AND f.status != 'pending' AND f.follower_id = $1
 	WHERE
 		p.user_id = $2 AND
-		p.group_id IS NULL AND(
-	    p.privacy = 'public' 
-		OR (p.privacy = 'almost private' AND f.followed_id IS NOT NULL) 
-		OR (p.privacy = 'private' AND pv.post_id IS NOT NULL) 
-	    ) AND p.id < $3
+		p.group_id = 0 AND (
+			(u.profile_status = 'public') OR 
+			(f.follower_id IS NOT NULL) OR 
+			(p.user_id = $1)
+		) AND (
+			p.privacy = 'public' OR 
+			(p.privacy = 'almost private' AND f.followed_id IS NOT NULL) OR 
+			(p.privacy = 'private' AND pv.post_id IS NOT NULL) OR
+			p.user_id = $1
+		) AND p.id < $3
 	ORDER BY
-	    p.id DESC
+		p.id DESC
 	LIMIT
 		10
-		`
+	`
 	posts, err := database.SelectQuery(myQuery, userID, userProfileID, lastId)
 	if err != nil {
-		global.JsonResponse(w, http.StatusNotFound, "Not Found")
+		global.JsonResponse(w, http.StatusInternalServerError, "Something went wrong")
 		return
 	}
-	var Post PostData
+
 	var allPosts []PostData
 	for posts.Next() {
-		posts.Scan(&Post.ID, &Post.Avatar, &Post.Likes, &Post.Comments, &Post.Nickname, &Post.Content, &Post.CreatedAt, &Post.Image, &Post.Updated_at, &Post.First_name, &Post.Last_name, &Post.Group_name)
+		var Post PostData
+		err := posts.Scan(
+			&Post.ID,
+			&Post.UserID,
+			&Post.Avatar,
+			&Post.Likes,
+			&Post.Comments,
+			&Post.Nickname,
+			&Post.First_name,
+			&Post.Last_name,
+			&Post.Content,
+			&Post.CreatedAt,
+			&Post.Updated_at,
+			&Post.Image,
+			&Post.Group_name,
+			&Post.Privacy,
+			&Post.Edit,
+		)
+		if err != nil {
+			global.JsonResponse(w, http.StatusInternalServerError, "Error scanning post data")
+			return
+		}
+
+		// Check if user liked the post
+		Post.IsLiked, err = CheckLikePost(Post.ID, userID)
+		if err != nil {
+			global.JsonResponse(w, http.StatusInternalServerError, "Error checking likes")
+			return
+		}
+
 		allPosts = append(allPosts, Post)
 	}
+
 	global.JsonResponse(w, http.StatusOK, allPosts)
 }
 
@@ -173,12 +194,9 @@ func UserProfilePosts(w http.ResponseWriter, r *http.Request) {
 // ta3dilat ayoub ---- lastId < | p.group_id = 0 machi null | ORDER BY  p.id DESC | 9223372036854775806
 
 func getPosts(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		global.JsonResponse(w, http.StatusMethodNotAllowed, "Method Not Allowed")
-		return
-	}
-	userID, err := get_userID(r)
-	if err != nil || userID == 0 {
+	user, ok := r.Context().Value(middleware.UserContextKey).(middleware.User)
+	userID := int(user.ID)
+	if !ok || userID == 0 {
 		global.JsonResponse(w, http.StatusUnauthorized, "Unauthorized")
 		return
 	}
@@ -195,6 +213,7 @@ func getPosts(w http.ResponseWriter, r *http.Request) {
 	query := `
 	SELECT
 		p.id,
+		u.id,
 		u.avatar,
 	    (SELECT COUNT(*) FROM post_reactions AS reaction WHERE reaction.post_id = p.id) AS likes,
 	    (SELECT COUNT(*) FROM comments AS com WHERE com.post_id = p.id) AS comments,
@@ -237,7 +256,7 @@ func getPosts(w http.ResponseWriter, r *http.Request) {
 	var AllPosts []PostData
 	for posts.Next() {
 		var Post PostData
-		posts.Scan(&Post.ID, &Post.Avatar, &Post.Likes, &Post.Comments, &Post.Nickname, &Post.First_name, &Post.Last_name, &Post.Content, &Post.CreatedAt, &Post.Updated_at, &Post.Image, &Post.Group_name, &Post.Privacy, &Post.Edit)
+		posts.Scan(&Post.ID, &Post.UserID, &Post.Avatar, &Post.Likes, &Post.Comments, &Post.Nickname, &Post.First_name, &Post.Last_name, &Post.Content, &Post.CreatedAt, &Post.Updated_at, &Post.Image, &Post.Group_name, &Post.Privacy, &Post.Edit)
 		Post.IsLiked, err = CheckLikePost(Post.ID, userID)
 		if err != nil {
 			global.JsonResponse(w, http.StatusInternalServerError, "some thing wrong")
@@ -251,13 +270,9 @@ func getPosts(w http.ResponseWriter, r *http.Request) {
 // get posts from a specific group
 // link is GET /posts/group&group_id=`group_id`&last_id=`last_id`
 func getPostGroup(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		global.JsonResponse(w, http.StatusMethodNotAllowed, "Method Not Allowed")
-		return
-	}
-
-	userID, err := get_userID(r)
-	if err != nil {
+	user, ok := r.Context().Value(middleware.UserContextKey).(middleware.User)
+	userID := int(user.ID)
+	if !ok || userID == 0 {
 		global.JsonResponse(w, http.StatusUnauthorized, "Unauthorized")
 		return
 	}
@@ -282,6 +297,7 @@ func getPostGroup(w http.ResponseWriter, r *http.Request) {
 	query := `
 	SELECT
 		p.id,
+		u.id,
 		u.avatar,
 	    (SELECT COUNT(*) FROM post_reactions AS reaction WHERE reaction.post_id = p.id) AS likes,
 	    (SELECT COUNT(*) FROM comments AS com WHERE com.post_id = p.id) AS comments,
@@ -313,7 +329,7 @@ func getPostGroup(w http.ResponseWriter, r *http.Request) {
 	var AllPosts []PostData
 	for posts.Next() {
 		var Post PostData
-		posts.Scan(&Post.ID, &Post.Avatar, &Post.Likes, &Post.Comments, &Post.Nickname, &Post.First_name, &Post.Last_name, &Post.Content, &Post.CreatedAt, &Post.Updated_at, &Post.Image, &Post.Privacy, &Post.Group_name)
+		posts.Scan(&Post.ID, &Post.UserID, &Post.Avatar, &Post.Likes, &Post.Comments, &Post.Nickname, &Post.First_name, &Post.Last_name, &Post.Content, &Post.CreatedAt, &Post.Updated_at, &Post.Image, &Post.Privacy, &Post.Group_name)
 		Post.IsLiked, err = CheckLikePost(Post.ID, userID)
 		if err != nil {
 			global.JsonResponse(w, http.StatusInternalServerError, "some thing was wrong")
@@ -327,14 +343,10 @@ func getPostGroup(w http.ResponseWriter, r *http.Request) {
 // add update exsting post
 // link is PUT /posts/update&post_id=`post_id`&newContent=`newContent`
 func postUpdate(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPut {
-		global.JsonResponse(w, http.StatusMethodNotAllowed, "Method Not Allowed")
-		return
-	}
-
-	userID, err := get_userID(r)
-	if err != nil {
-		global.JsonResponse(w, http.StatusUnauthorized, "Invalid user")
+	user, ok := r.Context().Value(middleware.UserContextKey).(middleware.User)
+	userID := int(user.ID)
+	if !ok || userID == 0 {
+		global.JsonResponse(w, http.StatusUnauthorized, "Unauthorized")
 		return
 	}
 
@@ -377,13 +389,9 @@ func postUpdate(w http.ResponseWriter, r *http.Request) {
 // delete post
 // likn is DELETE /posts/delete&post_id=`post_id`
 func postDelete(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodDelete {
-		global.JsonResponse(w, http.StatusMethodNotAllowed, "Method Not Allowed")
-		return
-	}
-
-	userID, err := get_userID(r)
-	if err != nil {
+	user, ok := r.Context().Value(middleware.UserContextKey).(middleware.User)
+	userID := int(user.ID)
+	if !ok || userID == 0 {
 		global.JsonResponse(w, http.StatusUnauthorized, "Unauthorized")
 		return
 	}
@@ -416,12 +424,9 @@ func postDelete(w http.ResponseWriter, r *http.Request) {
 
 // likn is GET /posts/getpost&post_id=`post_id`
 func getSpesificPost(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		global.JsonResponse(w, http.StatusMethodNotAllowed, "Method Not Allowed")
-		return
-	}
-	userID, err := get_userID(r)
-	if err != nil {
+	user, ok := r.Context().Value(middleware.UserContextKey).(middleware.User)
+	userID := int(user.ID)
+	if !ok || userID == 0 {
 		global.JsonResponse(w, http.StatusUnauthorized, "Unauthorized")
 		return
 	}
@@ -436,6 +441,7 @@ func getSpesificPost(w http.ResponseWriter, r *http.Request) {
 	query := `
 	SELECT
 		p.id,
+		u.id,
 		u.avatar,
 	    (SELECT COUNT(*) FROM post_reactions AS reaction WHERE reaction.post_id = p.id) AS likes,
 	    (SELECT COUNT(*) FROM comments AS com WHERE com.post_id = p.id) AS comments,
@@ -470,7 +476,7 @@ func getSpesificPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var Post PostData
-	posts.Scan(&Post.ID, &Post.Avatar, &Post.Likes, &Post.Comments, &Post.Nickname, &Post.First_name, &Post.Last_name, &Post.Content, &Post.CreatedAt, &Post.Updated_at, &Post.Image, &Post.Group_name, &Post.Edit)
+	posts.Scan(&Post.ID, &Post.UserID, &Post.Avatar, &Post.Likes, &Post.Comments, &Post.Nickname, &Post.First_name, &Post.Last_name, &Post.Content, &Post.CreatedAt, &Post.Updated_at, &Post.Image, &Post.Group_name, &Post.Edit)
 	Post.IsLiked, err = CheckLikePost(postID, userID) // tas7i7
 	if err != nil {
 		global.JsonResponse(w, http.StatusInternalServerError, "some thing was wrong")

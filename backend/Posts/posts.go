@@ -2,6 +2,7 @@ package posts
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"html"
 	"image"
@@ -33,8 +34,8 @@ func image_handler(w http.ResponseWriter, img multipart.File) (string, error) {
 	imgType := http.DetectContentType(imgBytes)
 
 	if imgType != "image/jpeg" && imgType != "image/gif" && imgType != "image/png" {
-		global.JsonResponse(w, http.StatusConflict, "Type not supported only : (jpeg, gif, png)")
-		return "", err
+		global.JsonResponse(w, http.StatusUnsupportedMediaType, "Type not supported only : (jpeg, gif, png)")
+		return "", errors.New("type not supported only : (jpeg, gif, png)")
 	}
 
 	// Standard packages have limited image format support only (gif/jpg/png)
@@ -58,13 +59,11 @@ func image_handler(w http.ResponseWriter, img multipart.File) (string, error) {
 
 	imgName := fmt.Sprintf("%s.%s", uuid, strings.Split(imgType, "/")[1]) // example uuid.jpg
 	imagePath := "./Assets/" + imgName
-
 	dest, errCreate := os.Create(imagePath)
 	if errCreate != nil {
 		global.JsonResponse(w, http.StatusInternalServerError, "Something wrong")
 		return "", err
 	}
-
 	defer dest.Close()
 
 	img.Seek(0, 0)
@@ -93,22 +92,6 @@ func InsertPost(userID string, content string, image string, groupID int, privac
 	}
 
 	return int(lastID), nil
-}
-
-// get user id from the token
-func get_userID(r *http.Request) (int, error) {
-	uuid, err := r.Cookie("token")
-	if err != nil {
-		return 0, err
-	}
-	query := "SELECT id FROM users WHERE uuid = ?"
-	row, err := database.SelectOneRow(query, uuid.Value)
-	if err != nil {
-		return 0, err
-	}
-	var userID int
-	row.Scan(&userID)
-	return userID, nil
 }
 
 // get group id from post id

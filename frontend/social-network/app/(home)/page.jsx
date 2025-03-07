@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { CreatePost } from "@/components/Posts/CreatePost";
 import { FetchPosts } from "@/components/Posts/FetchPosts";
+import { HomeProfile } from "@/components/homeLoggedUser";
 
 export default function Home() {
   const [reloadKey, setReloadKey] = useState(0);
@@ -18,7 +19,9 @@ export default function Home() {
         <FetchPosts key={reloadKey} endpoint="posts?last_id=" lastId={0} />
       </aside>
 
-      <div className="rightSidebar"></div>
+      <div className="rightSidebar">
+        <HomeProfile />
+      </div>
     </>
   );
 }

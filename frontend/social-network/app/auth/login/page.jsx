@@ -1,10 +1,11 @@
-"use client" 
+"use client";
 import Link from "next/link";
-import "../auth.css"
-import "/styles/globals.css"
+import "/styles/globals.css";
 import { fetchApi } from "/api/fetchApi";
-import { useRouter } from 'next/navigation';
-import { useRef } from 'react';
+import { useRouter } from "next/navigation";
+import { useRef } from "react";
+import style from "../auth.module.css";
+
 export default function Loginform() {
   const emailRef = useRef();
   const passwordRef = useRef();
@@ -16,39 +17,44 @@ export default function Loginform() {
     let password = passwordRef.current.value;
     try {
       const formData = new FormData();
-      formData.append('email', email);
-      formData.append('password', password);
-      const result = await fetchApi('auth/login', 'POST', formData,true);
-      
+      formData.append("email", email);
+      formData.append("password", password);
+      const result = await fetchApi("auth/login", "POST", formData, true);
+
       if (result.error) {
-        throw new Error(result.error || 'Login failed');
+        throw new Error(result.error.message || "Login failed");
       }
 
-      router.push("/")
-
+      router.push("/");
     } catch (error) {
       alert(error);
     }
   };
   return (
-    <div className="form">
-      <input ref={emailRef}  type="text" placeholder="Email" />
-      <input ref={passwordRef} type="password" placeholder="password" />
-      <p className="redirect">don't have account <Link href={"/auth/register"}> register</Link></p>
-      <input type="button" value="submit" onClick={handleLogin} />
+    <div className={style.login_form_container}>
+      <form className={style.loginform}>
+        <h1 className={style.login}>Log in</h1>
+        <div className={style.form_group}>
+          <input type="text" ref={emailRef} placeholder="Email"></input>
+        </div>
+        <div className={style.form_group}>
+          <input
+            type="password"
+            ref={passwordRef}
+            placeholder="Password"
+          ></input>
+        </div>
+        <button
+          type="submit"
+          onClick={handleLogin}
+          className={style.login_button}
+        >
+          Log In
+        </button>
+      </form>
+      <p className={style.redirect}>
+        don't have account <Link href={"/auth/register"}> register</Link>
+      </p>
     </div>
   );
-}
-
-
-async function Isloggedin(){
-  try{
-    const result = await fetchApi('/auth/status', 'GET', null);
-    if(result.error){
-      throw new Error(result.error || 'Failed to check login status')
-    }
-    return result.data
-    }catch(error){
-      return false
-    }
 }

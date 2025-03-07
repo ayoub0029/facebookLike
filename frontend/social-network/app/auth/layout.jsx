@@ -1,20 +1,9 @@
 "use client";
-import { Geist, Geist_Mono } from "next/font/google";
 import "../../styles/globals.css";
-import "./auth.css";
+import style from "./auth.module.css";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { checkIfLoggedIn } from "@/api/isLoggedIn";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export default function RootLayout({ children }) {
   const [isLoading, setIsLoading] = useState(true);
@@ -56,13 +45,13 @@ export default function RootLayout({ children }) {
           rel="stylesheet"
         />
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body className={style.bady}>
         {isLoading ? (
           <div className="loading-container">
             <div className="loading-spinner"></div>
           </div>
         ) : (
-          <div className="container">
+          <div className={style.container}>
             <Lmodir />
             {children}
           </div>
@@ -74,13 +63,11 @@ export default function RootLayout({ children }) {
 
 function Lmodir() {
   return (
-    <div className="lmodir">
-      <h1>lmodir</h1>
-      <p>
-        Make it easy to communicate
-        <br />
-        with the world
-      </p>
+    <div className={style.brand_section}>
+      <h1 className={style.brand_logo}>lmodir</h1>
+      <h2 className={style.brand_tag_line}>
+        make it easy to communicate with the world
+      </h2>
     </div>
   );
 }

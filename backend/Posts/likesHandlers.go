@@ -5,6 +5,7 @@ import (
 	"net/http"
 	database "socialNetwork/Database"
 	global "socialNetwork/Global"
+	middleware "socialNetwork/Middlewares"
 	"strconv"
 )
 
@@ -14,12 +15,9 @@ import (
 // it going to remove like if status like are 0
 // link is GET /posts/reactions?post_id=`id`&status_like=`status`
 func ApplyUserReaction(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		global.JsonResponse(w, http.StatusMethodNotAllowed, "Method not allowed")
-		return
-	}
-	userID, err := get_userID(r)
-	if err != nil {
+	user, ok := r.Context().Value(middleware.UserContextKey).(middleware.User)
+	userID := int(user.ID)
+	if !ok || userID == 0 {
 		global.JsonResponse(w, http.StatusUnauthorized, "Unauthorized")
 		return
 	}

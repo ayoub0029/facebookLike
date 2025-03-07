@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { fetchApi } from "@/api/fetchApi";
 import { formatTime } from "@/utiles/dateFormat";
 import { fetchPosts } from "./func_fetchposts";
@@ -38,12 +39,12 @@ export function FetchPosts({ endpoint, lastId }) {
     } = useLazyLoadById(fetchComments, 0, "", openCommentsPostId, false);
 
     const initialLoad = async (postId) => {
-        
+
         const result = await fetchComments(0, postId);
         if (result.items && result.items.length > 0) {
             setComments(result.items);
         }
-        
+
     };
 
     const toggleComments = (postId) => {
@@ -124,7 +125,7 @@ export function FetchPosts({ endpoint, lastId }) {
         const response = await fetchApi("posts/comments", "POST", formData, true);
         const postId = e.target.post_id.value
         console.log(postId);
-        
+
 
         if (response.status !== undefined) {
             alert(`Error: ${response.error} Status: ${response.status}`);
@@ -201,20 +202,23 @@ export function FetchPosts({ endpoint, lastId }) {
                     )}
 
                     <div className="postHeader">
-                        <Image
-                            src={
-                                post.avatar?.startsWith("http")
-                                    ? post.avatar
-                                    : (post.avatar && post.avatar !== "undefined")
-                                        ? `${API_BASE_URL}/public/${post.avatar}`
-                                        : "/images/test.jpg"
-                            }
-                            alt="Profile Image"
-                            className="profileImg"
-                            width={40}
-                            height={40}
-                            unoptimized={true}
-                        />
+                        <Link href={"/profile/" + post.user_id} className="primary" style={{ textDecoration: "none" }}>
+                            <Image
+                                src={
+                                    post.avatar?.startsWith("http")
+                                        ? post.avatar
+                                        : (post.avatar && post.avatar !== "undefined")
+                                            ? `${API_BASE_URL}/public/${post.avatar}`
+                                            : "/images/test.jpg"
+                                }
+                                alt="Profile Image"
+                                className="profileImg"
+                                width={40}
+                                height={40}
+                                unoptimized={true}
+                            />
+                        </Link>
+
                         <div className="postInfo">
                             <span className="postName">{post.first_name} {post.last_name}</span>
                             <span className="postTime"><PrivacyText privacy={post.privacy} />{" | " + formatTime(post.created_at) + " " + (post.updated_at_at ? `Edited : ${formatTime(post.updated_at_at)}` : "")}</span>
@@ -254,7 +258,13 @@ export function FetchPosts({ endpoint, lastId }) {
                         <div className="commentsSection">
                             <form className="newComment" encType="multipart/form-data" onSubmit={handleCreateComment}>
                                 <Image
-                                    src="/images/test.jpg"
+                                    src={
+                                        window.userState.avatar?.startsWith("http")
+                                            ? window.userState.avatar
+                                            : (window.userState.avatar && window.userState.avatar !== "undefined")
+                                                ? `${API_BASE_URL}/public/${window.userState.avatar}`
+                                                : "/images/test.jpg"
+                                    }
                                     alt="Your Profile"
                                     className="smallImg"
                                     width={40}
@@ -277,22 +287,25 @@ export function FetchPosts({ endpoint, lastId }) {
                             <div className="comments">
                                 {comments.map((comment) => (
                                     <div key={comment.id} className="comment commentWithImage">
-                                        <Image
-                                            src={
-                                                comment.avatar?.startsWith("http")
-                                                    ? comment.avatar
-                                                    : (comment.avatar && comment.avatar !== "undefined")
-                                                        ? `${API_BASE_URL}/public/${comment.avatar}`
-                                                        : "/images/test.jpg"
-                                            }
-                                            alt="Commenter Profile"
-                                            className="smallImg"
-                                            width={40}
-                                            height={40}
-                                            unoptimized={true}
-                                        />
+                                        <Link href={"/profile/" + comment.user_id} className="primary" style={{ textDecoration: "none" }}>
+                                            <Image
+                                                src={
+                                                    comment.avatar?.startsWith("http")
+                                                        ? comment.avatar
+                                                        : (comment.avatar && comment.avatar !== "undefined")
+                                                            ? `${API_BASE_URL}/public/${comment.avatar}`
+                                                            : "/images/test.jpg"
+                                                }
+                                                alt="Commenter Profile"
+                                                className="smallImg"
+                                                width={40}
+                                                height={40}
+                                                unoptimized={true}
+
+                                            />
+                                        </Link>
                                         <div className="commentContent">
-                                            <span className="commentName">{comment.user_name}</span>
+                                            <span className="commentName">{comment.first_name + " " + comment.last_name}</span>
                                             <p>{comment.comment_content}</p>
                                             {comment.image && (
                                                 <Image
