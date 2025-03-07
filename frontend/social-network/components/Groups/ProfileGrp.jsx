@@ -6,6 +6,7 @@ import groupImage from '../../Img/group.png'
 import Image from "next/image"
 import '../../styles/Groups.css'
 import Link from "next/link"
+
 export default function ProfileGrp() {
     const fullPath = usePathname()
     const pathParts = fullPath.split("/")
@@ -120,7 +121,7 @@ export default function ProfileGrp() {
                     {(groupProfile.status === "accepted" || groupProfile.status === "owner") && (
                         <div className='groupCard'>
                             <button className='btn btnGreen'>
-                                <Link href={`/groupsChat`}>
+                                <Link href={`/groupsChat`} style={{ textDecoration: 'none' }}>
                                     Group Chat
                                 </Link>
                             </button>

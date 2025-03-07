@@ -16,7 +16,7 @@ func GetMsgFromPrvChatDB(receiverID, page int, r *http.Request) ([]privateMsg, e
 	if !ok {
 		return nil, fmt.Errorf("user not login")
 	}
-	query := `SELECT u.first_name, u.last_name, m.id, m.sender_id, m.receiver_id, m.message, m.created_at FROM private_chat m
+	query := `SELECT u.avatar, CONCAT(u.first_name, ' ', u.last_name) AS full_name, m.id, m.sender_id, m.receiver_id, m.message, m.created_at FROM private_chat m
 				join users u
 				on m.sender_id = u.id or m.receiver_id = u.id
 	        	WHERE (m.sender_id = ? or m.sender_id = ?) and (m.receiver_id = ? or m.receiver_id =?)
@@ -28,7 +28,7 @@ func GetMsgFromPrvChatDB(receiverID, page int, r *http.Request) ([]privateMsg, e
 	}
 	msg := privateMsg{}
 	for rows.Next() {
-		err := rows.Scan(&msg.FirstName, &msg.LastName, &msg.MessageID, &msg.SenderID, &msg.ReceiverID, &msg.Message, &msg.CreatedDate)
+		err := rows.Scan(&msg.Avatar, &msg.FullName, &msg.MessageID, &msg.SenderID, &msg.ReceiverID, &msg.Message, &msg.CreatedDate)
 		if err != nil {
 			log.Println("Scan error: ", err)
 			return nil, err
@@ -44,8 +44,10 @@ func GetMsgFromPrvChatDB(receiverID, page int, r *http.Request) ([]privateMsg, e
 
 func GetMsgFromGrpChatDB(groupID, page int, r *http.Request) ([]groupMsg, error) {
 	var msgs []groupMsg
-	query := `SELECT m.sender_id, m.group_id, m.message, m.created_at FROM group_chat m
-			  WHERE m.group_id = ? 
+	query := `SELECT u.avatar, CONCAT(u.first_name, ' ', u.last_name) AS full_name, m.sender_id, m.group_id, m.message, m.created_at FROM group_chat m
+			  join users u
+			  on m.sender_id = u.id
+			  WHERE m.group_id = ?
 	          ORDER BY m.created_at DESC LIMIT 10 OFFSET ?;`
 	rows, err := database.SelectQuery(query, groupID, page)
 	if err != nil {

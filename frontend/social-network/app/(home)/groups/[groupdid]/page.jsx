@@ -26,7 +26,7 @@ export default function Profile() {
     fetchGroupProfile()
   }, [pathname])
 
-  if (groupProfile && groupProfile.status === "accepted") {
+  if (groupProfile && (groupProfile.status === "accepted" || groupProfile.status === "owner")) {
     return (
       <>
         <div>

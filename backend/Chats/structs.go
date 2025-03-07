@@ -3,8 +3,8 @@ package chats
 import "time"
 
 type privateMsg struct {
-	FirstName   string `json:"firstname"`
-	LastName    string `json:"lastname"`
+	Avatar      string `json:"avatar"`
+	FullName    string `json:"fullname"`
 	SenderID    uint64 `json:"senderid"`
 	ReceiverID  uint64 `json:"receiverid"`
 	Message     string `json:"message"`

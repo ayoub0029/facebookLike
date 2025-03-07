@@ -24,6 +24,9 @@ export default function DisplayEvents() {
             return { items: {}, nextPage: null }
         }
     }
+    const vote = async (e) => {
+        console.log(e.target.value);
+    }
     const {
         data,
         loaderRef,
@@ -63,14 +66,14 @@ export default function DisplayEvents() {
                                 <p>{event.startdate}</p>
                                 <p>{event.enddate}</p>
                             </div>
-                            {/*  <div className="event-actions">
-                            <button className='btn btnGray' onClick={Going}>
-                                Going
-                            </button>
-                            <button className='btn btnGray' onClick={notGoing}>
-                                Not going
-                            </button>
-                        </div> */}
+                            <label>
+                                <input type="radio" name={`${event.id}`} value={"Going"} onChange={vote} />
+                                <span>Going</span>
+                            </label>
+                            <label>
+                                <input type="radio" name={`${event.id}`} value={"NotGoing"} onChange={vote} />
+                                <span>Not Going</span>
+                            </label>
                         </div>
                     ))}
                     {loading && nextPage !== null && (
