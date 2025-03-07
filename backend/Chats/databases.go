@@ -56,7 +56,7 @@ func GetMsgFromGrpChatDB(groupID, page int, r *http.Request) ([]groupMsg, error)
 	}
 	msg := groupMsg{}
 	for rows.Next() {
-		err := rows.Scan(&msg.SenderID, &msg.GroupId, &msg.Message, &msg.CreatedDate)
+		err := rows.Scan(&msg.Avatar,&msg.FullName ,&msg.SenderID, &msg.GroupId, &msg.Message, &msg.CreatedDate)
 		if err != nil {
 			log.Println("Scan error: ", err)
 			return nil, err

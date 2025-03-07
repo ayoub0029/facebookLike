@@ -13,6 +13,8 @@ type privateMsg struct {
 }
 
 type groupMsg struct {
+	Avatar      string `json:"avatar"`
+	FullName    string `json:"fullname"`
 	GroupId     uint64 `json:"groupid"`
 	SenderID    uint64 `json:"senderid"`
 	Message     string `json:"message"`
