@@ -201,6 +201,7 @@ function User({ data }) {
               <img
                 src={item.Avatar ? item.Avatar : config.defaultImage}
                 alt={item.Nickname}
+                onError={(eve) => eve.target.srcset = config.defaultImage}
               />
               <span>{item.FirstName} {item.LastName}</span>
             </div>

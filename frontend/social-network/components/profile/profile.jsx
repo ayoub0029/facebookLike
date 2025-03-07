@@ -5,9 +5,17 @@ import { useState } from "react"
 import { useRouter } from 'next/navigation';
 import { Modal, Alert } from "./popup.jsx"
 import { UsersFollowers, UsersFollowing } from "./users_follow.jsx"
+import FollowButton from "./follow-button.jsx"
 import { fetchApi } from "@/api/fetchApi"
 import config from "../../constns.json"
 
+const typeData = {
+  'false': "follow",
+  'pending': "waiting",
+  'accept': "unfollow",
+  'private': true,
+  'public': false
+}
 export default function ProfileComponent({ profile }) {
   const [modals, setModals] = useState({
     followers: false,
@@ -45,13 +53,14 @@ export default function ProfileComponent({ profile }) {
     <div className={style["profiletHeader"]}>
       <div >
         <img src={profile.Avatar ? profile.Avatar : config.defaultImage}
-          alt={profile.Nickname} />
+          alt={profile.Nickname}
+          onError={(eve) => eve.target.srcset = config.defaultImage} />
       </div>
 
       <span className={style["full_name"]}>{profile.First_Name} {profile.Last_Name}</span>
       <br></br>
 
-      {typeBtnShowFollow(profile)}
+      <FollowButton statusFollow={typeData[profile.Status]} profileType={typeData[profile.ProfileStatus]} userID={profile.Id} />
 
       <div className={style["about"]}>
         <span>Private acount</span>
@@ -62,7 +71,8 @@ export default function ProfileComponent({ profile }) {
     <div className={style["profiletHeader"]}>
       <div >
         <img src={profile.Avatar ? profile.Avatar : config.defaultImage}
-          alt={profile.Nickname} />
+          alt={profile.Nickname}
+          onError={(eve) => eve.target.srcset = config.defaultImage} />
       </div>
 
       <span className={style["full_name"]}>{profile.First_Name} {profile.Last_Name}</span>
@@ -81,7 +91,9 @@ export default function ProfileComponent({ profile }) {
         </div>
       </div>
       {isShowEditeProfile(profile.isOwner, openModal)}
-      {typeBtnShowFollow(profile)}
+      {!profile.isOwner ?
+        <FollowButton statusFollow={typeData[profile.Status]} profileType={typeData[profile.ProfileStatus]} userID={profile.Id} />
+        : <></>}
 
       <div className={style["about"]}>
         <span>About Me</span>
@@ -171,53 +183,7 @@ function isShowEditeProfile(isOwner, openModal) {
     </div>
 }
 
-
 function formateDOB(date) {
   var d = new Date(date)
   return `${d.getFullYear()} / ${d.getMonth() + 1} / ${d.getDate()}`
-}
-
-function typeBtnShowFollow(profile) {
-  switch (profile.Status) {
-    case "false":
-      return (
-        <div className={style["btn_follow"]}>
-          <button onClick={() => Follow(profile.Id)}>follow</button>
-        </div>)
-    case "pending":
-      return (
-        <div className={style["btn_follow"]}>
-          <button >pending</button>
-        </div>)
-
-    case "accept":
-      return (
-        <div className={style["btn_follow"]}>
-          <button onClick={() => Unfollow(profile.Id)}>unfollow</button>
-        </div>)
-  }
-}
-
-async function Follow(userID) {
-  let form = new FormData()
-  form.append("followedid", userID)
-
-  const resp = await fetchApi('profiles/follow', 'POST', form, true)
-  if (resp.hasOwnProperty("error")) {
-    alert(`Error: ${resp.error} Status: ${resp.status}`);
-    return
-  }
-  console.log(resp);
-}
-
-async function Unfollow(userID) {
-  let form = new FormData()
-  form.append("followedid", userID)
-
-  const resp = await fetchApi('profiles/unfollow', 'POST', form, true)
-  if (resp.hasOwnProperty("error")) {
-    alert(`Error: ${resp.error} Status: ${resp.status}`);
-    return
-  }
-  console.log(resp);
 }
