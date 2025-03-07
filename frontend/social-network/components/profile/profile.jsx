@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Modal, Alert } from "./popup.jsx"
 import { UsersFollowers, UsersFollowing } from "./users_follow.jsx"
 import { fetchApi } from "@/api/fetchApi"
+import config from "../../constns.json"
 
 export default function ProfileComponent({ profile }) {
   const [modals, setModals] = useState({
@@ -43,7 +44,7 @@ export default function ProfileComponent({ profile }) {
   return profile.ProfileStatus === 'private' && !profile.isOwner ? (
     <div className={style["profiletHeader"]}>
       <div >
-        <img src={profile.Avatar ? profile.Avatar : "http://localhost:8080/public/test.jpg"}
+        <img src={profile.Avatar ? profile.Avatar : config.defaultImage}
           alt={profile.Nickname} />
       </div>
 
@@ -60,7 +61,7 @@ export default function ProfileComponent({ profile }) {
   ) : (
     <div className={style["profiletHeader"]}>
       <div >
-        <img src={profile.Avatar ? profile.Avatar : "http://localhost:8080/public/test.jpg"}
+        <img src={profile.Avatar ? profile.Avatar : config.defaultImage}
           alt={profile.Nickname} />
       </div>
 
@@ -192,12 +193,12 @@ function typeBtnShowFollow(profile) {
     case "accept":
       return (
         <div className={style["btn_follow"]}>
-          <button onClick={()=> Unfollow(profile.Id)}>unfollow</button>
+          <button onClick={() => Unfollow(profile.Id)}>unfollow</button>
         </div>)
   }
 }
 
- async function Follow(userID) {
+async function Follow(userID) {
   let form = new FormData()
   form.append("followedid", userID)
 

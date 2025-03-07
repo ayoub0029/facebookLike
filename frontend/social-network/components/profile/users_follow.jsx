@@ -1,6 +1,9 @@
+// "use-cliant"
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { fetchApi } from "@/api/fetchApi"
 import style from "./profile.module.css"
+import config from "../../constns.json"
+import Link from 'next/link';
 
 export function UsersFollowers({ userID }) {
   const [data, setData] = useState([]);
@@ -72,8 +75,8 @@ export function UsersFollowers({ userID }) {
     <div
       ref={scrollContainerRef}
       style={{
-        height: "150px",
-        maxHeight: "150px",
+        height: "400px",
+        maxHeight: "400px",
         overflowY: "auto",
       }}
     >
@@ -165,14 +168,12 @@ export function UsersFollowing({ userID }) {
     <div
       ref={scrollContainerRef}
       style={{
-        height: "150px",
-        maxHeight: "150px",
+        height: "400px",
+        maxHeight: "400px",
         overflowY: "auto",
       }}
     >
-      {data.length > 0 ? (
-        <User data={data} />
-      ) : !loading && (
+      {data.length > 0 ? (<User data={data} />) : !loading && (
         <div>No followers found</div>
       )}
 
@@ -195,9 +196,15 @@ function User({ data }) {
         <div>No followers found</div>
       ) : (
         data.map((item, index) => (
-          <div key={item.id || index}>
-            {item.FirstName} {item.LastName}
-          </div>
+          <Link href={`/profile/${item.Id}`} key={item.id || index}>
+            <div className={style["cont_user_list"]} >
+              <img
+                src={item.Avatar ? item.Avatar : config.defaultImage}
+                alt={item.Nickname}
+              />
+              <span>{item.FirstName} {item.LastName}</span>
+            </div>
+          </Link>
         ))
       )}
     </div>
