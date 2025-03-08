@@ -1,36 +1,43 @@
 'use client';
-import {useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./page.module.css";
 import { fetchApi } from "@/api/fetchApi";
 
 import { M_PLUS_1 } from "next/font/google";
 
-async function getData(url){
-    let response = await fetch(url).then((res) => res.json());
-    return response;
+async function getData(url) {
+  let response = await fetch(url).then((res) => res.json());
+  return response;
 }
 
 let Profiles = [
-  {id: 1 , fullName: "khir abdelouahab"},
-  {id: 2 , fullName: "bouchikhi abdelilah"},
-  {id: 3 , fullName: "lahmami ayoub"},
-  {id: 4 , fullName: "kharkhach yassine"},
-  {id: 5 , fullName: "serraf rachid"},
+  { id: 1, UserId: 1, fullName: "lahmami ayoub" },
+  { id: 2, UserId: 2, fullName: "cheddad ahmed" },
+  { id: 3, UserId: 3, fullName: "rrr rrr" },
+  { id: 4, UserId: 4, fullName: "khir abdelouahab" },
+  { id: 5, UserId: 5, fullName: "bouchikhi abdelilah" },
+  { id: 6, UserId: 6, fullName: "kharkhach yassine" },
+  { id: 7, UserId: 7, fullName: "elhabti mohammed" },
+  { id: 8, UserId: 8, fullName: "serraf rachid" },
+  { id: 9, GroupId: 2, fullName: "Group 1" },
+
 ]
 
 export default function Chat() {
-  const [counter,setCounter] = useState(5);
-  const [messages,setMessages] = useState([
-    {id:1,fullName: "elhmami ayoub",avatar:"./images/profile.jpeg", date:"22-02-2025", message:"kirak dayer"},
-    {id:2, fullName: "ahmed ahmed",avatar:"./images/profile.jpeg", date:"22-02-2025", message:"hello world"},
-    {id:3,fullName: "bochikhi abdelilah",avatar:"./images/profile.jpeg", date:"22-02-2025", message:"cv ?"},
-    {id:4,fullName: "khir abdelouahab",avatar:"./images/profile.jpeg", date:"22-02-2025", message:"elhamdulilah"},
-  ])
+  const [counter, setCounter] = useState(5);
+  const [msgType, setMsgType] = useState('');
+  const [Receiver, setReceiver] = useState(0);
+  const [messages, setMessages] = useState([
+    /*{ id: 1, fullName: "elhmami ayoub", avatar: "./images/profile.jpeg", date: "22-02-2025", message: "kirak dayer" },
+    { id: 2, fullName: "khir abdelouahab", avatar: "./images/profile.jpeg", date: "22-02-2025", message: "elhamdulilah" },
+    { id: 3, fullName: "bochikhi abdelilah", avatar: "./images/profile.jpeg", date: "22-02-2025", message: "cv ?" },
+    { id: 4, fullName: "cheddad ahmed", avatar: "./images/profile.jpeg", date: "22-02-2025", message: "hello world" },
+  */])
   const [message, setMessage] = useState('');
   const [connected, setConnected] = useState(false);
   const [ws, setWs] = useState(null);
-   // Establish WebSocket connection when the component mounts
-   useEffect(() => {
+  // Establish WebSocket connection when the component mounts
+  useEffect(() => {
     const socket = new WebSocket('ws://localhost:8080/ws'); // Replace with your WebSocket server URL
 
     // Set the WebSocket instance in state
@@ -44,7 +51,20 @@ export default function Chat() {
 
     // WebSocket message event
     socket.onmessage = (event) => {
-      setMessage(event.data); // Display incoming message
+      const data = JSON.parse(event.data)
+      setMessage(data.message);
+      const msg = data.message;
+      const sender = data.sender_id;
+      const date = new Date(data.timestamp).toString();
+      let fullName = "";
+      Profiles.forEach((elem) => {
+        if (elem.id == sender) {
+          fullName = elem.fullName;
+          return;
+        }
+      })
+      setMessages([...messages, { id: sender, fullName: fullName, avatar: "./images/profile.jpeg", date: date, message: msg }])
+      console.log("message is ", data); // Display incoming message
     };
 
     // WebSocket error event
@@ -68,42 +88,45 @@ export default function Chat() {
   const sendMessage = () => {
     if (ws && connected) {
       let msg = {
-        "Type" : "privateChat",
-        "Content" : {
-          reciever : 3,
-          message : "hello mayni",
+        "Type": "privateChat",
+        "Content": {
+          Receiver_id: Receiver,
+          message: document.getElementById('MessageText').value,
         }
       }
       ws.send(JSON.stringify(msg));
     }
   };
 
-  // async function getData() {
-    //   let response = await fetchApi('chats/private?receiver_id=2&page=0');
-    //   console.log("messages : ",response);
-    //   return response;
-    // }
-    // await getData();
-  let ArrayOfMessages = messages.map((item)=>{
+  let ArrayOfMessages = messages.map((item) => {
     return (
-      <MessageSection key={item.id} fullName={item.fullName} avatar={item.avatar} date={item.date} message={item.message} />
+      <MessageSection key={item.id} profile={item} />
     )
   })
   function handleClick() {
     let msg = document.getElementById('MessageText');
     if (msg) {
-      setMessages([...messages,{id:counter,fullName: "elhabti",avatar:"./images/profile.jpeg", date:"22-02-2025", message:msg.value}]);
+      setMessages([...messages, { id: counter, fullName: "elhabti", avatar: "./images/profile.jpeg", date: "22-02-2025", message: msg.value }]);
       setCounter(counter + 1);
     }
   }
-  function profileClick(profile) {
-    console.log(profile.fullName , " has clicked!, id : ",profile.id);
-    setMessages([{id:profile.id, fullName: profile.fullName,avatar:"./images/profile.jpeg", date:"22-02-2025", message:"wsh ?"},
-      {id:2,fullName: "elhmami ayoub",avatar:"./images/profile.jpeg", date:"22-02-2025", message:"kirak dayer"},])
+  async function profileClick(profile) {
+    const msgType = MessageType(profile);
+    setMsgType(msgType);
+    const chatWith = (msgType == 'privateChat') ? profile.UserId : profile.GroupId
+    setReceiver(chatWith);
+    let response = await fetchApi(`chats/${GetDataSource(msgType)}=${chatWith}&page=0`);
+    setMessages(response);
   }
-  let ArrayOfProfiles = Profiles.map((item)=>{
+  let ArrayOfProfiles = Profiles.map((item) => {
+    /*let key = 0;
+    if (MessageType(item) == 'privateChat') {
+      key = item.UserId;
+    }else{
+      key = item.GroupId;
+    }*/
     return (
-      <Profile key={item.id} onProfileClick={()=> profileClick(item)} profile={item} />
+      <Profile key={item.id} onProfileClick={() => profileClick(item)} profile={item} />
     )
   })
   return (
@@ -118,8 +141,7 @@ export default function Chat() {
           {ArrayOfMessages}
         </section>
         <footer className={styles.Footer}>
-          <input id="MessageText" className={styles.MessageText} type="text" placeholder="type your message..." />
-          <button id={styles.ButtonSend} onClick={sendMessage}>Send</button>
+          {messages.length > 0 && <InputsSend onSendMessage={sendMessage}/>}
         </footer>
       </aside>
       <div className="rightSidebar">
@@ -130,21 +152,31 @@ export default function Chat() {
 }
 
 
-
-function Profile({profile,onProfileClick}) {
-    return (
-      <div onClick={onProfileClick} className={styles.ProfileContainer}>
-        <div className={styles.Image}>
-
-        </div>
-        <div className={styles.MessageHeaderContainer}>
-          <h3>{profile.fullName}</h3>
-        </div>
-      </div>
-    )
+function GetDataSource(state) {
+  return (state == 'privateChat') ? 'private?receiver_id' : 'group?group_id';
+}
+function MessageType(profile) {
+  if (profile.GroupId !== undefined) {
+    return 'groupChat';
+  } else {
+    return 'privateChat'
+  }
 }
 
-function MessageSection({ fullName, date, message }) {
+function Profile({ profile, onProfileClick }) {
+  return (
+    <div onClick={onProfileClick} className={styles.ProfileContainer}>
+      <div className={styles.Image}>
+
+      </div>
+      <div className={styles.MessageHeaderContainer}>
+        <h3>{profile.fullName}</h3>
+      </div>
+    </div>
+  )
+}
+
+function MessageSection({ profile }) {
   return (
     <section className={styles.MessageSection}>
       <div className={styles.Image}>
@@ -152,11 +184,11 @@ function MessageSection({ fullName, date, message }) {
       </div>
       <div className={styles.MessageHeaderContainer}>
         <header className={styles.MessageHeader}>
-          <h3>{fullName}</h3>
-          <span>{date}</span>
+          <h3>{profile.fullName}</h3>
+          <span>{profile.date}</span>
         </header>
         <section>
-          <Message content={message} />
+          <Message content={profile.message} />
         </section>
       </div>
     </section>
@@ -171,27 +203,12 @@ function Message({ content }) {
 
 
 
-function WebSocketComponent() {
-  
-
- 
-
-  // Send message to server
-  
+function InputsSend({onSendMessage}) {
   return (
-    <div>
-      <h2>WebSocket Example</h2>
-      <div>
-        <p>Connected: {connected ? 'Yes' : 'No'}</p>
-        <button onClick={sendMessage} disabled={!connected}>
-          Send Message
-        </button>
-      </div>
-      <div>
-        <h3>Received Message:</h3>
-        <p>{message}</p>
-      </div>
-    </div>
+    <>
+      <input id="MessageText" className={styles.MessageText} type="text" placeholder="type your message..." />
+      <button id={styles.ButtonSend} onClick={onSendMessage}>Send</button>
+    </>
   );
 };
 

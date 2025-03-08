@@ -17,6 +17,7 @@ type groupMsg struct {
 }
 
 type ChatPrvMessage struct {
+	Sender_id 	int    	`json:"sender_id"`
 	Receiver_id uint64    `json:"receiver_id"`
 	Message     string    `json:"message"`
 	Timestamp   time.Time `json:"timestamp"`
