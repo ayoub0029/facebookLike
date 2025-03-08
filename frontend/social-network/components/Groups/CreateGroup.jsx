@@ -1,8 +1,8 @@
 "use client"
-import React, { useState,useEffect } from 'react'
+import React, { useState } from 'react'
 import { fetchApi } from '@/api/fetchApi'
 import '../../styles/creategroup.css'
-
+import Link from 'next/link'
 export default function CreateGroup() {
     const [isClicked, useIsClicked] = useState(false)
     const [error, useError] = useState(null)
@@ -20,15 +20,21 @@ export default function CreateGroup() {
         event.preventDefault()
         const data = new FormData(event.target)
         console.log("data: ", data);
-        const res = await fetchApi('group', 'POST', data, true)
-        if (res.status != undefined) {
-            console.error('Failed to create group')
-            useError(`Error`)
-            return
+        try {
+            const res = await fetchApi('group', 'POST', data, true)
+            if (res.status != undefined) {
+                console.error('Failed to create group')
+                useError(`Error`)
+                return
+            }
+            console.log('Group created:', res)
+            useError(null)
+            useSubmitted(true)
+            event.target.reset()
+        } catch (error) {
+            console.error();
+            useError(error)
         }
-        console.log('Group created:', res)
-        useError(null)
-        useSubmitted(true)
     }
 
     return (

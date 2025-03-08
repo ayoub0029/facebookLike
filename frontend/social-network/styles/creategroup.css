@@ -26,11 +26,6 @@
     background-color: #45a049;
 }
 
-.btnGrey {
-    background-color: #808080;
-    color: white;
-}
-
 .btnGrey:hover {
     background-color: #6e6e6e;
 }
@@ -78,12 +73,6 @@
     flex-direction: column;
 }
 
-.createGrp label {
-    margin-bottom: 8px;
-    font-weight: 500;
-    color: #333;
-}
-
 .createGrp input,
 .createGrp textarea {
     padding: 10px;
@@ -106,15 +95,7 @@
     font-weight: 500;
 }
 
-.createGrp form p:first-of-type {
-    color: #d32f2f;
-    background-color: #ffebee;
-}
 
-.createGrp form p:last-of-type {
-    color: #388e3c;
-    background-color: #e8f5e9;
-}
 
 @media (max-width: 768px) {
     .createGrp {

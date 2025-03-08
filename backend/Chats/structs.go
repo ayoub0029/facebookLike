@@ -3,16 +3,21 @@ package chats
 import "time"
 
 type privateMsg struct {
+	Avatar      string `json:"avatar"`
+	FullName    string `json:"fullname"`
 	SenderID    uint64 `json:"senderid"`
 	ReceiverID  uint64 `json:"receiverid"`
 	Message     string `json:"message"`
 	CreatedDate string `json:"createdDate"`
+	MessageID   uint64 `json:"messageid"`
 }
 
 type groupMsg struct {
+	Avatar      string `json:"avatar"`
+	FullName    string `json:"fullname"`
 	GroupId     uint64 `json:"groupid"`
 	SenderID    uint64 `json:"senderid"`
-	Message     string `json:"message"`	
+	Message     string `json:"message"`
 	CreatedDate string `json:"createdDate"`
 }
 

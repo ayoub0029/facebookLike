@@ -3,13 +3,15 @@ import React, { useState } from 'react'
 import { fetchApi } from '@/api/fetchApi'
 import useLazyLoad from '@/hooks/lazyload'
 import '../../styles/GroupRequests.css'
+import groupImage from '../../Img/group.png'
+import Image from "next/image";
 import Link from 'next/link'
 
 const fetchJoinedGrp = async (page) => {
     try {
-        const data = await fetchApi(`groups?page=${page}`, 'GET', null, false)
+        const data = await fetchApi(`groups/JoinedBy?page=${page}`, 'GET', null, false)
         if (data.status !== undefined) {
-            return { error: "login please", status: 401 }
+            return { error: data.error, status: data.status }
         }
         const groups = Array.isArray(data) ? data : []
         return {
@@ -39,7 +41,7 @@ const JoinedGrp = () => {
         try {
             setLeavingGroup(true)
             setLeaveError(null)
-            const response = await fetchApi(`group/leav/${groupId}`, 'DELETE', null, false)
+            const response = await fetchApi(`group/leave/${groupId}`, 'DELETE', null, false)
             if (response && response.status !== undefined && response.status !== 200) {
                 setLeaveError(`Error: ${response.error || 'Unknown error'} (Status: ${response.status})`);
                 return;
@@ -55,7 +57,7 @@ const JoinedGrp = () => {
 
     return (
         <div className='userGroups-container'>
-            <h2>Joined Groups</h2>
+            <h2 className='titleGrp'>Joined Groups</h2>
             {(error || leaveError) && (
                 <p className='error-message'>{error || leaveError}</p>
             )}
@@ -75,17 +77,25 @@ const JoinedGrp = () => {
                 {!error && data.length === 0 && !loading && (
                     <p className='no-groups'>No groups found</p>
                 )}
-                <div className='joinedGroups'>
+                <section className="joinedGroups">
                     {data.map(group => (
                         <div
                             className='groupCard'
                             key={`${group.id}`}
                         >
-                            <div className="groupInfo">
-                                <h3 id={`group-name-${group.id}`}>{group.name}</h3>
-                                <p>{group.description}</p>
-                            </div>
-                            <div className="group-actions">
+                            <div className='groupInfo'>
+                                <button className='btn'>
+                                    <Link href={`/groups/${group.id}`}>
+                                    <Image
+                                        src={groupImage}
+                                        alt='Group Image'
+                                        width={200}
+                                        height={150}>
+                                    </Image>
+                                        <h3 id={`group-name-${group.id}`}>{group.name}</h3>
+                                        <p>{group.description}</p>
+                                    </Link>
+                                </button>
                                 <button
                                     className='btn btnGray'
                                     onClick={() => leaveTheGroup(group.id)}
@@ -93,15 +103,10 @@ const JoinedGrp = () => {
                                 >
                                     {leavingGroup ? 'Leaving...' : 'Leave the group'}
                                 </button>
-                                <button className='btn btnGray'>
-                                    <Link href={`/groups/${group.id}`}>
-                                        View Group
-                                    </Link>
-                                </button>
                             </div>
                         </div>
                     ))}
-                </div>
+                </section>
                 {loading && nextPage !== null && (
                     <p className="loading-more">Loading more groups...</p>
                 )}
