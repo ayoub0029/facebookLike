@@ -53,9 +53,6 @@ export default function RootLayout({ children }) {
           </div>
         ) : (
           <>
-            <button className="rightMenuToggle">
-              <i className="fas fa-bars"></i>
-            </button>
             <div className="container">
               <div className="leftSidebar">
                 <Navigation />

@@ -563,3 +563,14 @@ body {
   height: 100vh;
   background-color: rgba(0, 0, 0, 0.4);
 }
+
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+a:hover {
+  text-decoration: none;
+  color: inherit;
+}
