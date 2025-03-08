@@ -30,11 +30,6 @@ export default function ProfileComponent({ profile }) {
     setModals({ ...modals, [modalName]: false });
   };
 
-  function getSelectedGender() {
-    const selected = document.querySelector('.mydict input[name="radio"]:checked');
-    return selected ? selected.value : null;
-  }
-
   async function UpdateInfo(e, field) {
     e.preventDefault();
     const formData = new FormData(e.target);

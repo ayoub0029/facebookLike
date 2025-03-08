@@ -19,7 +19,7 @@
   width: 160px;
   height: 160px;
   border: 2px solid #fff;
-  outline: 3px solid #68e735;
+  outline: 3px solid var(--gr);
 }
 
 .profiletHeader .nickname,
@@ -219,10 +219,9 @@
 
 /* ================= update profile =========================== */
 .update_div {
-  background-color: #f9fafb;
+  background-color: var(--primaryv2);
   display: flex;
   flex-direction: column;
-  /* gap: 0.5rem; */
   margin-bottom: 1.5rem;
   border-radius: 0.5rem;
   transition: all 0.2s ease;
@@ -237,9 +236,9 @@
 
 }
 
-.update_form:hover {
-  box-shadow: 0 2px 6px -1px rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
-}
+/* .update_form:hover {
+   box-shadow: 0 2px 6px -1px rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
+} */
 
 .update_input {
   flex: 1;
@@ -252,7 +251,8 @@
 }
 
 .update_input:focus {
-  border-color: #3b82f6;
+  border-color: var(--blackv2);
+  color: var(--blackv2);
 }
 
 .update_input[type="file"] {
@@ -262,8 +262,9 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  background-color: #3b82f6;
-  color: white;
+  background-color: var(--grenv2);
+  color: var(--blackv2);
+  /* color: white; */
 }
 
 .update_input[type=file]::file-selector-button {
@@ -273,10 +274,6 @@
   border-radius: .3em;
   background-color: #ffffff;
 }
-
-/* .update_input[type=file]::file-selector-button:hover {
-  background-color: #81ecec;
-} */
 
 .update_input[type="date"] {
   min-width: 200px;
@@ -289,16 +286,18 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  background-color: #3b82f6;
-  color: white;
+  background-color: var(--grenv2);
+  color: var(--blackv2);
+  font-size: 0.90rem;
+  /* color: white; */
 }
-
+/* #d9eb64f1 */
 .update_button:hover {
-  background-color: #2563eb;
+  background-color: var(--gr);
 }
 
 .update_button:active {
-  background-color: #1d4ed8;
+  background-color: #bece56f1;
 }
 
 /* Radio button styling */
@@ -361,7 +360,7 @@
   width: 60px;
   height: 60px;
   border: 2px solid #fff;
-  outline: 3px solid #eaeaea;
+  outline: 1.5px solid var(--gr);
 }
 
 .cont_user_list span {
@@ -385,8 +384,9 @@
 /* ======================================= check box  ==================================*/
 .mydict input:focus {
   outline: 0;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 4px #b5c9fc;
+  border-color: var(--grenv2);
+  color: var(--blackv2);
+  box-shadow: 0 0 0 4px var(--grenv2);
 }
 
 .mydict div {
@@ -406,10 +406,11 @@
 }
 
 .mydict input[type="radio"]:checked+span {
-  box-shadow: 0 0 0 0.0625em #3b82f6;
-  background-color: #dee7ff;
+  box-shadow: 0 0 0 0.0625em var(--grenv2);
+  color: var(--blackv2);
+  background-color: #efff88;
   z-index: 1;
-  color: #2260ff;
+  color: var(--blackv2);
 }
 
 .mydict label span {

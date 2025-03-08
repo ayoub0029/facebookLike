@@ -7,7 +7,8 @@
   cursor: pointer;
   border: none;
   color: white;
-  background-color: #3b82f6;
+  /* #3b82f6 */
+  background-color: var(--blackv2);
   overflow: hidden;
   transition: background-color 0.3s ease;
 }
@@ -17,7 +18,8 @@
 } */
 
 .followButton.unfollow {
-  background-color: #10b981;
+  background-color: var(--grenv2);
+  color: var(--blackv2);
 }
 
 /* .followButton.unfollow:hover {
