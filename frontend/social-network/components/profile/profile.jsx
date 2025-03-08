@@ -2,7 +2,6 @@
 
 import style from "./profile.module.css"
 import { useState } from "react"
-import { useRouter } from 'next/navigation';
 import { Modal, Alert } from "./popup.jsx"
 import { UsersFollowers, UsersFollowing } from "./users_follow.jsx"
 import FollowButton from "./follow-button.jsx"
@@ -31,13 +30,11 @@ export default function ProfileComponent({ profile }) {
     setModals({ ...modals, [modalName]: false });
   };
 
-  const router = useRouter();
   async function UpdateInfo(e, field) {
     e.preventDefault();
     const formData = new FormData(e.target);
 
     let data = formData.get("input");
-    // console.log(data, field)
 
     const resp = await fetchApi("profiles/update", "POST", JSON.stringify({ Field: field, Value: data }), true)
     if (resp.hasOwnProperty("error")) {
@@ -48,6 +45,7 @@ export default function ProfileComponent({ profile }) {
       window.location.reload();
     }, 100);
   }
+  console.log(profile);
 
   return profile.ProfileStatus === 'private' && !profile.isOwner ? (
     <div className={style["profiletHeader"]}>
@@ -126,17 +124,17 @@ export default function ProfileComponent({ profile }) {
       >
 
         <form className={style["update_form"]} onSubmit={(e) => UpdateInfo(e, "first_name")} >
-          <input className={style["update_input"]} name="input" type="text" placeholder="first name..." required />
+          <input className={style["update_input"]} value={profile.First_Name} name="input" type="text" placeholder="first name..." required />
           <button type="submit" className={style["update_button confirm"]}>Confirm</button>
         </form>
 
         <form className={style["update_form"]} onSubmit={(e) => UpdateInfo(e, "last_name")}>
-          <input className={style["update_input"]} name="input" type="text" placeholder="last name..." required />
+          <input className={style["update_input"]} value={profile.Last_Name} name="input" type="text" placeholder="last name..." required />
           <button type="submit" className={style["update_button confirm"]}>Confirm</button>
         </form>
 
         <form className={style["update_form"]} onSubmit={(e) => UpdateInfo(e, "nickname")}>
-          <input className={style["update_input"]} name="input" type="text" placeholder="nickname..." required />
+          <input className={style["update_input"]} value={profile.Nickname} name="input" type="text" placeholder="nickname..." required />
           <button type="submit" className={style["update_button confirm"]}>Confirm</button>
         </form>
 
@@ -146,17 +144,17 @@ export default function ProfileComponent({ profile }) {
         </form>
 
         <form className={style["update_form"]} onSubmit={(e) => UpdateInfo(e, "email")}>
-          <input className={style["update_input"]} name="input" type="text" placeholder="gmail..." required />
+          <input className={style["update_input"]} value={profile.Email} name="input" type="text" placeholder="gmail..." required />
           <button type="submit" className={style["update_button confirm"]}>Confirm</button>
         </form>
 
         <form className={style["update_form"]} onSubmit={(e) => UpdateInfo(e, "date_of_birth")}>
-          <input className={style["update_input"]} name="input" type="text" placeholder="date of birth..." required />
+          <input className={style["update_input"]}  name="input" type="date" placeholder="date of birth..." required />
           <button type="submit" className={style["update_button confirm"]}>Confirm</button>
         </form>
 
         <form className={style["update_form"]} onSubmit={(e) => UpdateInfo(e, "about_me")}>
-          <input className={style["update_input"]} name="input" type="text" placeholder="about me..." required />
+          <input className={style["update_input"]} value={profile.AboutMe} name="input" type="text" placeholder="about me..." required />
           <button type="submit" className={style["update_button confirm"]}>Confirm</button>
         </form>
 
