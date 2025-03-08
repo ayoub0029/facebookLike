@@ -16,10 +16,12 @@ func GetMsgFromPrvChatDB(receiverID, page int, r *http.Request) ([]privateMsg, e
 	if !ok {
 		return nil, fmt.Errorf("user not login")
 	}
-	query := `SELECT u.avatar, CONCAT(u.first_name, ' ', u.last_name) AS full_name, m.id, m.sender_id, m.receiver_id, m.message, m.created_at FROM private_chat m
-				join users u
-				on m.sender_id = u.id or m.receiver_id = u.id
-	        	WHERE (m.sender_id = ? or m.sender_id = ?) and (m.receiver_id = ? or m.receiver_id =?)
+	query := `SELECT COALESCE((SELECT u.avatar
+				FROM users u WHERE u.id = pch.sender_id), './images/profile.jpeg') AS avatar ,(SELECT CONCAT(u.first_name, ' ', u.last_name) 
+				FROM users u WHERE u.id = pch.sender_id) AS full_name,pch.sender_id,pch.receiver_id,pch.message
+				FROM private_chat pch
+				WHERE (pch.sender_id = ? AND pch.receiver_id = ?)
+				or (pch.sender_id = ? AND pch.receiver_id = ?);
 				ORDER BY m.created_at DESC LIMIT 10 OFFSET ?;`
 	rows, err := database.SelectQuery(query, user.ID, receiverID, user.ID, receiverID, page)
 	if err != nil {
@@ -56,7 +58,7 @@ func GetMsgFromGrpChatDB(groupID, page int, r *http.Request) ([]groupMsg, error)
 	}
 	msg := groupMsg{}
 	for rows.Next() {
-		err := rows.Scan(&msg.Avatar,&msg.FullName ,&msg.SenderID, &msg.GroupId, &msg.Message, &msg.CreatedDate)
+		err := rows.Scan(&msg.Avatar, &msg.FullName, &msg.SenderID, &msg.GroupId, &msg.Message, &msg.CreatedDate)
 		if err != nil {
 			log.Println("Scan error: ", err)
 			return nil, err
