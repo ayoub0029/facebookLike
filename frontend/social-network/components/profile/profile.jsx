@@ -30,11 +30,17 @@ export default function ProfileComponent({ profile }) {
     setModals({ ...modals, [modalName]: false });
   };
 
+  function getSelectedGender() {
+    const selected = document.querySelector('.mydict input[name="radio"]:checked');
+    return selected ? selected.value : null;
+  }
+
   async function UpdateInfo(e, field) {
     e.preventDefault();
     const formData = new FormData(e.target);
-
-    let data = formData.get("input");
+    let data = ""
+    if (field === "profile_status") data = formData.get('radio');
+    else data = formData.get("input");
 
     const resp = await fetchApi("profiles/update", "POST", JSON.stringify({ Field: field, Value: data }), true)
     if (resp.hasOwnProperty("error")) {
@@ -75,7 +81,7 @@ export default function ProfileComponent({ profile }) {
 
       <span className={style["full_name"]}>{profile.First_Name} {profile.Last_Name}</span>
       <span className={style["nickname"]}>@{profile.Nickname}</span>
-      <span className={style["date_brith"]}>{formateDOB(profile.DOB)}</span>
+      <span className={style["date_brith"]}>{formateDOB(profile.DOB, "/")}</span>
 
       <div className={style["follow"]}>
         <div onClick={() => openModal('followers')}>
@@ -122,54 +128,80 @@ export default function ProfileComponent({ profile }) {
         onClose={() => closeModal('editProfile')}
         title="Edit Profile"
       >
-
-        <form className={style["update_form"]} onSubmit={(e) => UpdateInfo(e, "first_name")} >
-          <input className={style["update_input"]} value={profile.First_Name} name="input" type="text" placeholder="first name..." required />
-          <button type="submit" className={style["update_button confirm"]}>Confirm</button>
-        </form>
-
-        <form className={style["update_form"]} onSubmit={(e) => UpdateInfo(e, "last_name")}>
-          <input className={style["update_input"]} value={profile.Last_Name} name="input" type="text" placeholder="last name..." required />
-          <button type="submit" className={style["update_button confirm"]}>Confirm</button>
-        </form>
-
-        <form className={style["update_form"]} onSubmit={(e) => UpdateInfo(e, "nickname")}>
-          <input className={style["update_input"]} value={profile.Nickname} name="input" type="text" placeholder="nickname..." required />
-          <button type="submit" className={style["update_button confirm"]}>Confirm</button>
-        </form>
-
-        <form className={style["update_form"]} onSubmit={(e) => UpdateInfo(e, "password")}>
-          <input className={style["update_input"]} name="input" type="text" placeholder="password..." required />
-          <button type="submit" className={style["update_button confirm"]}>Confirm</button>
-        </form>
-
-        <form className={style["update_form"]} onSubmit={(e) => UpdateInfo(e, "email")}>
-          <input className={style["update_input"]} value={profile.Email} name="input" type="text" placeholder="gmail..." required />
-          <button type="submit" className={style["update_button confirm"]}>Confirm</button>
-        </form>
-
-        <form className={style["update_form"]} onSubmit={(e) => UpdateInfo(e, "date_of_birth")}>
-          <input className={style["update_input"]}  name="input" type="date" placeholder="date of birth..." required />
-          <button type="submit" className={style["update_button confirm"]}>Confirm</button>
-        </form>
-
-        <form className={style["update_form"]} onSubmit={(e) => UpdateInfo(e, "about_me")}>
-          <input className={style["update_input"]} value={profile.AboutMe} name="input" type="text" placeholder="about me..." required />
-          <button type="submit" className={style["update_button confirm"]}>Confirm</button>
-        </form>
-
-        <form className={style["update_form"]} onSubmit={(e) => UpdateInfo(e, "avatar")}>
-          <input className={style["update_input"]} name="input" type="file" placeholder="avatar..." required />
-          <button type="submit" className={style["update_button confirm"]}>Confirm</button>
-        </form>
-
-        <form className={style["update_form"]} onSubmit={(e) => UpdateInfo(e, "profile_status")}>
-          <input type="radio" id="public" name="input" value="public" />
-          <label htmlFor="public">public</label>
-          <input type="radio" id="private" name="input" value="private" />
-          <label htmlFor="private">private</label>
-          <button type="submit" className={style["update_button confirm"]}>Confirm</button>
-        </form>
+        <div className={style["update_div"]}>
+          <label className={style["title_input"]} htmlFor="first_name"><i className="fa-solid fa-pen"></i> First Name</label>
+          <form className={style["update_form"]} onSubmit={(e) => UpdateInfo(e, "first_name")} >
+            <input className={style["update_input"]} defaultValue={profile.First_Name} name="input" type="text" placeholder="first name..." required />
+            <button type="submit" className={style["update_button"]}>Confirm</button>
+          </form>
+        </div>
+        <div className={style["update_div"]}>
+          <label className={style["title_input"]} htmlFor="first_name"><i className="fa-solid fa-pen"></i> Last Name</label>
+          <form className={style["update_form"]} onSubmit={(e) => UpdateInfo(e, "last_name")}>
+            <input className={style["update_input"]} defaultValue={profile.Last_Name} name="input" type="text" placeholder="last name..." required />
+            <button type="submit" className={style["update_button"]}>Confirm</button>
+          </form>
+        </div>
+        <div className={style["update_div"]}>
+          <label className={style["title_input"]} htmlFor="first_name"><i className="fa-solid fa-pen"></i> Nickname</label>
+          <form className={style["update_form"]} onSubmit={(e) => UpdateInfo(e, "nickname")}>
+            <input className={style["update_input"]} defaultValue={profile.Nickname} name="input" type="text" placeholder="nickname..." required />
+            <button type="submit" className={style["update_button"]}>Confirm</button>
+          </form>
+        </div>
+        <div className={style["update_div"]}>
+          <label className={style["title_input"]} htmlFor="first_name"><i className="fa-solid fa-lock"></i> password</label>
+          <form className={style["update_form"]} onSubmit={(e) => UpdateInfo(e, "password")}>
+            <input className={style["update_input"]} name="input" type="text" placeholder="password..." required />
+            <button type="submit" className={style["update_button"]}>Confirm</button>
+          </form>
+        </div>
+        <div className={style["update_div"]}>
+          <label className={style["title_input"]} htmlFor="first_name"><i className="fa-solid fa-envelope"></i> Email</label>
+          <form className={style["update_form"]} onSubmit={(e) => UpdateInfo(e, "email")}>
+            <input className={style["update_input"]} defaultValue={profile.Email} name="input" type="text" placeholder="gmail..." required />
+            <button type="submit" className={style["update_button"]}>Confirm</button>
+          </form>
+        </div>
+        <div className={style["update_div"]}>
+          <label className={style["title_input"]} htmlFor="first_name"><i className="fa-solid fa-calendar"></i> Date Of Birth</label>
+          <form className={style["update_form"]} onSubmit={(e) => UpdateInfo(e, "date_of_birth")}>
+            <input className={style["update_input"]} defaultValue="2003-11-01" name="input" type="date" required />
+            <button type="submit" className={style["update_button"]}>Confirm</button>
+          </form>
+        </div>
+        <div className={style["update_div"]}>
+          <label className={style["title_input"]} htmlFor="first_name"><i className="fa-solid fa-circle-info"></i> About Me</label>
+          <form className={style["update_form"]} onSubmit={(e) => UpdateInfo(e, "about_me")}>
+            <input className={style["update_input"]} defaultValue={profile.AboutMe} name="input" type="text" placeholder="about me..." required />
+            <button type="submit" className={style["update_button"]}>Confirm</button>
+          </form>
+        </div>
+        <div className={style["update_div"]}>
+          <label className={style["title_input"]} htmlFor="first_name"><i className="fa-solid fa-image"></i> Image Profile</label>
+          <form className={style["update_form"]} onSubmit={(e) => UpdateInfo(e, "avatar")}>
+            <input className={style["update_input"]} name="input" type="file" required />
+            <button type="submit" className={style["update_button"]}>Confirm</button>
+          </form>
+        </div>
+        <div className={style["update_div"]}>
+          <label className={style["title_input"]} htmlFor="first_name"> Type Account</label>
+          <form className={style["update_form"]} onSubmit={(e) => UpdateInfo(e, "profile_status")}>
+            <div className={style["mydict"]}>
+              <div>
+                <label>
+                  <input type="radio" name="radio" value="public" defaultChecked={profile.ProfileStatus === "public" ? true : false} />
+                  <span>public</span>
+                </label>
+                <label>
+                  <input type="radio" name="radio" value="private" defaultChecked={profile.ProfileStatus === "private" ? true : false} />
+                  <span>private</span>
+                </label>
+              </div>
+            </div>
+            <button type="submit" className={style["update_button"]}>Confirm</button>
+          </form>
+        </div>
       </Modal>
     </div>
   )
@@ -181,7 +213,7 @@ function isShowEditeProfile(isOwner, openModal) {
     </div>
 }
 
-function formateDOB(date) {
+function formateDOB(date, char) {
   var d = new Date(date)
-  return `${d.getFullYear()} / ${d.getMonth() + 1} / ${d.getDate()}`
+  return `${d.getFullYear()}  ${char}  ${String(d.getMonth() + 1).padStart(2, "0")}  ${char}  ${String(d.getDate()).padStart(2, "0")}`
 }
