@@ -6,7 +6,7 @@ import (
 )
 
 func SelectQuery(query string, args ...any) (*sql.Rows, error) {
-	db, err := sql.Open("sqlite3", "./Database/socialNetwork.db")
+	db, err := sql.Open("sqlite3", "./Database/socialNetwork.db?_foreign_keys=on")
 	if err != nil {
 		return nil, fmt.Errorf("OPEN ERROR: %v", err)
 	}
@@ -19,7 +19,7 @@ func SelectQuery(query string, args ...any) (*sql.Rows, error) {
 }
 
 func SelectOneRow(query string, args ...any) (*sql.Row, error) {
-	db, err := sql.Open("sqlite3", "./Database/socialNetwork.db")
+	db, err := sql.Open("sqlite3", "./Database/socialNetwork.db?_foreign_keys=on")
 	if err != nil {
 		return nil, fmt.Errorf("OPEN ERROR: %v", err)
 	}
@@ -29,13 +29,14 @@ func SelectOneRow(query string, args ...any) (*sql.Row, error) {
 }
 
 func ExecQuery(query string, args ...any) (sql.Result, error) {
-	db, err := sql.Open("sqlite3", "./Database/socialNetwork.db")
+	db, err := sql.Open("sqlite3", "./Database/socialNetwork.db?_foreign_keys=on")
 	if err != nil {
 		return nil, fmt.Errorf("OPEN ERROR: %v", err)
 	}
 
 	rs, err := db.Exec(query, args...)
 	if err != nil {
+		fmt.Println("EXEC ERROR:", err) // Log error to debug
 		return nil, fmt.Errorf("EXEC ERROR: %v", err)
 	}
 	db.Close()

@@ -14,7 +14,6 @@ var (
 	GROUP_INVITATION = "group_invitation"
 	ACCCEPT_REQUEST  = "accept_equest"
 	EVENT            = "event"
-	
 )
 
 func NewNotification(message string, senderId, ReceverId, GroupId uint64) *NotifServes {

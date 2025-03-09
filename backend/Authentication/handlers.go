@@ -6,6 +6,7 @@ import (
 	"html"
 	"net/http"
 	"net/url"
+	database "socialNetwork/Database"
 	global "socialNetwork/Global"
 	"strconv"
 	"strings"
@@ -126,17 +127,28 @@ func logOut(w http.ResponseWriter, r *http.Request) {
 func status(w http.ResponseWriter, r *http.Request) {
 	userID, errLogin := IsLoggedIn(r, "token")
 
-	if errLogin != nil {
+	if errLogin != nil && userID <= 0 {
 		global.JsonResponse(w, http.StatusUnauthorized, "Authentication failed")
 		return
 	}
 
-	if userID == 0 {
-		global.JsonResponse(w, http.StatusOK, nil)
+	var firstname, lastname, avatar string
+	row, errQuery := database.SelectOneRow("SELECT first_name,last_name,avatar FROM users WHERE id = ?", userID)
+	if errQuery != nil {
+		global.JsonResponse(w, http.StatusUnauthorized, "Authentication failed")
 		return
 	}
 
-	global.JsonResponse(w, http.StatusOK, userID)
+	if err := row.Scan(&firstname, &lastname, &avatar); err != nil {
+		global.JsonResponse(w, http.StatusUnauthorized, "Authentication failed")
+		return
+	}
+
+	global.JsonResponse(w, http.StatusOK, map[string]any{
+		"id":       userID,
+		"fullname": firstname + " " + lastname,
+		"avatar":   avatar,
+	})
 }
 
 // GithubLogin redirects users to GitHub's OAuth login page
@@ -214,7 +226,7 @@ func githubCallBack(w http.ResponseWriter, r *http.Request) {
 			"githubid":  {fmt.Sprintf("%d", *newUser.GithubID)},
 		}
 
-		redirectURL := "/complete-registration?" + data.Encode()
+		redirectURL := NextHost + "/auth/complete-registration?" + data.Encode()
 		http.Redirect(w, r, redirectURL, http.StatusSeeOther)
 		return
 	}
@@ -225,5 +237,5 @@ func githubCallBack(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	http.Redirect(w, r, NextHost+"/", http.StatusSeeOther)
 }

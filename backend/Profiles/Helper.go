@@ -81,6 +81,32 @@ func IsFollowed(a, b int) (int, error) {
 	return RelationID, nil
 }
 
+func GetStatus(a, b int) (string, error) {
+	if a == b {
+		return "", ErrFollowYourself
+	}
+
+	if !UserExists(a) || !UserExists(b) {
+		return "", ErrUserNotExist
+	}
+
+	var Status string
+
+	Query := `SELECT status FROM followers WHERE follower_id = ? AND followed_id = ?`
+	row, err := database.SelectOneRow(Query, a, b)
+	if err != nil {
+		return "", err
+	}
+	if err := row.Scan(&Status); err != nil {
+		if err == sql.ErrNoRows {
+			return "", ErrCantFindRelationId
+		}
+		return "", err
+	}
+
+	return Status, nil
+}
+
 func NameValidation(Value string) bool {
 	if len(Value) < 3 || len(Value) > 20 {
 		return false

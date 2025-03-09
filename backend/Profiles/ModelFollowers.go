@@ -14,15 +14,17 @@ type Follow_Request struct {
 }
 
 type Following struct {
-	Id       int
-	Nickname string
-	Avatar   string
+	Id        int
+	FirstName string
+	LastName  string
+	Avatar    string
 }
 
 type Followers struct {
-	Id       int
-	Nickname string
-	Avatar   string
+	Id        int
+	FirstName string
+	LastName  string
+	Avatar    string
 }
 
 type FollowersParams struct {
@@ -125,33 +127,23 @@ func (req *Follow_Request) Unfollow() (int, error) {
 // Check if there is a relationship between the user and the follower.
 // Return the status, status code, and any error encountered.
 func (req *Follow_Request) CheckFollowStatus() (string, int, error) {
-	_, err := IsFollowed(req.followedId, req.followerId)
-
-	if err == ErrFollowYourself || err == ErrUserNotExist || err == ErrCantFindRelationId {
+	status, err := GetStatus(req.followerId, req.followedId)
+	if err == ErrCantFindRelationId {
+		return "false", http.StatusOK, nil
+	}
+	if err == ErrFollowYourself || err == ErrUserNotExist {
 		return "", http.StatusBadRequest, err
 	}
 	if err != nil {
 		return "", http.StatusInternalServerError, err
 	}
 
-	Query := "SELECT status FROM followers WHERE follower_id = ? AND followed_id = ?"
-	Row, err := database.SelectOneRow(Query, req.followedId, req.followerId)
-	if err != nil {
-		return "", http.StatusInternalServerError, err
-	}
-
-	var Status string
-
-	if err := Row.Scan(&Status); err != nil {
-		return "", http.StatusInternalServerError, err
-	}
-
-	return Status, http.StatusOK, nil
+	return status, http.StatusOK, nil
 }
 
 // Accept the follow request and return the status code, along with any errors encountered.
 func (req *Follow_Request) AccepteRequest() (int, error) {
-	_, err := IsFollowed(req.followedId, req.followerId)
+	_, err := GetStatus(req.followedId, req.followerId)
 	if err == ErrFollowYourself || err == ErrUserNotExist || err == ErrCantFindRelationId {
 		return http.StatusBadRequest, err
 	}
@@ -170,7 +162,7 @@ func (req *Follow_Request) AccepteRequest() (int, error) {
 
 	Query := `
 	UPDATE followers
-	SET status = ? 
+	SET status = ?
 	WHERE follower_id = ?
 	AND followed_id = ?`
 
@@ -221,7 +213,7 @@ func (Params *FollowersParams) GetFollowing() ([]Following, error) {
 
 	offset := (Params.Page - 1) * int(Params.PerPage)
 	query := `
-	SELECT u.id, u.nickname, u.avatar 
+	SELECT u.id, u.first_name, u.last_name, u.avatar
 	FROM users u
 	JOIN followers f ON u.id = f.followed_id
 	WHERE f.follower_id = ? AND f.status = 'accept'
@@ -238,8 +230,7 @@ func (Params *FollowersParams) GetFollowing() ([]Following, error) {
 
 	for rows.Next() {
 		var following Following
-		if err := rows.Scan(&following.Id, &following.Nickname, &following.Avatar); err != nil {
-			fmt.Println(following)
+		if err := rows.Scan(&following.Id, &following.FirstName, &following.LastName, &following.Avatar); err != nil {
 			return nil, fmt.Errorf("failed to scan following user: %w", err)
 		}
 		followings = append(followings, following)
@@ -255,7 +246,7 @@ func (Params *FollowersParams) GetFollowers() ([]Followers, error) {
 
 	offset := (Params.Page - 1) * int(Params.PerPage)
 	query := `
-	SELECT u.id, u.nickname, u.avatar 
+	SELECT u.id, u.first_name, u.last_name, u.avatar
 	FROM users u
 	JOIN followers f ON u.id = f.follower_id
 	WHERE f.followed_id = ? AND f.status = 'accept'
@@ -271,7 +262,7 @@ func (Params *FollowersParams) GetFollowers() ([]Followers, error) {
 	var followers []Followers
 	for rows.Next() {
 		var follower Followers
-		if err := rows.Scan(&follower.Id, &follower.Nickname, &follower.Avatar); err != nil {
+		if err := rows.Scan(&follower.Id, &follower.FirstName, &follower.LastName, &follower.Avatar); err != nil {
 			return nil, fmt.Errorf("failed to scan follower user: %w", err)
 		}
 		followers = append(followers, follower)

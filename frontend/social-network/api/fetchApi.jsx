@@ -1,6 +1,5 @@
 export async function fetchApi(endpoint, method = "GET", body = null, isFormData = false) {
-    const BaseURL = "http://localhost:8080";
-    const url = `${BaseURL}/${endpoint}`;
+    const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/${endpoint}`;
     const headers = isFormData ? {} : { "Content-Type": "application/json" };
     const options = {
         method,
@@ -18,6 +17,7 @@ export async function fetchApi(endpoint, method = "GET", body = null, isFormData
         const response = await fetch(url, options);
 
         const result = await response.json();
+
         if (!response.ok) {
             return { error: result, status: response.status };
         }

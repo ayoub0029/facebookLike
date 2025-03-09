@@ -5,7 +5,19 @@ import (
 	"net/http"
 	"os"
 
+	"os"
+
 	auth "socialNetwork/Authentication"
+	chats "socialNetwork/Chats"
+	database "socialNetwork/Database/Sqlite"
+	global "socialNetwork/Global"
+	groups "socialNetwork/Groups"
+	middleware "socialNetwork/Middlewares"
+	notifications "socialNetwork/Notifications"
+	posts "socialNetwork/Posts"
+	profiles "socialNetwork/Profiles"
+	search "socialNetwork/Search"
+	socket "socialNetwork/Socket"
 	chats "socialNetwork/Chats"
 	database "socialNetwork/Database/Sqlite"
 	global "socialNetwork/Global"
@@ -19,6 +31,10 @@ import (
 )
 
 func main() {
+	if err := database.InitializeMigrations(); err != nil {
+		fmt.Printf("Migration error: %v\n", err)
+		os.Exit(1)
+	}
 	if err := database.InitializeMigrations(); err != nil {
 		fmt.Printf("Migration error: %v\n", err)
 		os.Exit(1)
@@ -53,6 +69,13 @@ func main() {
 
 	fmt.Println("Server running on", Server.Addr)
 	err := Server.ListenAndServe()
+	Server := &http.Server{
+		Addr:    ":8080",
+		Handler: middleware.Auth(mux),
+	}
+
+	fmt.Println("Server running on", Server.Addr)
+	err := Server.ListenAndServe()
 	if err != nil {
 		fmt.Println("Error starting server:", err)
 	}
@@ -73,8 +96,25 @@ func handleStaticFile(w http.ResponseWriter, r *http.Request) {
 
 	// Serve the file
 	http.ServeFile(w, r, fullPath)
+func handleStaticFile(w http.ResponseWriter, r *http.Request) {
+	// Strip "/public/" from the path
+	filePath := r.URL.Path[len("/public/"):]
+
+	// Construct the full path to the static file
+	fullPath := "Assets/" + filePath
+
+	// Check if file exists
+	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
+		http.Error(w, "404 File not found ----", http.StatusNotFound)
+		return
+	}
+
+	// Serve the file
+	http.ServeFile(w, r, fullPath)
 }
 
+func notFound(w http.ResponseWriter, r *http.Request) {
+	global.JsonResponse(w, http.StatusNotFound, "404 Page not found")
 func notFound(w http.ResponseWriter, r *http.Request) {
 	global.JsonResponse(w, http.StatusNotFound, "404 Page not found")
 }
