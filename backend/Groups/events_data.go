@@ -19,7 +19,7 @@ func createEvent(e *event) bool {
 
 func getAllEvents(group, page int) []event {
 	query := `SELECT * FROM events e 
-	WHERE e.group_id = ? LIMIT 10 OFFSET ?;`
+	WHERE e.group_id = ? LIMIT 5 OFFSET ?;`
 	data_Rows, err := d.SelectQuery(query, group, page)
 	if err != nil {
 		return nil

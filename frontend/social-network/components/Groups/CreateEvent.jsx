@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation"
 import Link from 'next/link'
 import '../../styles/creategroup.css'
 
-export default function CreateEvent() {
+export default function EventContainer(/* {onAction} */) {
     const [isClicked, setIsClicked] = useState(false)
     const [error, setError] = useState(null)
     const [isSubmitted, setSubmitted] = useState(false)
@@ -35,6 +35,7 @@ export default function CreateEvent() {
             }
             setError(null)
             setSubmitted(true)
+            /* onAction() */
             event.target.reset()
         } catch (err) {
             console.error('Error creating event:', err)
@@ -56,10 +57,10 @@ export default function CreateEvent() {
                             <label htmlFor="description">Description:</label>
                             <textarea id="description" name="description" required />
                             <label htmlFor="startDate">Start Event:</label>
-                            <input type="datetime-local" id="start" name='start' placeholder='mm/dd/yyyy' required />
+                            <input type="datetime-local" id="start" name='start' required />
                             <label htmlFor="endDate">End Event:</label>
-                            <input type="datetime-local" id="end" name='end' placeholder='mm/dd/yyyy' required />
-                            <button className='btn btnGrey' type="submit">Create Event</button>
+                            <input type="datetime-local" id="end" name='end' required />
+                            <button className='btn btnGrey' type="submit" >Create Event</button>
                             {error && <p className="error-message">{error}</p>}
                             {!error && isSubmitted && <p className="success-message">Event has been created!</p>}
                         </form>

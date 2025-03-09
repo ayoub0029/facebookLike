@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react'
 import { fetchApi } from '@/api/fetchApi'
 import '../../styles/GroupRequests.css'
-
+import groupImage from '../../Img/group.png'
 const GroupRequests = () => {
     const [groupRequests, setGroupRequests] = useState([])
     const [loading, setLoading] = useState(true)
@@ -12,7 +12,6 @@ const GroupRequests = () => {
         const fetchGroupRequests = async () => {
             try {
                 setLoading(true)
-                // Fetch group requests from the API endpoint
                 const data = await fetchApi('GET', '/users', null, false)
                 console.log('Group requests data:', data)
                 setGroupRequests(data || [])
@@ -59,7 +58,7 @@ const GroupRequests = () => {
                     {groupRequests.map(request => (
                         <div key={request.id} className="invitationCard">
                             <img
-                                src={request.image || "../../Img/group.png"}
+                                src={request.image || groupImage}
                                 alt={request.name}
                                 className="group-avatar"
                             />

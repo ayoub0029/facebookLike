@@ -1,6 +1,6 @@
 "use client"
 import ProfileGrp from '../../../../components/Groups/ProfileGrp'
-import CreateEvent from '../../../../components/Groups/CreateEvent'
+import EventContainer from '../../../../components/Groups/CreateEvent'
 import DisplayEvents from '../../../../components/Groups/DisplayEvents'
 import { usePathname } from "next/navigation"
 import { useState, useEffect } from 'react'
@@ -10,9 +10,9 @@ export default function Profile() {
   const fullPath = usePathname()
   const pathParts = fullPath.split("/")
   const pathname = pathParts[pathParts.length - 1]
-
   const [groupProfile, setGroupProfile] = useState(null)
-
+  /* const [refreshEvents, setRefreshEvents] = useState(0) */
+  
   useEffect(() => {
     const fetchGroupProfile = async () => {
       try {
@@ -22,16 +22,20 @@ export default function Profile() {
         console.error('Error fetching Group Profile:', err)
       }
     }
-
     fetchGroupProfile()
   }, [pathname])
-
+  
+  /* const handleEventCreated = () => {
+    console.log("Event created, triggering refresh")
+    setRefreshEvents(prev => prev + 1)
+  } */
+  
   if (groupProfile && (groupProfile.status === "accepted" || groupProfile.status === "owner")) {
     return (
       <>
         <div>
-          <CreateEvent />
-          <DisplayEvents />
+          <EventContainer /* onAction={handleEventCreated} */ />
+          <DisplayEvents /* key={refreshEvents} */ />
         </div>
         <div className="rightSidebar">
           <ProfileGrp />
@@ -39,7 +43,7 @@ export default function Profile() {
       </>
     )
   }
-
+  
   return (
     <>
       <div className="rightSidebar">
