@@ -1,12 +1,11 @@
 "use client";
 
-import style from "./profile.module.css";
+import style from "../../styles/profile.module.css";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Modal, Alert } from "./popup.jsx";
 import { UsersFollowers, UsersFollowing } from "./users_follow.jsx";
 import { fetchApi } from "@/api/fetchApi";
-import config from "../../constns.json";
 
 export default function ProfileComponent({ profile }) {
   const [modals, setModals] = useState({
@@ -132,7 +131,7 @@ export default function ProfileComponent({ profile }) {
         onClose={() => closeModal("following")}
         title="Following"
       >
-        <UsersFollowing userID={profile.Id} />
+        <UsersFollowing userID={profile.Id} route={"/profile"} />
       </Modal>
 
       {/* Edit Profile Modal */}

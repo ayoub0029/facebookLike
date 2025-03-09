@@ -1,8 +1,7 @@
 // "use-cliant"
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { fetchApi } from "@/api/fetchApi";
-import style from "./profile.module.css";
-import config from "../../constns.json";
+import style from "../../styles/profile.module.css";
 import Link from "next/link";
 
 export function UsersFollowers({ userID }) {
@@ -99,7 +98,7 @@ export function UsersFollowers({ userID }) {
   );
 }
 
-export function UsersFollowing({ userID }) {
+export function UsersFollowing({ userID , route }) {
   const [data, setData] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -181,7 +180,7 @@ export function UsersFollowing({ userID }) {
       }}
     >
       {data.length > 0 ? (
-        <User data={data} route={"/profile"} />
+        <User data={data} route={route} />
       ) : (
         !loading && <div>No following found</div>
       )}

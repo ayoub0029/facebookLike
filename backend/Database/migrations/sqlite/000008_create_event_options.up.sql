@@ -2,5 +2,5 @@ CREATE TABLE IF NOT EXISTS event_options (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     event_id INTEGER NOT NULL,
     option_text TEXT,
-    FOREIGN KEY (event_id) REFERENCES events(id)
+    FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE
 );

@@ -1,6 +1,4 @@
-// import { useState } from "react";
-// import React from "react";
-import style from "./profile.module.css"
+import style from "../../styles/profile.module.css";
 
 export  function Modal({ isOpen, onClose, title, children }) {
   if (!isOpen) return null;

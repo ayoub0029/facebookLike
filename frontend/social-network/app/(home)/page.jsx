@@ -35,8 +35,8 @@ export default function Home() {
 
       <div className={"rightSidebar" + (hamberMenu ? " show" : "")}>
         <HomeProfile />
-        <div style={{ fontSize: "18px", fontWeight: "bold" }}>My Following</div>
-        <UsersFollowing userID={window.userState.id} />
+        <div style={{ fontSize: "18px", fontWeight: "bold" }}>Private Chat </div>
+        <UsersFollowing userID={window.userState.id} route={"/chat"} />
       </div>
     </>
   );

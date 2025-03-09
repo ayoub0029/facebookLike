@@ -40,15 +40,17 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	groupIdString := r.FormValue("groupId")
-	groupID := 0
+	var groupID *int = nil
+
 	if groupIdString != "" {
-		groupID, _ = strconv.Atoi(groupIdString)
-		if groupID <= 0 {
+		id, err := strconv.Atoi(groupIdString)
+		if err != nil || id <= 0 {
 			global.JsonResponse(w, http.StatusBadRequest, "Bad Request")
 			return
 		}
+		groupID = &id
 
-		IsMember := groups.IsMember(userID, groupID)
+		IsMember := groups.IsMember(userID, *groupID)
 		if !IsMember {
 			global.JsonResponse(w, http.StatusUnauthorized, "Unauthorized")
 			return
@@ -129,7 +131,7 @@ func UserProfilePosts(w http.ResponseWriter, r *http.Request) {
 		LEFT JOIN followers AS f ON f.followed_id = u.id AND f.status != 'pending' AND f.follower_id = $1
 	WHERE
 		p.user_id = $2 AND
-		p.group_id = 0 AND (
+		p.group_id IS NULL AND (
 			(u.profile_status = 'public') OR 
 			(f.follower_id IS NOT NULL) OR 
 			(p.user_id = $1)
@@ -237,7 +239,7 @@ func getPosts(w http.ResponseWriter, r *http.Request) {
 	    LEFT JOIN post_visibility AS pv ON pv.post_id = p.id AND pv.user_id = $1
 		LEFT JOIN followers AS f ON f.followed_id = u.id AND f.status != 'pending' AND f.follower_id = $1
 	WHERE
-		p.group_id = 0 
+		p.group_id IS NULL
 		AND ((u.profile_status = 'public') OR (f.follower_id IS NOT NULL) OR (p.user_id = $1))
 		AND (p.privacy = 'public' 
 		OR (p.privacy = 'almost private' AND f.followed_id IS NOT NULL) 

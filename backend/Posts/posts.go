@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"html"
 	"image"
 	_ "image/gif"
 	_ "image/jpeg"
@@ -17,7 +16,6 @@ import (
 	global "socialNetwork/Global"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/gofrs/uuid"
 )
@@ -79,13 +77,19 @@ func image_handler(w http.ResponseWriter, img multipart.File) (string, error) {
 }
 
 // add post to database with the provided params
-func InsertPost(userID string, content string, image string, groupID int, privacy string) (int, error) {
-	content = html.EscapeString(content)
+func InsertPost(userID string, content string, image string, groupID *int, privacy string) (int, error) {
+	var groupIDValue interface{}
+	if groupID == nil {
+		groupIDValue = nil
+	} else {
+		groupIDValue = *groupID
+	}
 
-	row, err := database.ExecQuery("INSERT INTO posts (user_id, content, media, created_at, group_id, privacy) VALUES (?, ?, ? ,?, ?, ?)", userID, content, image, time.Now(), groupID, privacy)
+	row, err := database.ExecQuery("INSERT INTO posts (user_id, content, media, group_id, privacy) VALUES (?, ?, ?, ?, ?)", userID, content, image, groupIDValue, privacy)
 	if err != nil {
 		return -1, err
 	}
+
 	lastID, err := row.LastInsertId()
 	if err != nil {
 		return -1, err

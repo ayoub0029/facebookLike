@@ -7,6 +7,6 @@ CREATE TABLE IF NOT EXISTS events (
     start_date DATETIME,
     end_date DATETIME,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (group_id) REFERENCES groups(id),
-    FOREIGN KEY (owner_id) REFERENCES users(id)
+    FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE,
+    FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE
 );
