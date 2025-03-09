@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { fetchApi } from '@/api/fetchApi'
 import '../../styles/creategroup.css'
 import Link from 'next/link'
-export default function CreateGroup() {
+export default function CreateGroup({onSuccess}) {
     const [isClicked, useIsClicked] = useState(false)
     const [error, useError] = useState(null)
     const [isSubmitted, useSubmitted] = useState(false)
@@ -30,6 +30,7 @@ export default function CreateGroup() {
             console.log('Group created:', res)
             useError(null)
             useSubmitted(true)
+            onSuccess()
             event.target.reset()
         } catch (error) {
             console.error();

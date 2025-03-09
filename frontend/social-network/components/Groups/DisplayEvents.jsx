@@ -4,10 +4,9 @@ import { fetchApi } from "@/api/fetchApi"
 import useLazyLoad from "@/hooks/lazyload"
 import { usePathname } from "next/navigation"
 import '../../styles/eventCard.css'
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
-export default function DisplayEvents({ refreshTrigger }) {
-    // Track votes by event ID instead of a single boolean
+export default function DisplayEvents({ reloadKey }) {
     const [votedEvents, setVotedEvents] = useState({});
     const fullPath = usePathname();
     const pathParts = fullPath.split("/");
@@ -37,8 +36,6 @@ export default function DisplayEvents({ refreshTrigger }) {
         /* try {
             const data = await fetchApi(`/group/vote?choice=${choice}&eventId=${eventId}`)
             if (data.status !== undefined) return { error: "error", status: data.status }
-            
-            // Update state only after successful API call
             setVotedEvents(prev => ({
                 ...prev,
                 [eventId]: choice
@@ -62,7 +59,6 @@ export default function DisplayEvents({ refreshTrigger }) {
             const data = await fetchApi(`/group/deleteVote?eventId=${id}`, 'DELETE', null, false)
             if (data.status !== undefined) return { error: "error", status: data.status }
             
-            // Remove this event from voted events after successful API call
             setVotedEvents(prev => {
                 const newState = {...prev};
                 delete newState[id];
@@ -91,9 +87,9 @@ export default function DisplayEvents({ refreshTrigger }) {
         } else { return false }
     }
 
-    /* useEffect(() => {
+    useEffect(() => {
         fetchEvents();
-      }, [refreshTrigger]); */
+      }, [reloadKey]);
     const {
         data,
         loaderRef,

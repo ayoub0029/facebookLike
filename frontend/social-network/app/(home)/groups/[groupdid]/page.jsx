@@ -3,7 +3,7 @@ import ProfileGrp from '../../../../components/Groups/ProfileGrp'
 import EventContainer from '../../../../components/Groups/CreateEvent'
 import DisplayEvents from '../../../../components/Groups/DisplayEvents'
 import { usePathname } from "next/navigation"
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { fetchApi } from '@/api/fetchApi'
 
 export default function Profile() {
@@ -11,8 +11,8 @@ export default function Profile() {
   const pathParts = fullPath.split("/")
   const pathname = pathParts[pathParts.length - 1]
   const [groupProfile, setGroupProfile] = useState(null)
-  /* const [refreshEvents, setRefreshEvents] = useState(0) */
-  
+  const [reloadKey, setReloadKey] = useState(0);
+
   useEffect(() => {
     const fetchGroupProfile = async () => {
       try {
@@ -25,17 +25,17 @@ export default function Profile() {
     fetchGroupProfile()
   }, [pathname])
   
-  /* const handleEventCreated = () => {
-    console.log("Event created, triggering refresh")
-    setRefreshEvents(prev => prev + 1)
-  } */
+  const handleReload = useCallback(() => {
+    setReloadKey((key) => key + 1);
+  }, []);
+
   
   if (groupProfile && (groupProfile.status === "accepted" || groupProfile.status === "owner")) {
     return (
       <>
         <div>
-          <EventContainer /* onAction={handleEventCreated} */ />
-          <DisplayEvents /* key={refreshEvents} */ />
+          <EventContainer onSuccess={handleReload} />
+          <DisplayEvents key={reloadKey} />
         </div>
         <div className="rightSidebar">
           <ProfileGrp />

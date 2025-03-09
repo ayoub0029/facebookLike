@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation"
 import Link from 'next/link'
 import '../../styles/creategroup.css'
 
-export default function EventContainer(/* {onAction} */) {
+export default function EventContainer({onSuccess}) {
     const [isClicked, setIsClicked] = useState(false)
     const [error, setError] = useState(null)
     const [isSubmitted, setSubmitted] = useState(false)
@@ -35,7 +35,7 @@ export default function EventContainer(/* {onAction} */) {
             }
             setError(null)
             setSubmitted(true)
-            /* onAction() */
+            onSuccess()
             event.target.reset()
         } catch (err) {
             console.error('Error creating event:', err)

@@ -1,5 +1,6 @@
 "use client"
 import { fetchApi } from '@/api/fetchApi'
+import { useEffect } from 'react'
 import useLazyLoad from '@/hooks/lazyload'
 import Link from 'next/link'
 import '../../styles/mygroups.css'
@@ -25,7 +26,11 @@ const fetchUserGroups = async (page) => {
     }
 }
 
-const MyGroups = () => {
+const MyGroups = ({ reloadKey }) => {
+
+    useEffect(() => {
+        fetchUserGroups();
+    }, [reloadKey]);
     console.log("im here in mygroups");
     const {
         data,
