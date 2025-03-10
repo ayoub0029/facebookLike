@@ -52,6 +52,7 @@ export default function Profile() {
     <aside className="feed"><SkeletonLoader /></aside>
     <div className="rightSidebar"></div>
   </>)
+  console.log(profile);
 
   profile["isOwner"] = true
   return (

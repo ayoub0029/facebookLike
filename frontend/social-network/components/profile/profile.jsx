@@ -47,10 +47,15 @@ export default function ProfileComponent({ profile, setProfile, showToast }) {
     const formData = new FormData(e.target);
 
     let isImageUpload = field === "avatar";
-    let body = isImageUpload ? formData : JSON.stringify({ Field: field, Value: formData.get("input") });
+    console.log(formData.get("file"));
 
+    formData.append("avatar", formData.get("input"))
+
+    let body = isImageUpload
+      ? formData
+      : JSON.stringify({ Field: field, Value: formData.get("input") });
+      
     const resp = await fetchApi("profiles/update", "POST", body, isImageUpload);
-
     if (resp.hasOwnProperty("error")) {
       showToast("error", resp.error.Error || "Unknown error");
       return;
@@ -59,26 +64,23 @@ export default function ProfileComponent({ profile, setProfile, showToast }) {
     if (isImageUpload) {
       setProfile((prev) => ({
         ...prev,
-        avatar: resp.imageUrl,
+        avatar: resp.imageUrl, // Ensure backend returns this correctly
       }));
     } else {
       let fi = fieldProfile[field];
       setProfile((prev) => ({
         ...prev,
-        [fi]: formData.get("input"),
+        [fi]: formData.get(field),
       }));
     }
 
-    closeModal('editProfile');
+    closeModal("editProfile");
   }
-
-
-
 
   return profile.ProfileStatus === 'private' && !profile.isOwner ? (
     <div className={style["profiletHeader"]}>
       <div >
-        <img src={profile.Avatar ? profile.Avatar : config.defaultImage}
+        <img src={profile.Avatar ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/public/${profile.Avatar}` : config.defaultImage}
           alt={profile.Nickname}
           onError={(eve) => eve.target.srcset = config.defaultImage} />
       </div>
