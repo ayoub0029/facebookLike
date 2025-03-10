@@ -3,6 +3,7 @@ package posts
 import (
 	"fmt"
 	database "socialNetwork/Database"
+	groups "socialNetwork/Groups"
 	profiles "socialNetwork/Profiles"
 )
 
@@ -22,27 +23,37 @@ func post_owner(postID int) (int, error) {
 }
 
 // it's check if user A is can see and interact with user B posts
-func isAuthorized(post_id, user_id int) (bool, error) {
-	post_owner_id, err := post_owner(post_id)
-	if err != nil {
-		return false, err
-	}
-	isFollow := 0
-	isPublic := true
-	var err2 error
-	if user_id != post_owner_id{
-
-		isFollow, err = profiles.IsFollowed(user_id, post_owner_id)
-		isPublic, err2 = profiles.IsPublic(post_owner_id)
-	}
-	fmt.Println(err,err2)
-	if err != nil || err2 != nil {
-		return false, err
-	}
-	if isFollow != -1 || isPublic {
-		return true, nil
-	}
-	return false, nil
+func isAuthorized(post_id, user_id, group_id int) (bool, error) {
+    post_owner_id, err := post_owner(post_id)
+    if err != nil {
+        return false, err
+    }
+    
+    if group_id != 0 {
+        isMember := groups.IsMember(group_id, user_id)
+        if !isMember {
+            return false, fmt.Errorf("not member")
+        }
+        if isMember {
+            return true, nil
+        }
+    }
+    
+    if user_id == post_owner_id {
+        return true, nil
+    }
+    
+    isFollow, err := profiles.IsFollowed(user_id, post_owner_id)
+    if err != nil {
+        return false, err
+    }
+    
+    isPublic, err := profiles.IsPublic(post_owner_id)
+    if err != nil {
+        return false, err
+    }
+    
+    return isFollow != -1 || isPublic, nil
 }
 
 // this func check if the user if he is the owner of the item (comment of post)
