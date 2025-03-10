@@ -4,6 +4,7 @@ import { fetchApi } from "@/api/fetchApi.jsx"
 import { FetchPosts } from "@/components/Posts/FetchPosts"
 import ProfileComponent from "@/components/profile/profile.jsx"
 import ToastNotification from "@/components/profile/toast.jsx";
+import { SkeletonLoader } from "@/components/skeletons/profile_skel.jsx"
 
 export default function Profile() {
   const [profile, setProfile] = useState(
@@ -46,24 +47,23 @@ export default function Profile() {
     setOpen(true)
   }
 
-  if (!profile) return <div> Loading... </div>
+  // <SkeletonLoader />
+  if (!profile) return (<>
+    <aside className="feed"><SkeletonLoader /></aside>
+    <div className="rightSidebar"></div>
+  </>)
 
   profile["isOwner"] = true
   return (
     <>
       <aside className="feed">
-        {/* <button className="showToast" onClick={() => { showToast("error", "Please review your information before submitting.") }}>
-          Show Toast
-        </button> */}
-
         <ToastNotification open={open} onClose={setOpen} variant={variant} message={message} duration={3000} />
-
         <FetchPosts key={reloadKey} endpoint={`posts?last_id=`} lastId={0} />
       </aside >
 
       <div className="rightSidebar">
         {/* ProfileComponent */}
-        <ProfileComponent profile={profile} setProfile={setProfile} showToast={showToast}/>
+        <ProfileComponent profile={profile} setProfile={setProfile} showToast={showToast} />
       </div>
     </>
   )
