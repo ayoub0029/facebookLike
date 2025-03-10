@@ -15,7 +15,19 @@ const typeData = {
   'private': true,
   'public': false
 }
-export default function ProfileComponent({ profile }) {
+
+const fieldProfile = {
+  'about_me': "AboutMe",
+  'avatar': "Avatar",
+  'date_of_birth': "DOB",
+  'email': "Email",
+  'first_name': "First_Name",
+  'last_name': "Last_Name",
+  'nickname': "Nickname",
+  'profile_status': "ProfileStatus",
+}
+
+export default function ProfileComponent({ profile, setProfile, showToast }) {
   const [modals, setModals] = useState({
     followers: false,
     following: false,
@@ -33,20 +45,35 @@ export default function ProfileComponent({ profile }) {
   async function UpdateInfo(e, field) {
     e.preventDefault();
     const formData = new FormData(e.target);
-    let data = ""
-    if (field === "profile_status") data = formData.get('radio');
-    else data = formData.get("input");
 
-    const resp = await fetchApi("profiles/update", "POST", JSON.stringify({ Field: field, Value: data }), true)
+    let isImageUpload = field === "avatar";
+    let body = isImageUpload ? formData : JSON.stringify({ Field: field, Value: formData.get("input") });
+
+    const resp = await fetchApi("profiles/update", "POST", body, isImageUpload);
+
     if (resp.hasOwnProperty("error")) {
-      alert(`Error get profile: ${resp.error.Error || 'Unknown error'} Status: ${resp.status}`);
-      return
+      showToast("error", resp.error.Error || "Unknown error");
+      return;
     }
-    setTimeout(() => {
-      window.location.reload();
-    }, 100);
+
+    if (isImageUpload) {
+      setProfile((prev) => ({
+        ...prev,
+        avatar: resp.imageUrl,
+      }));
+    } else {
+      let fi = fieldProfile[field];
+      setProfile((prev) => ({
+        ...prev,
+        [fi]: formData.get("input"),
+      }));
+    }
+
+    closeModal('editProfile');
   }
-  console.log(profile);
+
+
+
 
   return profile.ProfileStatus === 'private' && !profile.isOwner ? (
     <div className={style["profiletHeader"]}>
@@ -59,7 +86,12 @@ export default function ProfileComponent({ profile }) {
       <span className={style["full_name"]}>{profile.First_Name} {profile.Last_Name}</span>
       <br></br>
 
-      <FollowButton statusFollow={typeData[profile.Status]} profileType={typeData[profile.ProfileStatus]} userID={profile.Id} />
+      <FollowButton
+        statusFollow={typeData[profile.Status]}
+        profileType={typeData[profile.ProfileStatus]}
+        setProfile={setProfile}
+        userID={profile.Id}
+        showToast={showToast} />
 
       <div className={style["about"]}>
         <span>Private acount</span>
@@ -91,7 +123,12 @@ export default function ProfileComponent({ profile }) {
       </div>
       {isShowEditeProfile(profile.isOwner, openModal)}
       {!profile.isOwner ?
-        <FollowButton statusFollow={typeData[profile.Status]} profileType={typeData[profile.ProfileStatus]} userID={profile.Id} />
+        <FollowButton
+          statusFollow={typeData[profile.Status]}
+          profileType={typeData[profile.ProfileStatus]}
+          setProfile={setProfile}
+          userID={profile.Id}
+          showToast={showToast} />
         : <></>}
 
       <div className={style["about"]}>
@@ -105,7 +142,7 @@ export default function ProfileComponent({ profile }) {
         onClose={() => closeModal('followers')}
         title="Followers"
       >
-        <UsersFollowers userID={profile.Id} />
+        <UsersFollowers userID={profile.Id} showToast={showToast} />
       </Modal>
 
       {/* Following Modal */}
@@ -114,7 +151,7 @@ export default function ProfileComponent({ profile }) {
         onClose={() => closeModal('following')}
         title="Following"
       >
-        <UsersFollowing userID={profile.Id} />
+        <UsersFollowing userID={profile.Id} showToast={showToast} />
       </Modal>
 
       {/* Edit Profile Modal */}
@@ -168,14 +205,14 @@ export default function ProfileComponent({ profile }) {
         <div className={style["update_div"]}>
           <label className={style["title_input"]} htmlFor="first_name"><i className="fa-solid fa-circle-info"></i> About Me</label>
           <form className={style["update_form"]} onSubmit={(e) => UpdateInfo(e, "about_me")}>
-            <input className={style["update_input"]} defaultValue={profile.AboutMe} name="input" type="text" placeholder="about me..." required />
+            <input className={style["update_input"]} maxLength="200" defaultValue={profile.AboutMe} name="input" type="text" placeholder="about me..." required />
             <button type="submit" className={style["update_button"]}>Confirm</button>
           </form>
         </div>
         <div className={style["update_div"]}>
           <label className={style["title_input"]} htmlFor="first_name"><i className="fa-solid fa-image"></i> Image Profile</label>
           <form className={style["update_form"]} onSubmit={(e) => UpdateInfo(e, "avatar")}>
-            <input className={style["update_input"]} name="input" type="file" required />
+            <input className={style["update_input"]} name="avatar" type="file" required />
             <button type="submit" className={style["update_button"]}>Confirm</button>
           </form>
         </div>

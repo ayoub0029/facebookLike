@@ -9,7 +9,20 @@ import { useParams, redirect } from "next/navigation"
 export default function Profile() {
   const params = useParams();
 
-  const [profile, setProfile] = useState(null);
+  const [profile, setProfile] = useState(
+    {
+      AboutMe: "",
+      Avatar: "",
+      DOB: "",
+      Email: "",
+      First_Name: "rrr",
+      Last_Name: "rrrrr",
+      Follower: 0,
+      Follwoed: 0,
+      Nickname: "",
+      ProfileStatus: "",
+    })
+
   useEffect(() => {
     async function fetchProfile() {
       const response = await fetchApi(`profiles?user_id=${params.id}`, "GET");
@@ -75,7 +88,7 @@ export default function Profile() {
       </aside>
 
       <div className="rightSidebar">
-        <ProfileComponent profile={profile} />
+        <ProfileComponent profile={profile} setProfile={setProfile} />
       </div>
     </>
   );

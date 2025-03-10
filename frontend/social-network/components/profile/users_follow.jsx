@@ -5,7 +5,7 @@ import style from "./profile.module.css"
 import config from "../../constns.json"
 import Link from 'next/link';
 
-export function UsersFollowers({ userID }) {
+export function UsersFollowers({ userID, showToast }) {
   const [data, setData] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -32,7 +32,7 @@ export function UsersFollowers({ userID }) {
         setHasMore(false);
       }
     } catch (error) {
-      console.error("Fetch error:", error);
+      showToast("error", error || "Unknown error")
       setHasMore(false);
     } finally {
       setLoading(false);
@@ -98,7 +98,7 @@ export function UsersFollowers({ userID }) {
 }
 
 
-export function UsersFollowing({ userID }) {
+export function UsersFollowing({ userID, showToast }) {
   const [data, setData] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -125,7 +125,7 @@ export function UsersFollowing({ userID }) {
         setHasMore(false);
       }
     } catch (error) {
-      console.error("Fetch error:", error);
+      showToast("error", error || "Unknown error")
       setHasMore(false);
     } finally {
       setLoading(false);

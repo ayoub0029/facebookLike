@@ -102,6 +102,15 @@ func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": ErrUnauthorized.Error()})
 		return
 	}
+	NewProfile, _ := NewProfile(CurrentUserID)
+
+	Avatar := r.FormValue("avatar")
+	if Avatar != "" {
+		if NewProfile.UpdateProfileInfo(w, r, "avatar", Avatar) {
+			global.JsonResponse(w, http.StatusOK, map[string]string{"Message": "Profile Updated Successfully"})
+			return
+		}
+	}
 
 	var data Data
 	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
@@ -109,7 +118,6 @@ func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	NewProfile, _ := NewProfile(CurrentUserID)
 	if NewProfile.UpdateProfileInfo(w, r, data.Field, data.Value) {
 		global.JsonResponse(w, http.StatusOK, map[string]string{"Message": "Profile Updated Successfully"})
 	}

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import styles from "./follow-button.module.css"
 import { fetchApi } from "@/api/fetchApi"
 
-export default function FollowButton({ statusFollow, profileType, userID }) {
+export default function FollowButton({ statusFollow, profileType, setProfile, userID, showToast }) {
   const [loading, setLoading] = useState(true)
   const [state, setState] = useState("follow")
   const [isPrivate, setIsPrivate] = useState(false)
@@ -28,7 +28,7 @@ export default function FollowButton({ statusFollow, profileType, userID }) {
 
     const resp = await fetchApi("profiles/follow", "POST", form, true)
     if (resp.hasOwnProperty("error")) {
-      alert(`Error: ${resp.error} Status: ${resp.status}`)
+      showToast("error", resp.error.Error || "Unknown error")
       setState("follow")
       return false
     }
@@ -42,7 +42,7 @@ export default function FollowButton({ statusFollow, profileType, userID }) {
 
     const resp = await fetchApi("profiles/unfollow", "POST", form, true)
     if (resp.hasOwnProperty("error")) {
-      alert(`Error: ${resp.error} Status: ${resp.status}`)
+      showToast("error", resp.error.Error || "Unknown error")
       setState(state === "follow" ? "unfollow" : "waiting")
       return false
     }
@@ -66,6 +66,10 @@ export default function FollowButton({ statusFollow, profileType, userID }) {
               setState("waiting")
             } else {
               setState("unfollow")
+              setProfile((prev) => ({
+                ...prev,
+                Follower: prev.Follower + 1,
+              }));
             }
           } else {
             setState(previousState)
@@ -75,16 +79,20 @@ export default function FollowButton({ statusFollow, profileType, userID }) {
 
           if (success) {
             setState("follow")
+            setProfile((prev) => ({
+              ...prev,
+              Follower: prev.Follower - 1,
+            }));
           } else {
             setState(previousState)
           }
         }
       } catch (error) {
         console.error("Error during follow/unfollow:", error)
-        alert("An error occurred. Please try again.")
+        showToast("error", "An error occurred. Please try again.")
         setState(previousState)
       }
-    }, 1000);
+    }, 500);
 
   }
 

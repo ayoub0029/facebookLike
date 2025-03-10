@@ -3,7 +3,6 @@
   padding: 0;
   box-sizing: border-box;
 }
-
 :root {
   --background: #ffffff;
   --primary-color: #000000;
@@ -19,7 +18,28 @@
   --blackv2: #292929;
   --primaryv2: #f8f8f8;
   --wahitev2: #ffffff;
+  --mainColor: rgb(104, 164, 0);
 }
+
+/* @media (prefers-color-scheme: dark) {
+  :root {
+    --background: #181818;
+    --primary-color: #ffffff;
+    --secondary-color: #b0b0b0;
+    --secondary-hover: #8a8a8a;
+    --third-color: #333333;
+    --lightGray-color: #1e1e1e;
+    --btn-color: #6a9e15;
+    --danger-color: #d13c40;
+
+    --grenv2: #556b2f;
+    --gr: #6a8f1e;
+    --blackv2: #121212;
+    --primaryv2: #1a1a1a;
+    --wahitev2: #e0e0e0;
+    --mainColor: rgb(82, 130, 0);
+  }
+} */
 
 body {
   background-color: var(--background);
