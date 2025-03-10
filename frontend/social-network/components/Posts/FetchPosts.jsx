@@ -11,6 +11,7 @@ import { PrivacyText } from "./func_privateText";
 import { fetchComments } from "./func_fetchcomments";
 import Modal from "../model";
 import useLazyLoadById from "@/hooks/lazyloadById";
+import { SkeletonLoaderPosts } from "@/components/skeletons/profile_skel.jsx";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -166,7 +167,8 @@ export function FetchPosts({ endpoint, lastId }) {
   };
 
   if (error && posts.length === 0) return <div className="error">{error}</div>;
-  if (posts.length === 0 && loading) return <div>Loading posts...</div>;
+  // if (posts.length === 0 && loading) return <div>Loading posts...</div>;
+  if (posts.length === 0 && loading) return <SkeletonLoaderPosts />
 
   return (
     <div>

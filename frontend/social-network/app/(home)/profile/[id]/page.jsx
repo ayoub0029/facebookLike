@@ -9,7 +9,19 @@ export default function Profile() {
   const [hamberMenu, setHamberMenu] = useState(false);
   const params = useParams();
 
-  const [profile, setProfile] = useState(null);
+  const [profile, setProfile] = useState({
+    AboutMe: "",
+    Avatar: "",
+    DOB: "",
+    Email: "",
+    First_Name: "",
+    Last_Name: "",
+    Follower: 0,
+    Follwoed: 0,
+    Nickname: "",
+    ProfileStatus: "",
+  });
+
   useEffect(() => {
     async function fetchProfile() {
       const response = await fetchApi(`profiles?user_id=${params.id}`, "GET");
@@ -33,7 +45,7 @@ export default function Profile() {
 
   const [isFollow, setIsfollow] = useState(false);
   useEffect(() => {
-    if (profile) {
+    if (profile && profile !== 404) {
       async function fetchIsFollow() {
         const response = await fetchApi(
           `profiles/follow/status?user_id=${params.id}`,
@@ -61,13 +73,7 @@ export default function Profile() {
 
       fetchIsFollow();
     }
-  }, [profile]);
-
-  // const [reloadKey, setReloadKey] = useState(0);
-
-  // const handleReload = useCallback(() => {
-  //   setReloadKey((key) => key + 1);
-  // }, []);
+  }, [profile, params.id]);
 
   if (!profile) return <div> Loading... </div>;
   else if (profile === 404 || isFollow === 404) return <div>not found</div>;
@@ -75,12 +81,9 @@ export default function Profile() {
   profile["Status"] = isFollow.Status;
 
   const toggleMenu = () => {
-    if (hamberMenu) {
-      setHamberMenu(false);
-    } else {
-      setHamberMenu(true);
-    }
+    setHamberMenu(!hamberMenu);
   };
+
   return (
     <>
       <button onClick={toggleMenu} className="rightMenuToggle">
@@ -99,7 +102,7 @@ export default function Profile() {
       </aside>
 
       <div className={"rightSidebar" + (hamberMenu ? " show" : "")}>
-        <ProfileComponent profile={profile} />
+        <ProfileComponent profile={profile} setProfile={setProfile} />
       </div>
     </>
   );
