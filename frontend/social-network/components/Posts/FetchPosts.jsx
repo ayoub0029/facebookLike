@@ -255,7 +255,7 @@ export function FetchPosts({ endpoint, lastId }) {
                     ? post.avatar
                     : post.avatar && post.avatar !== "undefined"
                     ? `${API_BASE_URL}/public/${post.avatar}`
-                    : "/images/test.jpg"
+                    : `${process.env.NEXT_PUBLIC_GLOBAL_IMG}`
                 }
                 alt="Profile Image"
                 className="profileImg"
@@ -328,7 +328,7 @@ export function FetchPosts({ endpoint, lastId }) {
                       : window.userState.avatar &&
                         window.userState.avatar !== "undefined"
                       ? `${API_BASE_URL}/public/${window.userState.avatar}`
-                      : "/images/test.jpg"
+                      : `${process.env.NEXT_PUBLIC_GLOBAL_IMG}`
                   }
                   alt="Your Profile"
                   className="smallImg"
@@ -378,7 +378,7 @@ export function FetchPosts({ endpoint, lastId }) {
                             ? comment.avatar
                             : comment.avatar && comment.avatar !== "undefined"
                             ? `${API_BASE_URL}/public/${comment.avatar}`
-                            : "/images/test.jpg"
+                            : `${process.env.NEXT_PUBLIC_GLOBAL_IMG}`
                         }
                         alt="Commenter Profile"
                         className="smallImg"

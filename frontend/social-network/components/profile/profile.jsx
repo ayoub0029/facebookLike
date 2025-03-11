@@ -86,7 +86,7 @@ export default function ProfileComponent({ profile, setProfile, showToast }) {
               ? profile.Avatar
               : profile.Avatar && profile.Avatar !== "undefined"
               ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/public/${profile.Avatar}`
-              : "/images/test.jpg"
+              : `${process.env.NEXT_PUBLIC_GLOBAL_IMG}`
           }
           alt={profile.Nickname}
         />
@@ -118,7 +118,7 @@ export default function ProfileComponent({ profile, setProfile, showToast }) {
               ? profile.Avatar
               : profile.Avatar && profile.Avatar !== "undefined"
               ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/public/${profile.Avatar}`
-              : "/images/test.jpg"
+              : `${process.env.NEXT_PUBLIC_GLOBAL_IMG}`
           }
           alt={profile.Nickname}
         />
@@ -263,7 +263,7 @@ export default function ProfileComponent({ profile, setProfile, showToast }) {
             <input
               className={style["update_input"]}
               name="input"
-              type="text"
+              type="password"
               placeholder="password..."
               required
             />

@@ -142,7 +142,7 @@ function User({ data, selectedUsers, onCheckboxChange }) {
                       ? item.Avatar
                       : item.Avatar && item.Avatar !== "undefined"
                       ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/public/${item.Avatar}`
-                      : "/images/test.jpg"
+                      : `${process.env.NEXT_PUBLIC_GLOBAL_IMG}`
                   }
                   alt={item.Nickname}
                 />

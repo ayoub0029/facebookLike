@@ -9,18 +9,6 @@ import ErrorPopup from "@/components/ErrorPopup";
 import { useState } from "react";
 
 export default function Registerform() {
-
-    const url = window.location.href
-    const Params = {};
-    const parsedUrl = new URL(url);
-  
-    // Extract query parameters using URLSearchParams
-    const params = new URLSearchParams(parsedUrl.search);
-    // Map each query parameter to an object
-    for (let [key, value] of params.entries()) {
-      Params[key] = value;
-    }
-
   const days = [];
   for (let day = 1; day < 32; day++) {
     days.push(day);
@@ -56,49 +44,20 @@ export default function Registerform() {
   }
   const handleRegister = async (e) => {
     e.preventDefault();
-    let email
-    if (!Params.Email){
-      email = emailRef.current.value;
-    }else{
-      email = Params.Email;
-    }
-    let password
-    if (!Params.Password){
-      password = passwordRef.current.value;
-    }else{
-      password = Params.Password;
-    }
-    let file
-    if (!Params.avatar){
-     file = imgRef.current.files[0];
-    }else{
-      file = Params.avatar;
-    }
-    let firstName
-    if (!Params.firstName){
-      firstName = fistNameRef.current.value;
-    }else{
-      firstName = Params.firstName;
-    }
-    let lastName
-    if (!Params.lastName){
-      lastName = LastNameRef.current.value;
-    }else{
-      lastName = Params.lastName;
-    }
-    let nickName
-    if (!Params.nickName){
-      nickName = nickNameRef.current.value;
-    }else{
-      nickName = Params.nickName;
-    }
+
+    const email = emailRef.current.value;
+    const password = passwordRef.current.value;
+    const file = imgRef.current.files[0];
+    const firstName = fistNameRef.current.value;
+    const lastName = LastNameRef.current.value;
+    const nickName = nickNameRef.current.value;
     const date =
       yearRef.current.value +
       "-" +
       monthRef.current.value.padStart(2, "0") +
       "-" +
       dayRef.current.value.padStart(2, "0");
-    const bio = (bioRef && bioRef.current)? bioRef.current.value : "" ;
+    const bio = bioRef.current.value;
 
     const formData = new FormData();
     formData.append("email", email);
@@ -109,9 +68,7 @@ export default function Registerform() {
     formData.append("nickname", nickName);
     formData.append("dateob", date);
     formData.append("aboutMe", bio);
-    formData.append("githubid", Params.githubid);
     if (file) formData.append("profilePic", file);
-    
     try {
       const result = await fetchApi("auth/signup", "POST", formData, true);
 
@@ -129,16 +86,14 @@ export default function Registerform() {
   return (
     <div className={style.login_form_container}>
       <form className={style.loginform}>
-        <h1 className={style.title}>complete regisration</h1>
-        { !Params.avatar &&
-        <div  className={style.avatar}>
+        <div className={style.avatar}>
           <div className={style.avatarContainer}>
             <div
               className={style.img}
               style={{
                 backgroundImage: previewImage
                   ? `url('${previewImage}')`
-                  : `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="64" height="64"><path fill="%23CCCCCC" d="M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6 12a6 6 0 1 1 12 0 6 6 0 0 1-12 0zm12 8c0-3.315-2.685-6-6-6s-6 2.685-6 6H4c0-4.42 3.58-8 8-8s8 3.58 8 8h-2z"/></svg>')`,
+                  : `url('http://localhost:3000/images/lmodir.png')`,
               }}
             ></div>
           </div>
@@ -157,17 +112,9 @@ export default function Registerform() {
             </label>
           </div>
         </div>
-        }
-        
         <div className={`${style.splited_form_group} ${style.split2}`}>
-          {
-            !Params.firstName &&
-            <input ref={fistNameRef} type="text" placeholder="first name*" />
-          }
-          {
-            !Params.lastName &&
-            <input ref={LastNameRef} type="text" placeholder="last name*" />
-          }
+          <input ref={fistNameRef} type="text" placeholder="first name" />
+          <input ref={LastNameRef} type="text" placeholder="last name" />
         </div>
 
         <div>
@@ -206,28 +153,22 @@ export default function Registerform() {
             </select>
           </div>
         </div>
-        {
-          !Params.email  &&
-          <div className={style.form_group}>
-          <input ref={emailRef} type="email" placeholder="Email*" />
-        </div>
-        }
-        {
-          !Params.nickName &&
-          <div className={style.form_group}>
-          <input ref={nickNameRef} type="text" placeholder="nickname" />
-        </div>
-        }
 
         <div className={style.form_group}>
-          <input ref={passwordRef} type="password" placeholder="password*" />
+          <input ref={emailRef} type="email" placeholder="Email" />
         </div>
-        {
-          !Params.aboutMe &&
-          <div className={style.form_group}>
+
+        <div className={style.form_group}>
+          <input ref={nickNameRef} type="text" placeholder="nickname" />
+        </div>
+
+        <div className={style.form_group}>
+          <input ref={passwordRef} type="password" placeholder="password" />
+        </div>
+
+        <div className={style.form_group}>
           <input ref={bioRef} type="text" placeholder="bio" />
         </div>
-        }
 
         <input
           onClick={handleRegister}
@@ -244,6 +185,11 @@ export default function Registerform() {
       <p className={style.redirect}>
         already have account <Link href={"/auth/login"}> log in</Link>
       </p>
+      <Link href={process.env.NEXT_PUBLIC_API_BASE_URL + "/auth/githublogin"}>
+        <button className={style.github_button}>
+          register with git-hub <i className="fa-brands fa-github"></i>
+        </button>
+      </Link>
     </div>
   );
 }

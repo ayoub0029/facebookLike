@@ -41,7 +41,7 @@ body {
   background: var(--background);
   padding: 20px;
   border-right: 1px solid var(--third-color);
-  z-index: 1;
+  /* z-index: 1; */
 }
 
 .logo {

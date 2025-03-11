@@ -71,14 +71,14 @@ func IsValidDate(date string, layout string) error {
 
 	today := time.Now()
 
-	minDate := today.AddDate(-100, 0, 0)
+	minDate := today.AddDate(-120, 0, 0)
 	maxDate := today.AddDate(-1, 0, 0)
 
 	if inputDate.After(minDate) && inputDate.Before(maxDate) {
 		return nil
 	}
 
-	return fmt.Errorf("date must be between 1 and 100 years ago")
+	return fmt.Errorf("date must be between 1 and 120 years ago")
 }
 
 // ParseFormSize parses a multipart form with a 10MB size limit.
