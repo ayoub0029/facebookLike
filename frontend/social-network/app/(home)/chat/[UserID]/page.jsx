@@ -2,12 +2,12 @@
 import { useEffect, useState } from "react";
 import styles from "./page.module.css";
 import { fetchApi } from "@/api/fetchApi";
+import { useParams } from "next/navigation";
 
-import { M_PLUS_1 } from "next/font/google";
-
-async function getData(url) {
-  let response = await fetch(url).then((res) => res.json());
-  return response;
+async function getData(messageType,chatwith,page) {
+  let response = await fetchApi(`chats/${GetDataSource(messageType)}=${chatwith}&page=${page}`);
+    console.log("messages are : ",response);
+    return response;
 }
 
 let Profiles = [
@@ -24,34 +24,26 @@ let Profiles = [
 ]
 
 export default function Chat() {
+  const UserID = useParams();
+  console.log("user id : ",UserID); 
   const [counter, setCounter] = useState(5);
+  const [page, setPage] = useState(0);
   const [msgType, setMsgType] = useState('');
   const [Receiver, setReceiver] = useState(0);
-  const [messages, setMessages] = useState([
-    /*{ id: 1, fullName: "elhmami ayoub", avatar: "./images/profile.jpeg", date: "22-02-2025", message: "kirak dayer" },
-    { id: 2, fullName: "khir abdelouahab", avatar: "./images/profile.jpeg", date: "22-02-2025", message: "elhamdulilah" },
-    { id: 3, fullName: "bochikhi abdelilah", avatar: "./images/profile.jpeg", date: "22-02-2025", message: "cv ?" },
-    { id: 4, fullName: "cheddad ahmed", avatar: "./images/profile.jpeg", date: "22-02-2025", message: "hello world" },
-  */])
+  const [messages, setMessages] = useState([])
   const [message, setMessage] = useState('');
   const [connected, setConnected] = useState(false);
   const [ws, setWs] = useState(null);
-  // Establish WebSocket connection when the component mounts
+  // Establish WebSock\et connection when the component mounts
   useEffect(() => {
     const socket = new WebSocket('ws://localhost:8080/ws'); // Replace with your WebSocket server URL
-
-    // Set the WebSocket instance in state
     setWs(socket);
-
-    // WebSocket open event
     socket.onopen = () => {
       console.log('WebSocket connected');
       setConnected(true);
     };
-
-    // WebSocket message event
     socket.onmessage = (event) => {
-      const data = JSON.parse(event.data)
+      const data = JSON.parse(event.data);
       setMessage(data.message);
       const msg = data.message;
       const sender = data.sender_id;
@@ -63,8 +55,14 @@ export default function Chat() {
           return;
         }
       })
-      setMessages([...messages, { id: sender, fullName: fullName, avatar: "./images/profile.jpeg", date: date, message: msg }])
-      console.log("message is ", data); // Display incoming message
+      setReceiver(sender);
+      console.log("hello world");
+      /*setMessages((e)=>({
+        ...e,
+        
+      }))*/
+      setMessages([...messages, { senderid: sender,messageid:20, fullname: fullName, avatar: "./images/profile.jpeg", createdDate: date, message: msg }])
+      console.log("message is ", data); 
     };
 
     // WebSocket error event
@@ -94,30 +92,38 @@ export default function Chat() {
           message: document.getElementById('MessageText').value,
         }
       }
+      //setMessages([...messages, { senderid: sender,messageid:20, fullname: fullName, avatar: "./images/profile.jpeg", createdDate: date, message: msg }])
       ws.send(JSON.stringify(msg));
+      
     }
   };
-
-  let ArrayOfMessages = messages.map((item) => {
-    return (
-      <MessageSection key={item.id} profile={item} />
-    )
-  })
-  function handleClick() {
-    let msg = document.getElementById('MessageText');
-    if (msg) {
-      setMessages([...messages, { id: counter, fullName: "elhabti", avatar: "./images/profile.jpeg", date: "22-02-2025", message: msg.value }]);
-      setCounter(counter + 1);
-    }
-  }
+  useEffect(()=>{
+    console.log("a new message recived : ",messages);
+  },[message]);
   async function profileClick(profile) {
-    const msgType = MessageType(profile);
-    setMsgType(msgType);
-    const chatWith = (msgType == 'privateChat') ? profile.UserId : profile.GroupId
-    setReceiver(chatWith);
-    let response = await fetchApi(`chats/${GetDataSource(msgType)}=${chatWith}&page=0`);
+    
+    let msgtype = MessageType(profile);
+    let chatwith = (msgtype == 'privateChat') ? profile.UserId : profile.GroupId;
+    setMsgType(msgtype);
+    setReceiver(chatwith);
+    console.log("msg type : ",msgType);
+    console.log("chat with : ",Receiver);
+
+    let response = await getData(msgtype,chatwith,page);
+    console.log("messages are : ",response);
     setMessages(response);
+    console.log("mememe : ",messages);
   }
+  
+  let ArrayOfMessages = [];
+  if (messages !== null) {
+    ArrayOfMessages = messages.map((item) => {
+      return (
+        <MessageSection key={item.messageid} profile={item} />
+      )
+    })
+  }
+  
   let ArrayOfProfiles = Profiles.map((item) => {
     /*let key = 0;
     if (MessageType(item) == 'privateChat') {
@@ -141,7 +147,7 @@ export default function Chat() {
           {ArrayOfMessages}
         </section>
         <footer className={styles.Footer}>
-          {messages.length > 0 && <InputsSend onSendMessage={sendMessage}/>}
+          {Receiver != 0 && <InputsSend onSendMessage={sendMessage}/>}
         </footer>
       </aside>
       <div className="rightSidebar">
@@ -152,6 +158,10 @@ export default function Chat() {
 }
 
 
+function getDataInfo(profile) {
+
+  return {msgtype : MessageType(profile),chatwith : (msgType == 'privateChat') ? profile.UserId : profile.GroupId } 
+}
 function GetDataSource(state) {
   return (state == 'privateChat') ? 'private?receiver_id' : 'group?group_id';
 }
@@ -184,8 +194,8 @@ function MessageSection({ profile }) {
       </div>
       <div className={styles.MessageHeaderContainer}>
         <header className={styles.MessageHeader}>
-          <h3>{profile.fullName}</h3>
-          <span>{profile.date}</span>
+          <h3>{profile.fullname}</h3>
+          <span>{new Date(profile.createdDate).toDateString()}</span>
         </header>
         <section>
           <Message content={profile.message} />

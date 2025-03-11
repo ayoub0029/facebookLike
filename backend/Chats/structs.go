@@ -19,6 +19,8 @@ type groupMsg struct {
 	SenderID    uint64 `json:"senderid"`
 	Message     string `json:"message"`
 	CreatedDate string `json:"createdDate"`
+	MessageID   uint64 `json:"messageid"`
+
 }
 
 type ChatPrvMessage struct {
