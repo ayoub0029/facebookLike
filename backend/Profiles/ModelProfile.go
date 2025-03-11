@@ -208,5 +208,11 @@ func (p *Profile) UpdateProfileInfo(w http.ResponseWriter, r *http.Request, Fiel
 		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": global.ErrServer.Error()})
 		return false
 	}
+
+	if Field == "avatar" {
+		global.JsonResponse(w, http.StatusOK, Value)
+		return false
+	}
+	
 	return true
 }

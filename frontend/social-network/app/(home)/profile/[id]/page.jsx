@@ -10,16 +10,18 @@ export default function Profile() {
   const params = useParams();
 
   const [profile, setProfile] = useState({
-    AboutMe: "",
+    Id: 0,
+    ProfileStatus: "",
     Avatar: "",
-    DOB: "",
-    Email: "",
+    Nickname: "",
     First_Name: "",
     Last_Name: "",
+    AboutMe: "",
+    Email: "",
+    DOB: "",
+    Created_at: "",
     Follower: 0,
-    Follwoed: 0,
-    Nickname: "",
-    ProfileStatus: "",
+    Follwoed: 0
   });
 
   useEffect(() => {
@@ -59,7 +61,6 @@ export default function Profile() {
             response.error.Error === "you cant follow or unfollow youself"
           ) {
             redirect("/profile");
-            return;
           }
           alert(
             `Error get profile: ${response.error || "Unknown error"} Status: ${
@@ -75,7 +76,7 @@ export default function Profile() {
     }
   }, [profile, params.id]);
 
-  if (!profile) return <div> Loading... </div>;
+  if (profile.Id === 0) return <div> Loading... </div>;
   else if (profile === 404 || isFollow === 404) return <div>not found</div>;
 
   profile["Status"] = isFollow.Status;
