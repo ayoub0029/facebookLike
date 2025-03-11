@@ -74,6 +74,36 @@ export default function ProfileGrp() {
             setError('Failed to send join request')
         }
     }
+
+    const inviteFollowers = async () => {
+        if (isFetching.current) return;
+        isFetching.current = true;
+        setLoading(true);
+
+        try {
+            const response = await fetchApi(
+                `profiles/followers?user_id=${window.userState.id}&page=${currentPage}&limit=10`
+            );
+
+            if (!response || !Array.isArray(response)) {
+                setHasMore(false);
+                return;
+            }
+
+            setData((prev) => [...prev, ...response]);
+
+            if (response.length < 10) {
+                setHasMore(false);
+            }
+        } catch (error) {
+            console.error("Fetch error:", error);
+            setHasMore(false);
+        } finally {
+            setLoading(false);
+            isFetching.current = false;
+        }
+    }
+
     if (loading) {
         return <p className="loading">Loading group data...</p>
     }
@@ -121,9 +151,12 @@ export default function ProfileGrp() {
                     {(groupProfile.status === "accepted" || groupProfile.status === "owner") && (
                         <div className='groupCard'>
                             <button className='btn btnGreen'>
-                                <Link href={`/groupsChat`} style={{ textDecoration: 'none' }}>
+                                <Link href={`/chats/group?group_id=${pathname}&page=0`} style={{ textDecoration: 'none' }}>
                                     Group Chat
                                 </Link>
+                            </button>
+                            <button className="inviteButton" onClick={inviteFollowers}>
+
                             </button>
                         </div>
                     )}

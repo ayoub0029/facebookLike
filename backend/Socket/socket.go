@@ -9,6 +9,7 @@ import (
 	chats "socialNetwork/Chats"
 	global "socialNetwork/Global"
 	middleware "socialNetwork/Middlewares"
+	profiles "socialNetwork/Profiles"
 
 	"github.com/gorilla/websocket"
 )
@@ -62,9 +63,9 @@ func WsHandling(w http.ResponseWriter, r *http.Request) {
 		State:  true,
 		Conn:   conn,
 	}
-	
+
 	AddClient(client)
-	fmt.Println(client.UserId);
+	fmt.Println(client.UserId)
 	go SocketListner(client, r)
 }
 
@@ -77,11 +78,11 @@ func handlePrvChatMessage(wsMessage WebSocketMessage, userID uint64) error {
 	if err := json.Unmarshal(data, &chatMsg); err != nil {
 		return fmt.Errorf("error unmarshaling chat message: %v", err)
 	}
-	/* is_followed, err := profiles.IsFollowed(int(chatMsg.SenderID), int(receiverID))
+	is_followed, err := profiles.IsFollowed(int(chatMsg.Receiver_id), int(userID))
 	if is_followed == -1 {
 		log.Println(err)
 		return nil
-	} */
+	}
 	chats.HandleChatPrvMessage(chatMsg, userID)
 	if Clients[chatMsg.Receiver_id] != nil {
 		return SendMessage(Clients[chatMsg.Receiver_id], chatMsg)
@@ -119,7 +120,7 @@ func SocketListner(client *global.Client, r *http.Request) {
 
 		var wsMessage WebSocketMessage
 		if err := client.Conn.ReadJSON(&wsMessage); err != nil {
-			fmt.Println("eeorr");
+			fmt.Println("eeorr")
 			log.Println(err)
 			break
 		}

@@ -53,7 +53,7 @@ export default function DisplayEvents({ reloadKey }) {
     }
 
     const deleteVote = async (id) => {
-        console.log("Deleting vote for event:", id);
+        // console.log("Deleting vote for event:", id);
 
         /* try {
             const data = await fetchApi(`/group/deleteVote?eventId=${id}`, 'DELETE', null, false)
@@ -72,7 +72,7 @@ export default function DisplayEvents({ reloadKey }) {
 
         setVotedEvents(prev => {
             const newState = { ...prev };
-            console.log(newState);
+            // console.log(newState);
             delete newState[id];
             return newState;
         });
@@ -81,7 +81,7 @@ export default function DisplayEvents({ reloadKey }) {
     const checkDate = (endDate) => {
         const GivenDate = new Date(endDate);
         const CurrentDate = new Date();
-        CurrentDate.setHours(0, 0, 0, 0);
+        console.log("test:: ", GivenDate, CurrentDate);
         if (GivenDate >= CurrentDate) {
             return true
         } else { return false }
@@ -89,7 +89,7 @@ export default function DisplayEvents({ reloadKey }) {
 
     useEffect(() => {
         fetchEvents();
-      }, [reloadKey]);
+    }, [reloadKey]);
     const {
         data,
         loaderRef,

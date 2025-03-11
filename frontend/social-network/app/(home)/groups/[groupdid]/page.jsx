@@ -2,6 +2,7 @@
 import ProfileGrp from '../../../../components/Groups/ProfileGrp'
 import EventContainer from '../../../../components/Groups/CreateEvent'
 import DisplayEvents from '../../../../components/Groups/DisplayEvents'
+import InvitUser from '../../../../components/Groups/InvitUser'
 import { usePathname } from "next/navigation"
 import { useState, useEffect, useCallback } from 'react'
 import { fetchApi } from '@/api/fetchApi'
@@ -24,12 +25,12 @@ export default function Profile() {
     }
     fetchGroupProfile()
   }, [pathname])
-  
+
   const handleReload = useCallback(() => {
     setReloadKey((key) => key + 1);
   }, []);
 
-  
+
   if (groupProfile && (groupProfile.status === "accepted" || groupProfile.status === "owner")) {
     return (
       <>
@@ -39,11 +40,12 @@ export default function Profile() {
         </div>
         <div className="rightSidebar">
           <ProfileGrp />
+          <InvitUser />
         </div>
       </>
     )
   }
-  
+
   return (
     <>
       <div className="rightSidebar">
