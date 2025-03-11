@@ -9,17 +9,6 @@ import ErrorPopup from "@/components/ErrorPopup";
 import { useState } from "react";
 
 export default function Registerform() {
-  async function github() {
-    try {
-      const response = await fetchApi("auth/githublogin");
-      if (response.error) {
-        throw new Error(response.error);
-      }
-    } catch (error) {
-      alert(error);
-    }
-  }
-
   const days = [];
   for (let day = 1; day < 32; day++) {
     days.push(day);
@@ -94,7 +83,6 @@ export default function Registerform() {
       setShowErrorPopup(true);
     }
   };
-
   return (
     <div className={style.login_form_container}>
       <form className={style.loginform}>
@@ -105,7 +93,7 @@ export default function Registerform() {
               style={{
                 backgroundImage: previewImage
                   ? `url('${previewImage}')`
-                  : `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="64" height="64"><path fill="%23CCCCCC" d="M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6 12a6 6 0 1 1 12 0 6 6 0 0 1-12 0zm12 8c0-3.315-2.685-6-6-6s-6 2.685-6 6H4c0-4.42 3.58-8 8-8s8 3.58 8 8h-2z"/></svg>')`,
+                  : `url('http://localhost:3000/images/lmodir.png')`,
               }}
             ></div>
           </div>
@@ -125,8 +113,8 @@ export default function Registerform() {
           </div>
         </div>
         <div className={`${style.splited_form_group} ${style.split2}`}>
-          <input ref={fistNameRef} type="text" placeholder="first name*" />
-          <input ref={LastNameRef} type="text" placeholder="last name*" />
+          <input ref={fistNameRef} type="text" placeholder="first name" />
+          <input ref={LastNameRef} type="text" placeholder="last name" />
         </div>
 
         <div>
@@ -167,7 +155,7 @@ export default function Registerform() {
         </div>
 
         <div className={style.form_group}>
-          <input ref={emailRef} type="email" placeholder="Email*" />
+          <input ref={emailRef} type="email" placeholder="Email" />
         </div>
 
         <div className={style.form_group}>
@@ -175,7 +163,7 @@ export default function Registerform() {
         </div>
 
         <div className={style.form_group}>
-          <input ref={passwordRef} type="password" placeholder="password*" />
+          <input ref={passwordRef} type="password" placeholder="password" />
         </div>
 
         <div className={style.form_group}>

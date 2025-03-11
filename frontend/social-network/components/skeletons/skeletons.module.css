@@ -1,0 +1,54 @@
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.skeleton .circle {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+}
+
+.skeleton .line {
+  height: 8px;
+  border-radius: 4px;
+}
+
+.skeleton .div {
+  width: 100%;
+  height: 200px;
+  border-radius: 8px;
+}
+
+.skeleton .rect {
+  height: 120px;
+  border-radius: 4px;
+}
+
+.skeleton div {
+  background-color: #eee;
+  position: relative;
+}
+
+.skeleton div::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 0;
+  height: 100%;
+  box-shadow: 0 0 80px 20px #fff;
+  animation: skeletonSlide 0.6s infinite ease-in-out;
+}
+
+@keyframes skeletonSlide {
+  from {
+    left: -100px;
+  }
+
+  to {
+    left: calc(100% + 100px);
+  }
+}

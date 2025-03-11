@@ -24,13 +24,15 @@
 }
 
 .splited_form_group input {
-  width: 49%;
+  width: 100%;
   padding: 10px 5px;
   border: 1px solid #dddfe2;
   border-radius: 6px;
   font-size: 1rem;
   color: #1d2129;
   margin-bottom: 8px;
+  margin-left: 4px;
+  margin-right: 4px;
 }
 
 .brand_section {
@@ -275,4 +277,11 @@
   padding: 10px;
   width: 100%;
   cursor: pointer;
+}
+
+.title{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px;
 }

@@ -5,7 +5,7 @@ import { fetchApi } from "@/api/fetchApi";
 import Modal from "../model";
 import { CheckBoxUsersFollowers } from "./CheckBoxFollowers";
 
-export function CreatePost({ onSuccess }) {
+export function CreatePost({ onSuccess, onGroup = false, groupId = 0 }) {
   const [modals, setModals] = useState({
     private: false,
   });
@@ -117,24 +117,39 @@ export function CreatePost({ onSuccess }) {
             name="image"
             onChange={handleImageChange}
           />
-          <select id="privacy" name="privacy" onChange={handlePrivacyChange}>
-            <option value="public">Public</option>
-            <option value="almost private">
-              Almost Private (followers only)
-            </option>
-            <option value="private">Private (selected followers)</option>
-          </select>
+          {!onGroup && (
+            <>
+              <select
+                id="privacy"
+                name="privacy"
+                onChange={handlePrivacyChange}
+              >
+                <option value="public">Public</option>
+                <option value="almost private">
+                  Almost Private (followers only)
+                </option>
+                <option value="private">Private (selected followers)</option>
+              </select>
 
-          <Modal
-            isOpen={modals.private}
-            onClose={closeModal("private")}
-            title="Choose Users"
-          >
-            <CheckBoxUsersFollowers
-              onSelectedUsersChange={handleSelectedUsersChange}
-            />
-          </Modal>
+              <Modal
+                isOpen={modals.private}
+                onClose={closeModal("private")}
+                title="Choose Users"
+              >
+                <CheckBoxUsersFollowers
+                  onSelectedUsersChange={handleSelectedUsersChange}
+                />
+              </Modal>
+            </>
+          )}
         </div>
+
+        {onGroup && (
+          <>
+            <input type="hidden" name="groupId" value={groupId} />
+            <input type="hidden" name="privacy" value="public" />
+          </>
+        )}
 
         {/* Hidden inputs for selected users */}
         {selectedUsers.map((userId) => (

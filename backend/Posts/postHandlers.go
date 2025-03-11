@@ -1,6 +1,7 @@
 package posts
 
 import (
+	"fmt"
 	"net/http"
 	auth "socialNetwork/Authentication"
 	database "socialNetwork/Database"
@@ -50,7 +51,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 		}
 		groupID = &id
 
-		IsMember := groups.IsMember(userID, *groupID)
+		IsMember := groups.IsMember(*groupID, userID)
 		if !IsMember {
 			global.JsonResponse(w, http.StatusUnauthorized, "Unauthorized")
 			return
@@ -118,7 +119,7 @@ func UserProfilePosts(w http.ResponseWriter, r *http.Request) {
 		p.created_at,
 		p.updated_at,
 		p.media,
-		(SELECT g.name FROM groups AS g WHERE g.id = p.group_id) AS group_name,
+		(SELECT g.id FROM groups AS g WHERE g.id = p.group_id) AS group_id,
 		p.privacy,
 		CASE 
 			WHEN p.user_id = $1 THEN true 
@@ -226,7 +227,7 @@ func getPosts(w http.ResponseWriter, r *http.Request) {
 	    p.created_at,
 	    p.updated_at,
 	    p.media,
-	    (SELECT g.name FROM groups AS g WHERE g.id = p.group_id) AS group_name,
+	    (SELECT g.id FROM groups AS g WHERE g.id = p.group_id) AS group_id,
 		p.privacy,
 		CASE u.id 
            WHEN $1 
@@ -290,7 +291,7 @@ func getPostGroup(w http.ResponseWriter, r *http.Request) {
 		lastId = 9223372036854775806
 	}
 
-	isMember := groups.IsMember(userID, groupID)
+	isMember := groups.IsMember(groupID, userID)
 	if !isMember {
 		global.JsonResponse(w, http.StatusUnauthorized, "you are not a member of this group")
 		return
@@ -311,19 +312,24 @@ func getPostGroup(w http.ResponseWriter, r *http.Request) {
 	    p.updated_at,
 	    p.media,
 	    p.privacy,
-	    (SELECT g.name FROM groups AS g WHERE g.id = p.group_id) AS group_name
+	    (SELECT g.id FROM groups AS g WHERE g.id = p.group_id) AS group_id,
+		CASE u.id 
+           WHEN $1 
+               THEN true 
+           ELSE false 
+       	END edit
 	FROM
 	    posts AS p
 	    JOIN users AS u ON p.user_id = u.id
 	WHERE
-		p.group_id IS NOT NULL AND p.group_id = $1 AND p.id < $2
+		p.group_id IS NOT NULL AND p.group_id = $2 AND p.id < $3
 	ORDER BY
-	    p.id DECS
+	    p.id DESC
 	LIMIT
 		10
 	`
 
-	posts, err := database.SelectQuery(query, groupID, lastId)
+	posts, err := database.SelectQuery(query, userID, groupID, lastId)
 	if err != nil {
 		global.JsonResponse(w, http.StatusInternalServerError, "some thing was wrong")
 		return
@@ -331,7 +337,7 @@ func getPostGroup(w http.ResponseWriter, r *http.Request) {
 	var AllPosts []PostData
 	for posts.Next() {
 		var Post PostData
-		posts.Scan(&Post.ID, &Post.UserID, &Post.Avatar, &Post.Likes, &Post.Comments, &Post.Nickname, &Post.First_name, &Post.Last_name, &Post.Content, &Post.CreatedAt, &Post.Updated_at, &Post.Image, &Post.Privacy, &Post.Group_name)
+		posts.Scan(&Post.ID, &Post.UserID, &Post.Avatar, &Post.Likes, &Post.Comments, &Post.Nickname, &Post.First_name, &Post.Last_name, &Post.Content, &Post.CreatedAt, &Post.Updated_at, &Post.Image, &Post.Privacy, &Post.Group_name, &Post.Edit)
 		Post.IsLiked, err = CheckLikePost(Post.ID, userID)
 		if err != nil {
 			global.JsonResponse(w, http.StatusInternalServerError, "some thing was wrong")
@@ -454,7 +460,7 @@ func getSpesificPost(w http.ResponseWriter, r *http.Request) {
 	    p.created_at,
 	    p.updated_at,
 	    p.media,
-	    (SELECT g.name FROM groups AS g WHERE g.id = p.group_id) AS group_name,
+	    (SELECT g.id FROM groups AS g WHERE g.id = p.group_id) AS group_id,
 		CASE u.id 
            WHEN $1 
                THEN true 
@@ -486,12 +492,9 @@ func getSpesificPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if Post.Group_name != nil { // tas7i7
-		id, err := getGroupid(userID, Post.Group_name)
-		if err != nil {
-			global.JsonResponse(w, http.StatusInternalServerError, "some thing was wrong")
-			return
-		}
-		ok := groups.IsMember(userID, id)
+		groupIdString := fmt.Sprintf("%d", Post.Group_name)
+		groupID, _ := strconv.Atoi(groupIdString)
+		ok := groups.IsMember(groupID, userID)
 		if !ok {
 			global.JsonResponse(w, http.StatusForbidden, "you are not member of this group")
 			return

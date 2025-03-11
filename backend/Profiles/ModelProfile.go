@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 
 	auth "socialNetwork/Authentication"
@@ -36,7 +37,7 @@ var (
 	Profile_Private int8 = 0 // Index Of Privat in ProfileStatus Array
 	Profile_Public  int8 = 1 // Index Of Public in ProfileStatus Array
 )
-
+var ImagesUrl = "backend/Assets/"
 var ErrInvalidField = errors.New("disallowed field name")
 
 func NewProfile(Id int) (*Profile, error) {
@@ -188,17 +189,30 @@ func (p *Profile) UpdateProfileInfo(w http.ResponseWriter, r *http.Request, Fiel
 			return false
 		}
 	case "avatar":
+		Data, err := p.GetUserField("avatar")
+		if err != nil {
+			global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": global.ErrServer.Error()})
+			return false
+		}
+		if str, ok := Data.(string); ok {
+			os.Remove(ImagesUrl + str)
+		}
 		resultPath := auth.UploadImage(Field, w, r)
 		if resultPath == nil {
 			return false
 		}
 		Value = *resultPath
 	}
-
 	query := fmt.Sprintf("UPDATE users SET %s = ? WHERE id = ?", Field)
 	if _, err := database.ExecQuery(query, Value, p.Id); err != nil {
 		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": global.ErrServer.Error()})
 		return false
 	}
+
+	if Field == "avatar" {
+		global.JsonResponse(w, http.StatusOK, Value)
+		return false
+	}
+	
 	return true
 }

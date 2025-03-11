@@ -138,7 +138,7 @@ func getGroupid(userID int, groupName any) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	return 1, nil
+	return groupID, nil
 }
 
 // add the allowed users to the see the private post

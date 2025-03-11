@@ -4,12 +4,33 @@ import { useParams } from "next/navigation";
 import { fetchApi } from "@/api/fetchApi.jsx";
 import { FetchPosts } from "@/components/Posts/FetchPosts";
 import ProfileComponent from "@/components/profile/profile.jsx";
+import ToastNotification from "@/components/profile/toast.jsx";
+import { SkeletonLoaderPosts } from "@/components/skeletons/profile_skel";
 
 export default function Profile() {
+  const [open, setOpen] = useState(false);
+  const [variant, setVariant] = useState("success");
+  const [message, setMessage] = useState(
+    "Your message has been sent successfully!"
+  );
   const [hamberMenu, setHamberMenu] = useState(false);
   const params = useParams();
 
-  const [profile, setProfile] = useState(null);
+  const [profile, setProfile] = useState({
+    Id: 0,
+    ProfileStatus: "",
+    Avatar: "",
+    Nickname: "",
+    First_Name: "",
+    Last_Name: "",
+    AboutMe: "",
+    Email: "",
+    DOB: "",
+    Created_at: "",
+    Follower: 0,
+    Follwoed: 0
+  });
+
   useEffect(() => {
     async function fetchProfile() {
       const response = await fetchApi("profiles", "GET");
@@ -23,7 +44,15 @@ export default function Profile() {
     fetchProfile();
   }, []);
 
-  if (!profile) return <div> Loading... </div>;
+  if (profile.Id === 0)
+    return (
+      <>
+        <aside className="feed">
+          <SkeletonLoaderPosts />
+        </aside>
+        <div className="rightSidebar"></div>
+      </>
+    );
 
   profile["isOwner"] = true;
 
@@ -35,6 +64,12 @@ export default function Profile() {
     }
   };
 
+  const showToast = (type, msg) => {
+    setVariant(type);
+    setMessage(msg);
+    setOpen(true);
+  };
+
   return (
     <>
       <button onClick={toggleMenu} className="rightMenuToggle">
@@ -42,6 +77,13 @@ export default function Profile() {
       </button>
 
       <aside className="feed">
+        <ToastNotification
+          open={open}
+          onClose={setOpen}
+          variant={variant}
+          message={message}
+          duration={3000}
+        />
         <FetchPosts
           endpoint={`posts/profile?user_id=${profile.Id}&last_id=`}
           lastId={0}
@@ -49,7 +91,11 @@ export default function Profile() {
       </aside>
 
       <div className={"rightSidebar" + (hamberMenu ? " show" : "")}>
-        <ProfileComponent profile={profile} />
+        <ProfileComponent
+          profile={profile}
+          setProfile={setProfile}
+          showToast={showToast}
+        />
       </div>
     </>
   );

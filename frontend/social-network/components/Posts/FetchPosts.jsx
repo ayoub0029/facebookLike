@@ -11,6 +11,7 @@ import { PrivacyText } from "./func_privateText";
 import { fetchComments } from "./func_fetchcomments";
 import Modal from "../model";
 import useLazyLoadById from "@/hooks/lazyloadById";
+import { SkeletonLoaderPosts } from "@/components/skeletons/profile_skel.jsx";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -166,7 +167,8 @@ export function FetchPosts({ endpoint, lastId }) {
   };
 
   if (error && posts.length === 0) return <div className="error">{error}</div>;
-  if (posts.length === 0 && loading) return <div>Loading posts...</div>;
+  // if (posts.length === 0 && loading) return <div>Loading posts...</div>;
+  if (posts.length === 0 && loading) return <SkeletonLoaderPosts />
 
   return (
     <div>
@@ -253,7 +255,7 @@ export function FetchPosts({ endpoint, lastId }) {
                     ? post.avatar
                     : post.avatar && post.avatar !== "undefined"
                     ? `${API_BASE_URL}/public/${post.avatar}`
-                    : "/images/test.jpg"
+                    : `${process.env.NEXT_PUBLIC_GLOBAL_IMG}`
                 }
                 alt="Profile Image"
                 className="profileImg"
@@ -326,7 +328,7 @@ export function FetchPosts({ endpoint, lastId }) {
                       : window.userState.avatar &&
                         window.userState.avatar !== "undefined"
                       ? `${API_BASE_URL}/public/${window.userState.avatar}`
-                      : "/images/test.jpg"
+                      : `${process.env.NEXT_PUBLIC_GLOBAL_IMG}`
                   }
                   alt="Your Profile"
                   className="smallImg"
@@ -376,7 +378,7 @@ export function FetchPosts({ endpoint, lastId }) {
                             ? comment.avatar
                             : comment.avatar && comment.avatar !== "undefined"
                             ? `${API_BASE_URL}/public/${comment.avatar}`
-                            : "/images/test.jpg"
+                            : `${process.env.NEXT_PUBLIC_GLOBAL_IMG}`
                         }
                         alt="Commenter Profile"
                         className="smallImg"

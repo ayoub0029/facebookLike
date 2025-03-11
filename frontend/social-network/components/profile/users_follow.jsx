@@ -4,7 +4,7 @@ import { fetchApi } from "@/api/fetchApi";
 import style from "../../styles/profile.module.css";
 import Link from "next/link";
 
-export function UsersFollowers({ userID }) {
+export function UsersFollowers({ userID, showToast }) {
   const [data, setData] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -35,7 +35,7 @@ export function UsersFollowers({ userID }) {
           setHasMore(false);
         }
       } catch (error) {
-        console.error("Fetch error:", error);
+        showToast("error", error || "Unknown error");
         setHasMore(false);
       } finally {
         setLoading(false);
@@ -98,7 +98,7 @@ export function UsersFollowers({ userID }) {
   );
 }
 
-export function UsersFollowing({ userID , route }) {
+export function UsersFollowing({ userID, route, showToast }) {
   const [data, setData] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -129,7 +129,7 @@ export function UsersFollowing({ userID , route }) {
           setHasMore(false);
         }
       } catch (error) {
-        console.error("Fetch error:", error);
+        showToast("error", error || "Unknown error");
         setHasMore(false);
       } finally {
         setLoading(false);
@@ -207,7 +207,7 @@ function User({ data, route }) {
                     ? item.Avatar
                     : item.Avatar && item.Avatar !== "undefined"
                     ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/public/${item.Avatar}`
-                    : "/images/test.jpg"
+                    : `${process.env.NEXT_PUBLIC_GLOBAL_IMG}`
                 }
                 alt={item.Nickname}
               />

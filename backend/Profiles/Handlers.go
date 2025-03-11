@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	auth "socialNetwork/Authentication"
 	global "socialNetwork/Global"
@@ -102,16 +103,29 @@ func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": ErrUnauthorized.Error()})
 		return
 	}
-
-	var data Data
-	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
-		global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": "Bad Request"})
-		return
-	}
-
 	NewProfile, _ := NewProfile(CurrentUserID)
-	if NewProfile.UpdateProfileInfo(w, r, data.Field, data.Value) {
-		global.JsonResponse(w, http.StatusOK, map[string]string{"Message": "Profile Updated Successfully"})
+
+	contentType := r.Header.Get("Content-Type")
+
+	if strings.Contains(contentType, "multipart/form-data") {
+		auth.ParseFormSize(w, r)
+		_, _, err = r.FormFile("avatar")
+		if err != http.ErrMissingFile {
+			if NewProfile.UpdateProfileInfo(w, r, "avatar", "avatar") {
+				global.JsonResponse(w, http.StatusOK, map[string]string{"Message": "Profile Updated Successfully"})
+				return
+			}
+		}
+	} else {
+		var data Data
+		if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+			global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": "Bad Request"})
+			return
+		}
+
+		if NewProfile.UpdateProfileInfo(w, r, data.Field, data.Value) {
+			global.JsonResponse(w, http.StatusOK, map[string]string{"Message": "Profile Updated Successfully"})
+		}
 	}
 }
 

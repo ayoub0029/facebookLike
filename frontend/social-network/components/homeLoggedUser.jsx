@@ -12,7 +12,7 @@ export function HomeProfile() {
                             ? window.userState.avatar
                             : (window.userState.avatar && window.userState.avatar !== "undefined")
                                 ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/public/${window.userState.avatar}`
-                                : "/images/test.jpg"
+                                : `${process.env.NEXT_PUBLIC_GLOBAL_IMG}`
                     }
                     alt="Profile Image"
                     className="profileImg"

@@ -1,38 +1,8 @@
-"use client";
+import { Geist, Geist_Mono } from "next/font/google";
 import "../../styles/globals.css";
-import style from "./auth.module.css";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { checkIfLoggedIn } from "@/api/isLoggedIn";
+import style from "./auth.module.css"
 
 export default function RootLayout({ children }) {
-  const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const user = await checkIfLoggedIn();
-
-        if (
-          user &&
-          user.id !== null &&
-          user.state !== 401 &&
-          user.id !== undefined
-        ) {
-          router.push("/");
-        } else {
-          setIsLoading(false);
-        }
-      } catch (error) {
-        console.error("Error fetching user:", error);
-        setIsLoading(false);
-      }
-    };
-
-    fetchUser();
-  }, [router]);
-
   return (
     <html lang="en">
       <head>
@@ -46,16 +16,10 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body className={style.bady}>
-        {isLoading ? (
-          <div className="loading-container">
-            <div className="loading-spinner"></div>
-          </div>
-        ) : (
-          <div className={style.container}>
-            <Lmodir />
-            {children}
-          </div>
-        )}
+        <div className={style.container}>
+          <Lmodir/>
+          {children}
+        </div>
       </body>
     </html>
   );

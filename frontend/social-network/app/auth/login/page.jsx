@@ -3,13 +3,16 @@ import Link from "next/link";
 import "/styles/globals.css";
 import { fetchApi } from "/api/fetchApi";
 import { useRouter } from "next/navigation";
-import { useRef } from "react";
+import { useRef,useState } from "react";
 import style from "../auth.module.css";
+import ErrorPopup from "@/components/ErrorPopup";
 
 export default function Loginform() {
   const emailRef = useRef();
   const passwordRef = useRef();
   const router = useRouter();
+  const [showErrorPopup, setShowErrorPopup] = useState(false);
+  const [errorContent, setErrorContent] = useState("");
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -27,7 +30,8 @@ export default function Loginform() {
 
       router.push("/");
     } catch (error) {
-      alert(error);
+      setErrorContent(error);
+      setShowErrorPopup(true);
     }
   };
   return (
@@ -55,6 +59,16 @@ export default function Loginform() {
       <p className={style.redirect}>
         don't have account <Link href={"/auth/register"}> register</Link>
       </p>
+      <Link href={process.env.NEXT_PUBLIC_API_BASE_URL + "/auth/githublogin"}>
+        <button className={style.github_button}>
+          log-in with git-hub <i className="fa-brands fa-github"></i>
+        </button>
+      </Link>
+      <ErrorPopup
+        isOpen={showErrorPopup}
+        onClose={() => setShowErrorPopup(false)}
+        errorContent={errorContent}
+      />
     </div>
   );
 }
