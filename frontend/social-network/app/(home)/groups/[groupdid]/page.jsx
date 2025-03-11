@@ -40,7 +40,7 @@ export default function Profile() {
         </div>
         <div className="rightSidebar">
           <ProfileGrp />
-          <InvitUser />
+          <InvitUser userID={window.userState.id}/>
         </div>
       </>
     )
