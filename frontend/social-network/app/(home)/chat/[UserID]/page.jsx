@@ -6,7 +6,6 @@ import { useParams } from "next/navigation";
 
 async function getData(messageType,chatwith,page) {
   let response = await fetchApi(`chats/${GetDataSource(messageType)}=${chatwith}&page=${page}`);
-    console.log("messages are : ",response);
     return response;
 }
 
@@ -25,13 +24,10 @@ let Profiles = [
 
 export default function Chat() {
   const UserID = useParams();
-  console.log("user id : ",UserID); 
-  const [counter, setCounter] = useState(5);
   const [page, setPage] = useState(0);
   const [msgType, setMsgType] = useState('');
   const [Receiver, setReceiver] = useState(0);
-  const [messages, setMessages] = useState([])
-  const [message, setMessage] = useState('');
+  const [messages, setMessages] = useState([]);
   const [connected, setConnected] = useState(false);
   const [ws, setWs] = useState(null);
   // Establish WebSock\et connection when the component mounts
@@ -44,7 +40,6 @@ export default function Chat() {
     };
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      setMessage(data.message);
       const msg = data.message;
       const sender = data.sender_id;
       const date = new Date(data.timestamp).toString();
@@ -56,27 +51,18 @@ export default function Chat() {
         }
       })
       setReceiver(sender);
-      console.log("hello world");
-      /*setMessages((e)=>({
-        ...e,
-        
-      }))*/
-      setMessages([...messages, { senderid: sender,messageid:20, fullname: fullName, avatar: "./images/profile.jpeg", createdDate: date, message: msg }])
-      console.log("message is ", data); 
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { senderid: sender, messageid: 20, fullname: fullName, avatar: "./images/profile.jpeg", createdDate: date, message: msg }
+      ]);
     };
-
-    // WebSocket error event
     socket.onerror = (error) => {
       console.error('WebSocket Error:', error);
     };
-
-    // WebSocket close event
     socket.onclose = () => {
       console.log('WebSocket closed');
       setConnected(false);
     };
-
-    // Cleanup WebSocket connection when component unmounts
     return () => {
       if (socket) {
         socket.close();
@@ -86,42 +72,49 @@ export default function Chat() {
   const sendMessage = () => {
     if (ws && connected) {
       let msg = {
-        "Type": "privateChat",
+        "Type": msgType,
         "Content": {
           Receiver_id: Receiver,
           message: document.getElementById('MessageText').value,
         }
       }
-      //setMessages([...messages, { senderid: sender,messageid:20, fullname: fullName, avatar: "./images/profile.jpeg", createdDate: date, message: msg }])
       ws.send(JSON.stringify(msg));
-      
+      setPage(0);
     }
   };
-  useEffect(()=>{
-    console.log("a new message recived : ",messages);
-  },[message]);
-  async function profileClick(profile) {
-    
+
+   function profileClick(profile) {
     let msgtype = MessageType(profile);
     let chatwith = (msgtype == 'privateChat') ? profile.UserId : profile.GroupId;
     setMsgType(msgtype);
     setReceiver(chatwith);
-    console.log("msg type : ",msgType);
-    console.log("chat with : ",Receiver);
-
-    let response = await getData(msgtype,chatwith,page);
-    console.log("messages are : ",response);
-    setMessages(response);
-    console.log("mememe : ",messages);
+    setPage(0);
+    
   }
-  
+  useEffect(()=>{
+    console.log("data changed! page : ",page);
+    async function fetchData() {
+      try {
+        let response = await getData(msgType, Receiver, page);
+        if (!Array.isArray(response)) {
+          response = [];
+        }
+        setMessages((prevMessages = []) => {
+          return prevMessages.length > 0 ? [...response,...prevMessages] : response;
+        }); 
+      } catch (error) {
+        console.error("Error fetching messages:", error);
+      }  
+    }
+    fetchData();
+  },[page,Receiver]);
   let ArrayOfMessages = [];
-  if (messages !== null) {
-    ArrayOfMessages = messages.map((item) => {
-      return (
-        <MessageSection key={item.messageid} profile={item} />
-      )
-    })
+  if (messages !== null && messages.length > 0 ) {
+      ArrayOfMessages = messages.map((item) => {
+        return (
+          <MessageSection key={item.messageid} profile={item} />
+        )
+      })
   }
   
   let ArrayOfProfiles = Profiles.map((item) => {
@@ -135,6 +128,13 @@ export default function Chat() {
       <Profile key={item.id} onProfileClick={() => profileClick(item)} profile={item} />
     )
   })
+
+  const  scrollHandler = (event) => {
+    const { scrollTop, scrollHeight, clientHeight } = event.target; 
+    if (scrollTop == 0) {
+      setPage(page + 15); 
+    }
+  }
   return (
     <>
       <aside className={styles.ChatSection}>
@@ -143,7 +143,7 @@ export default function Chat() {
           <h2>there</h2>
           <h3>world</h3>
         </header>
-        <section className={styles.ContentMessages}>
+        <section  onScroll={scrollHandler} className={styles.ContentMessages}>
           {ArrayOfMessages}
         </section>
         <footer className={styles.Footer}>

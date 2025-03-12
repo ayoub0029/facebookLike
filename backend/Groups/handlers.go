@@ -187,11 +187,18 @@ func GetGroupInfo_handler(res http.ResponseWriter, req *http.Request) {
 	global.JsonResponse(res, 200, *groupInfo)
 }
 
-/*func Vote_handler(res http.ResponseWriter, req *http.Request) {
-	member,err := strconv.Atoi(req.FormValue("member"));
+func Vote_handler(res http.ResponseWriter, req *http.Request) {
+	member, ok := req.Context().Value(middleware.UserContextKey).(middleware.User);
 	event,err2 := strconv.Atoi(req.FormValue("event"));
-	if err != nil || err2 != nil {
+	option,err3 := strconv.Atoi(req.FormValue("option"));
+	if !ok || err2 != nil || err3 != nil {
 		global.JsonResponse(res,400,"data Error");
 		return;
 	}
-}*/
+	result := Vote(member,event,option);
+	if !result {
+		global.JsonResponse(res,500,"Internal Server 500");
+		return;
+	}
+	global.JsonResponse(res,200,"Data saved Succesfuly");
+}

@@ -16,12 +16,14 @@ func GetMsgFromPrvChatDB(receiverID, page int, r *http.Request) ([]privateMsg, e
 	if !ok {
 		return nil, fmt.Errorf("user not login")
 	}
-	query := `SELECT COALESCE((SELECT u.avatar
-				FROM users u WHERE u.id = pch.sender_id), './images/profile.jpeg') AS avatar ,(SELECT CONCAT(u.first_name, ' ', u.last_name) 
-				FROM users u WHERE u.id = pch.sender_id) AS full_name,pch.id,pch.sender_id,pch.receiver_id,pch.message,pch.created_at
-				FROM private_chat pch
-				WHERE (pch.sender_id = ? AND pch.receiver_id = ?)
-				or (pch.sender_id = ? AND pch.receiver_id = ?) LIMIT 15 OFFSET ?;`
+	query := `SELECT * from (SELECT COALESCE((SELECT u.avatar
+FROM users u WHERE u.id = pch.sender_id), './images/profile.jpeg') AS avatar ,(SELECT CONCAT(u.first_name, ' ', u.last_name) 
+FROM users u WHERE u.id = pch.sender_id) AS full_name,pch.id,pch.sender_id,pch.receiver_id,pch.message,pch.created_at
+FROM private_chat pch
+WHERE (pch.sender_id = ? AND pch.receiver_id = ?)
+or (pch.sender_id = ? AND pch.receiver_id = ?)
+ORDER BY pch.created_at DESC LIMIT 15 OFFSET ?) AS t
+ORDER BY t.created_at ASC; `
 	rows, err := database.SelectQuery(query, user.ID, receiverID,receiverID,user.ID, page)
 	if err != nil {
 		log.Println("Getting data from db error: ", err)

@@ -34,7 +34,28 @@ func getAllEvents(group, page int) []event {
 	return events_list
 }
 
-/*func vote(member,event int)  {
-	query := `INSERT INTO event_votes (user_id,event_id,option_id) VALUES(?,?,?);`;
+func vote(member,event,option int) bool {
+	query := `INSERT INTO event_votes (user_id,event_id,option) VALUES(?,?,?);`;
+	_, err := d.ExecQuery(query,member,event,option);
+	if err != nil {
+		return false;
+	} else {
+		return true;
+	}
+}
 
-}*/
+func getHowManyVotesForEvent(eventID int) *NumberOfVotes {
+	query := `SELECT (SELECT count(*) from event_votes ev
+				WHERE ev.option = 1) AS going,(SELECT count(*) from event_votes ev
+				WHERE ev.option = 0) AS notgoing;`;
+	res, err := d.SelectOneRow(query);
+	if err != nil {
+		return nil;
+	}
+	NumberVotes := &NumberOfVotes{}
+	err = res.Scan(&NumberVotes.Going, &NumberVotes.NotGoing);
+	if err != nil {
+		return nil;
+	}
+	return NumberVotes;
+}
