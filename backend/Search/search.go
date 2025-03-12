@@ -19,7 +19,7 @@ type GroupSearch struct {
 
 func searchUsersInDb(target, lastId string) ([]UsersSearch, error) {
 	if lastId == "" {
-		lastId = "0"
+		lastId = "-1"
 	}
 	query := `SELECT
     	id,
@@ -67,7 +67,7 @@ func searchUsersInDb(target, lastId string) ([]UsersSearch, error) {
 
 func SearchGroupsInDb(target, lastId string) ([]GroupSearch, error) {
 	if lastId == "" {
-		lastId = "0"
+		lastId = "-1"
 	}
 
 	query := `SELECT
@@ -78,20 +78,19 @@ func SearchGroupsInDb(target, lastId string) ([]GroupSearch, error) {
     	groups
 	WHERE
     	(id > ?) AND (
-        		name like ?
-        		OR description like ?
-    			)
+        		name LIKE ?
+        		OR description LIKE ?
+    )
 	LIMIT 10;`
 
 	rows, err := database.SelectQuery(query, lastId, target+"%", "%"+target+"%")
 	if err != nil {
 		return nil, err
 	}
-	var gs GroupSearch
 	var groupSearch []GroupSearch
-
 	for rows.Next() {
-		err = rows.Scan(
+		var gs GroupSearch
+		err := rows.Scan(
 			&gs.Id,
 			&gs.Name,
 			&gs.Description,
@@ -101,7 +100,7 @@ func SearchGroupsInDb(target, lastId string) ([]GroupSearch, error) {
 		}
 		groupSearch = append(groupSearch, gs)
 	}
-	if err = rows.Err(); err != nil {
+	if err := rows.Err(); err != nil {
 		return nil, err
 	}
 	return groupSearch, nil

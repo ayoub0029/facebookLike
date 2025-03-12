@@ -30,7 +30,7 @@ export default function Home() {
       </button>
 
       <aside className="feed">
-        <SearchInput />
+        <SearchInput FetchGroups={true} FetchUsers={true}/>
         <CreatePost onSuccess={handleReload} />
         <FetchPosts key={reloadKey} endpoint="posts?last_id=" lastId={0} />
       </aside>
