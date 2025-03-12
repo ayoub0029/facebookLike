@@ -20,7 +20,7 @@ func Routes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /groups/JoinedBy", GetGroupsJoinedBy_handler) //POST /groups/join
 	mux.HandleFunc("POST /group/join", JoinGroup_handler)
 	mux.HandleFunc("POST /group/leave", LeaveGroup_handler)
-	mux.HandleFunc("POST /group/vote", Vote_handler);
+	mux.HandleFunc("POST /group/event/vote", Vote_handler);
 }
 func CreateGroup_handler(res http.ResponseWriter, req *http.Request) {
 	name := req.FormValue("name")
