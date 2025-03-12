@@ -40,6 +40,7 @@ export default function Chat() {
     };
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
+      //console.log("data is : ",data);
       const msg = data.message;
       const sender = data.sender_id;
       const date = new Date(data.timestamp).toString();
