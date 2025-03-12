@@ -1,12 +1,13 @@
-export default function Notification() {
-    return (
-        <>
-        <aside className="feed">
-          test test
-        </aside>
-  
-        <div className="rightSidebar">
-        </div>
-      </>
-    )
-  }
+import { Notification } from "@/components/notification/Notification";
+
+
+export default function Notifications() {
+  return (
+    <>
+      <aside className="feed">
+        <Notification />
+      </aside>
+
+    </>
+  )
+}
