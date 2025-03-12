@@ -21,7 +21,6 @@ export default function ProfileGrp() {
             try {
                 setLoading(true)
                 const data = await fetchApi(`/group?group=${pathname}`, 'GET', null, false)
-                console.log('Group data:', data)
                 setGroupProfile(data || null)
                 setError(null)
             } catch (err) {

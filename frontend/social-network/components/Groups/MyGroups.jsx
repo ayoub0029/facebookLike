@@ -8,10 +8,7 @@ import groupImage from '../../Img/group.png'
 import Image from "next/image";
 const fetchUserGroups = async (page) => {
     try {
-        console.log("im here in fetchuser");
         const data = await fetchApi(`/groups/CreatedBy?page=${page}`, 'GET', null, false)
-        console.log('API response:', data);
-        console.log("in case error:", data.error);
         if (data.status !== undefined) {
             return { error: data.error, status: data.status }
         }
@@ -31,7 +28,6 @@ const MyGroups = ({ reloadKey }) => {
     useEffect(() => {
         fetchUserGroups();
     }, [reloadKey]);
-    console.log("im here in mygroups");
     const {
         data,
         loaderRef,

@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from "react"
 
 export default function useLazyLoad(fetchData) {
-    console.log("im here in uselazy");
 
     const [data, setData] = useState([])
     const [page, setPage] = useState(0)
@@ -13,7 +12,6 @@ export default function useLazyLoad(fetchData) {
     const loadData = useCallback(async () => {
         if (loadingRef.current) return
         try {
-            console.log("im here in usecallback");
             loadingRef.current = true
             setLoading(true)
             setError(null)
@@ -28,9 +26,7 @@ export default function useLazyLoad(fetchData) {
                     nextPage,
                 }
             }
-            console.log(result.items);
             setData(prev => [...prev, ...result.items])
-            console.log(result.nextPage);
             setNextPage(result.nextPage)
         } catch (err) {
             console.error('Error in lazy loading:', err)
@@ -41,16 +37,13 @@ export default function useLazyLoad(fetchData) {
         }
     }, [page])
     useEffect(() => {
-        console.log("im here in loaddata");
         loadData()
     }, [page])
     useEffect(() => {
         if (nextPage === null || loading) return
         const observer = new IntersectionObserver(
             (entries) => {
-                console.log("im here in observation");
                 if (entries[0].isIntersecting && !loadingRef.current) {
-                    console.log("now i see, current page:", page, "nextPage:", nextPage);
                     if (page !== nextPage) {
                         setPage(nextPage);
                     }
@@ -58,7 +51,6 @@ export default function useLazyLoad(fetchData) {
             },
             { threshold: 0.1 }
         )
-        console.log(loaderRef.current);
         
         if (loaderRef.current) observer.observe(loaderRef.current)
         return () => {

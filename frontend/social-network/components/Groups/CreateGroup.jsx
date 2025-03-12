@@ -19,7 +19,6 @@ export default function CreateGroup({onSuccess}) {
     const CreateGrp = async (event) => {
         event.preventDefault()
         const data = new FormData(event.target)
-        console.log("data: ", data);
         try {
             const res = await fetchApi('group', 'POST', data, true)
             if (res.status != undefined) {
@@ -27,7 +26,6 @@ export default function CreateGroup({onSuccess}) {
                 useError(`Error`)
                 return
             }
-            console.log('Group created:', res)
             useError(null)
             useSubmitted(true)
             onSuccess()

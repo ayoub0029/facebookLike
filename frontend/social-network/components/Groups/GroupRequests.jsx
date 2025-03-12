@@ -13,7 +13,6 @@ const GroupRequests = () => {
             try {
                 setLoading(true)
                 const data = await fetchApi('GET', '/users', null, false)
-                console.log('Group requests data:', data)
                 setGroupRequests(data || [])
                 setError(null)
             } catch (err) {

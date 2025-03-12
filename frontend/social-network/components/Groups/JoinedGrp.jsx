@@ -25,7 +25,6 @@ const fetchJoinedGrp = async (page) => {
 }
 
 const JoinedGrp = () => {
-    console.log("im here in mygroups");
     const {
         data,
         loaderRef,

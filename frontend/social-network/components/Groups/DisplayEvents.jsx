@@ -12,6 +12,7 @@ export default function DisplayEvents({ reloadKey }) {
     const pathParts = fullPath.split("/");
     const groupID = pathParts[pathParts.length - 1];
     const [voteError, setError] = useState(null);
+    const [votesData, setVotesData] = useState({});
     const fetchEvents = async (page) => {
         try {
             const data = await fetchApi(`/group/events?group=${groupID}&page=${page}`, 'GET', null, false)
@@ -32,12 +33,13 @@ export default function DisplayEvents({ reloadKey }) {
     const vote = async (e) => {
         const eventId = e.target.name;
         let choice = e.target.value;
-        if (choice === "Going") choice = 1;
-        else choice = 0;
-
+        let option;
+        if (choice === "Going") option = 1;
+        else option = 0;
+        
         const formData = new FormData();
         formData.append("event", eventId);
-        formData.append("option", choice);
+        formData.append("option", option);
 
         try {
             const data = await fetchApi(`group/event/vote`, "POST", formData, true);
@@ -88,7 +90,6 @@ export default function DisplayEvents({ reloadKey }) {
     const checkDate = (endDate) => {
         const GivenDate = new Date(endDate);
         const CurrentDate = new Date();
-        console.log("test:: ", GivenDate, CurrentDate);
         if (GivenDate >= CurrentDate) {
             return true
         } else { return false }
@@ -96,15 +97,28 @@ export default function DisplayEvents({ reloadKey }) {
 
     const getVotes = async (id) => {
         try {
-            data = await fetchApi(`/group/event/votes?event=${id}`, 'GET', null, false)
-            console.log(data);
-            
-        }catch (error) {
+            const data = await fetchApi(`/group/event/votes?event=${id}`, 'GET', null, false);
+            setVotesData(prev => ({
+                ...prev,
+                [id]: data
+            }));
+
+            return data;
+        } catch (error) {
             console.error(error);
-            return { error: error.message || "An unexpected error occurred", status: "error" }
+            return null;
         }
     }
-
+    useEffect(() => {
+        const eventIds = Object.keys(votedEvents);
+        if (eventIds.length > 0) {
+            eventIds.forEach(id => {
+                if (!votesData[id]) {
+                    getVotes(id);
+                }
+            });
+        }
+    }, [votedEvents, votesData])
     useEffect(() => {
         fetchEvents();
     }, [reloadKey]);
@@ -174,22 +188,40 @@ export default function DisplayEvents({ reloadKey }) {
                                         </label>
                                     </div>
                                 }
-
-                                {votedEvents[event.id] &&
-
+                                {votedEvents[event.id] && (
                                     <>
-                                        {getVotes(event.id) &&
-                                            <div className="percentageBars">
-                                                <div className="percentageLabel">Going (60)</div>
-                                                <svg xmlns="http://www.w3.org/2000/svg">
-                                                    <rect className="svgFillGreen" x="0" y="0" width="60%" height="20" rx="5" ry="5"></rect>
-                                                </svg>
-                                                <div className="percentageLabel">Not Going (40)</div>
-                                                <svg xmlns="http://www.w3.org/2000/svg">
-                                                    <rect className="svgFillRed" x="0" y="0" width="40%" height="20" rx="5" ry="5"></rect>
-                                                </svg>
+                                        <div className="percentageBars">
+                                            <div className="percentageLabel">
+                                                Going {votesData[event.id]?.going || 0}
                                             </div>
-                                        }
+                                            <svg xmlns="http://www.w3.org/2000/svg">
+                                                <rect
+                                                    className="svgFillGreen"
+                                                    x="0"
+                                                    y="0"
+                                                    width={`${votesData[event.id] ?
+                                                        (votesData[event.id].going / (votesData[event.id].going + votesData[event.id].notgoing) * 100) || 0 : 0}%`}
+                                                    height="20"
+                                                    rx="5"
+                                                    ry="5">
+                                                </rect>
+                                            </svg>
+                                            <div className="percentageLabel">
+                                                Not Going {votesData[event.id]?.notgoing || 0}
+                                            </div>
+                                            <svg xmlns="http://www.w3.org/2000/svg">
+                                                <rect
+                                                    className="svgFillRed"
+                                                    x="0"
+                                                    y="0"
+                                                    width={`${votesData[event.id] ?
+                                                        (votesData[event.id].notgoing / (votesData[event.id].going + votesData[event.id].notgoing) * 100) || 0 : 0}%`}
+                                                    height="20"
+                                                    rx="5"
+                                                    ry="5">
+                                                </rect>
+                                            </svg>
+                                        </div>
                                         {checkDate(event.startdate) && (
                                             <button
                                                 className="btn btnGray"
@@ -199,7 +231,7 @@ export default function DisplayEvents({ reloadKey }) {
                                             </button>
                                         )}
                                     </>
-                                }
+                                )}
                             </div>
                         </div>
                     ))}
