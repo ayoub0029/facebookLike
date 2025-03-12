@@ -33,7 +33,7 @@ func AddClient(client *global.Client) {
 func SendMessage(client *global.Client, msg any) error {
 	clientsMutex.Lock()
 	defer clientsMutex.Unlock()
-	return client.Conn.WriteJSON(msg)
+	return client.Conn.WriteJSON(msg);
 }
 
 // removing client from the map
@@ -57,7 +57,7 @@ func WsHandling(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-
+	fmt.Printf("userName : %s\n",user.Name)
 	client := &global.Client{
 		UserId: user.ID,
 		State:  true,
@@ -85,6 +85,7 @@ func handlePrvChatMessage(wsMessage WebSocketMessage, userID uint64) error {
 	}
 	chats.HandleChatPrvMessage(chatMsg, userID)
 	if Clients[chatMsg.Receiver_id] != nil {
+		chatMsg.Sender_id = int(userID);
 		return SendMessage(Clients[chatMsg.Receiver_id], chatMsg)
 	}
 	return nil

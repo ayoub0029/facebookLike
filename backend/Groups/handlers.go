@@ -20,12 +20,7 @@ func Routes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /groups/JoinedBy", GetGroupsJoinedBy_handler) //POST /groups/join
 	mux.HandleFunc("POST /group/join", JoinGroup_handler)
 	mux.HandleFunc("POST /group/leave", LeaveGroup_handler)
-	// invite member to join group POST /group/invite?group=1&member=2
-	// get group votes GET /group/votes?group=1&event=1
-	// vote for event POST /group/vote?group=1&event=1&member=2
-	// get group request GET /group/requests?group=1
-	// accept group request POST /group/accept?group=1&member=2
-	// reject group request POST /group/reject?group=1&member=2
+	mux.HandleFunc("POST /group/event/vote", Vote_handler);
 }
 func CreateGroup_handler(res http.ResponseWriter, req *http.Request) {
 	name := req.FormValue("name")
@@ -192,11 +187,18 @@ func GetGroupInfo_handler(res http.ResponseWriter, req *http.Request) {
 	global.JsonResponse(res, 200, *groupInfo)
 }
 
-/*func Vote_handler(res http.ResponseWriter, req *http.Request) {
-	member,err := strconv.Atoi(req.FormValue("member"));
+func Vote_handler(res http.ResponseWriter, req *http.Request) {
+	member, ok := req.Context().Value(middleware.UserContextKey).(middleware.User);
 	event,err2 := strconv.Atoi(req.FormValue("event"));
-	if err != nil || err2 != nil {
+	option,err3 := strconv.Atoi(req.FormValue("option"));
+	if !ok || err2 != nil || err3 != nil {
 		global.JsonResponse(res,400,"data Error");
 		return;
 	}
-}*/
+	result := Vote(member,event,option);
+	if !result {
+		global.JsonResponse(res,500,"Internal Server 500");
+		return;
+	}
+	global.JsonResponse(res,200,"Data saved Succesfuly");
+}

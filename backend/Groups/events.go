@@ -11,6 +11,10 @@ type event struct {
 	CreatedAt   string `json:"createdat"`
 }
 
+type NumberOfVotes struct{
+	Going             int           `json:"going"`
+	NotGoing          int           `json:"notgoing"`
+}
 type eventVote struct {
 	ID                int           `json:"id"`
 	User              int           `json:"user"`
@@ -39,6 +43,10 @@ func GetEvents(group, page int) []event {
 	return getAllEvents(group, page)
 }
 
-func Vote(member,event int)  {
-	
+func Vote(member,event,option int) bool {
+	return vote(member,event,option);
+}
+
+func GetHowManyVotesForEvent(eventId int) *NumberOfVotes{
+	return getHowManyVotesForEvent(eventId);
 }
