@@ -4,6 +4,7 @@ import { fetchApi } from "@/api/fetchApi";
 import style from "../../styles/profile.module.css";
 import "../../styles/inviteGrp.css";
 import Link from "next/link";
+import { usePathname } from "next/navigation"
 
 export default function InvitUser({ userID }) {
     const [data, setData] = useState([]);
@@ -194,6 +195,21 @@ export function UsersFollowing({ userID, route }) {
 }
 
 function User({ data, route }) {
+    const fullPath = usePathname();
+    const pathParts = fullPath.split("/");
+    const groupID = pathParts[pathParts.length - 1];
+    const Invit = async (id) => {
+        console.log("id :", id, groupID);
+        // try {
+        //     const response = await fetchApi(`groups/invite?group=${groupID}&invite=${id}`, "GET")
+        //     if (response && response.status !== "accepted") {
+        //         return { status: response.status, error: response.error };
+        //     }
+        // } catch (error) {
+        //     console.error("Invitation error:", error);
+        //     return { status: 500, error: "Failed to process invitation" };
+        // }
+    }
     return (
         <div>
             {data.length === 0 ? (
@@ -218,8 +234,8 @@ function User({ data, route }) {
                                 </span>
                             </div>
                         </Link>
-                        <button>
-                        <i className="fas fa-plus"></i>invite
+                        <button onClick={() => Invit(item.Id)}>
+                            <i className="fas fa-plus"></i>invite
                         </button>
                     </div>
                 ))

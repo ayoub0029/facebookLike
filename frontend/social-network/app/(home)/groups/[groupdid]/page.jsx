@@ -10,26 +10,51 @@ import { fetchApi } from '@/api/fetchApi'
 export default function Profile() {
   const fullPath = usePathname()
   const pathParts = fullPath.split("/")
-  const pathname = pathParts[pathParts.length - 1]
+  const groupId = pathParts[pathParts.length - 1]
   const [groupProfile, setGroupProfile] = useState(null)
   const [reloadKey, setReloadKey] = useState(0);
-
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
   useEffect(() => {
     const fetchGroupProfile = async () => {
+      setLoading(true)
       try {
-        const data = await fetchApi(`/group?group=${pathname}`, 'GET', null, false)
-        setGroupProfile(data || null)
+        const response = await fetchApi(
+          `/group?group=${groupId}`,
+          'GET',
+          null,
+          false
+        )
+        if (!response || response.status !== "accepted") {
+          const errorMsg = response?.error || "Failed to load group profile"
+          setError(errorMsg)
+          console.error('Error fetching Group Profile:', errorMsg)
+        } else {
+          setGroupProfile(response)
+          setError(null)
+        }
       } catch (err) {
         console.error('Error fetching Group Profile:', err)
+        setError("An unexpected error occurred")
+      } finally {
+        setLoading(false)
       }
     }
+
     fetchGroupProfile()
-  }, [pathname])
+  }, [groupId, reloadKey])
 
   const handleReload = useCallback(() => {
     setReloadKey((key) => key + 1);
   }, []);
 
+  if (loading) {
+    return <div>Loading group profile...</div>
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>
+  }
 
   if (groupProfile && (groupProfile.status === "accepted" || groupProfile.status === "owner")) {
     return (
@@ -40,7 +65,7 @@ export default function Profile() {
         </div>
         <div className="rightSidebar">
           <ProfileGrp />
-          <InvitUser userID={window.userState.id}/>
+          <InvitUser userID={window.userState.id} />
         </div>
       </>
     )
