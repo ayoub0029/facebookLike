@@ -25,7 +25,7 @@
 }
 .search-Section::-webkit-scrollbar{
     width: 5px;
-    height: 5px;
+    height: 0px;
 }
 .search-Section::-webkit-scrollbar-thumb{
     background-color: var(--ScrollColor);
