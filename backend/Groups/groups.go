@@ -108,8 +108,8 @@ func GetGroupInfo(UserId,groupID int) *group {
 	return getGroupInfo(UserId,groupID);
 }
 
-func Invite(groupID,inviterID int) bool {
-	if requestToJoin(groupID, inviterID) {
+func Invite(groupID,member,inviterID int) bool {
+	if requestToJoin(groupID, member) {
 		// Sending Notification code ...
 		return true
 	}
