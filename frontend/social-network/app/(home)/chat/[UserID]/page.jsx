@@ -70,30 +70,28 @@ export default function Chat() {
       }
     };
   }, []);
-  const sendMessage = () => {
-    if (ws && connected) {
-      let msg = {
-        "Type": msgType,
-        "Content": {
-          Receiver_id: Receiver,
-          message: document.getElementById('MessageText').value,
-        }
+const sendMessage = () => {
+  if (ws && connected) {
+    let msg = {
+      "Type": msgType,
+      "Content": {
+        Receiver_id: Receiver,
+        message: document.getElementById('MessageText').value,
       }
-      ws.send(JSON.stringify(msg));
-      setPage(0);
     }
-  };
-
-   function profileClick(profile) {
-    let msgtype = MessageType(profile);
-    let chatwith = (msgtype == 'privateChat') ? profile.UserId : profile.GroupId;
-    setMsgType(msgtype);
-    setReceiver(chatwith);
-    setPage(0);
-    
+    ws.send(JSON.stringify(msg));
   }
+};
+
+function profileClick(profile) {
+  let msgtype = MessageType(profile);
+  let chatwith = (msgtype == 'privateChat') ? profile.UserId : profile.GroupId;
+  setMsgType(msgtype);
+  setReceiver(chatwith);
+  setPage(0);
+}
+
   useEffect(()=>{
-    console.log("data changed! page : ",page);
     async function fetchData() {
       try {
         let response = await getData(msgType, Receiver, page);
@@ -119,12 +117,6 @@ export default function Chat() {
   }
   
   let ArrayOfProfiles = Profiles.map((item) => {
-    /*let key = 0;
-    if (MessageType(item) == 'privateChat') {
-      key = item.UserId;
-    }else{
-      key = item.GroupId;
-    }*/
     return (
       <Profile key={item.id} onProfileClick={() => profileClick(item)} profile={item} />
     )
@@ -158,14 +150,14 @@ export default function Chat() {
   )
 }
 
-
 function getDataInfo(profile) {
-
   return {msgtype : MessageType(profile),chatwith : (msgType == 'privateChat') ? profile.UserId : profile.GroupId } 
 }
+
 function GetDataSource(state) {
   return (state == 'privateChat') ? 'private?receiver_id' : 'group?group_id';
 }
+
 function MessageType(profile) {
   if (profile.GroupId !== undefined) {
     return 'groupChat';
@@ -211,8 +203,6 @@ function Message({ content }) {
     <p className={styles.MessageContent}>{content}</p>
   )
 }
-
-
 
 function InputsSend({onSendMessage}) {
   return (
