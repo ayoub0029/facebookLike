@@ -52,6 +52,7 @@ func signUp(w http.ResponseWriter, r *http.Request) {
 		global.JsonResponse(w, http.StatusInternalServerError, "failed to hash password")
 		return
 	}
+	
 	newUser.Password = string(hashPass)
 
 	if newUser.Avatar == "" {

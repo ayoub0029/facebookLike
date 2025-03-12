@@ -10,6 +10,8 @@ import (
 	auth "socialNetwork/Authentication"
 	database "socialNetwork/Database"
 	global "socialNetwork/Global"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type Profile struct {
@@ -204,6 +206,14 @@ func (p *Profile) UpdateProfileInfo(w http.ResponseWriter, r *http.Request, Fiel
 		Value = *resultPath
 	}
 	query := fmt.Sprintf("UPDATE users SET %s = ? WHERE id = ?", Field)
+	if Field == "password" {
+		hashPass, errHash := bcrypt.GenerateFromPassword([]byte(Value), bcrypt.DefaultCost)
+		if errHash != nil {
+			global.JsonResponse(w, http.StatusInternalServerError, "failed to hash password")
+			return false
+		}
+		Value = string(hashPass)
+	}
 	if _, err := database.ExecQuery(query, Value, p.Id); err != nil {
 		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": global.ErrServer.Error()})
 		return false
@@ -213,6 +223,6 @@ func (p *Profile) UpdateProfileInfo(w http.ResponseWriter, r *http.Request, Fiel
 		global.JsonResponse(w, http.StatusOK, Value)
 		return false
 	}
-	
+
 	return true
 }

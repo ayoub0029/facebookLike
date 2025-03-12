@@ -1,0 +1,60 @@
+:root {
+    --SearchSectionBackground: #ffffff;
+    --ScrollColor: green;
+    --HoverColor: whitesmoke; 
+    --Box-ShadowColor: #e9e9e9e3;
+}
+.searchBar{
+    position: relative;
+}
+.search-Section {
+    position: absolute;
+    max-height: 50vh;
+    max-width: 100%;
+    width: 100%;
+    top: 35px;
+    height: fit-content;
+    overflow-y: scroll;
+    scroll-behavior: smooth;
+    background-color: var(--SearchSectionBackground);
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    box-shadow: 0 0 20px var(--Box-ShadowColor);
+}
+.search-Section::-webkit-scrollbar{
+    width: 5px;
+    height: 0px;
+}
+.search-Section::-webkit-scrollbar-thumb{
+    background-color: var(--ScrollColor);
+}
+.res {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin:  5px;
+    border-radius: 5px;
+    width: 99%;
+    padding: 10px;
+    cursor: pointer;
+}
+.res:hover {
+    transition: all 0.2s linear;
+    background-color: var(--HoverColor);
+}
+.res img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+}
+.res div {
+    display: flex;
+    align-items: center;
+    gap: 0 10px;
+    justify-content: space-between;
+}
+.res div p {
+    font-size: 13px;
+    font-weight: bold;
+}
