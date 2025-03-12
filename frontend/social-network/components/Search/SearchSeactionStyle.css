@@ -14,7 +14,6 @@
     width: 100%;
     top: 35px;
     height: fit-content;
-    padding: 10px;
     overflow-y: scroll;
     scroll-behavior: smooth;
     background-color: var(--SearchSectionBackground);
@@ -34,7 +33,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 0 5px;
+    margin:  5px;
     border-radius: 5px;
     width: 99%;
     padding: 10px;
