@@ -24,20 +24,18 @@ export default function Profile() {
           'GET',
           null,
           false
-        )
-        if (!response || response.status !== "accepted") {
-          const errorMsg = response?.error || "Failed to load group profile"
-          setError(errorMsg)
-          console.error('Error fetching Group Profile:', errorMsg)
+        );
+        if (response.error || response.status >= 400) {
+          setError(response.error?.message || `Error: ${response.status}`);
         } else {
-          setGroupProfile(response)
-          setError(null)
+          setGroupProfile(response);
+          setError(null);
         }
       } catch (err) {
-        console.error('Error fetching Group Profile:', err)
-        setError("An unexpected error occurred")
+        console.error('Error fetching Group Profile:', err);
+        setError("An unexpected error occurred");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
 
