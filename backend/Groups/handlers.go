@@ -10,17 +10,19 @@ import (
 )
 
 func Routes(mux *http.ServeMux) {
-	mux.HandleFunc("POST /group", CreateGroup_handler)
-	mux.HandleFunc("GET /group", GetGroupInfo_handler)
-	mux.HandleFunc("GET /groups", GetAllGroups_handler)
-	mux.HandleFunc("GET /group/members", GetGroupMembers_handler)
-	mux.HandleFunc("POST /group/event", CreateEvent_handler)
-	mux.HandleFunc("GET /group/events", GetEvents_handler)
-	mux.HandleFunc("GET /groups/CreatedBy", GetGroupsCreatedBy_handler)
-	mux.HandleFunc("GET /groups/JoinedBy", GetGroupsJoinedBy_handler) //POST /groups/join
-	mux.HandleFunc("POST /group/join", JoinGroup_handler)
-	mux.HandleFunc("POST /group/leave", LeaveGroup_handler)
-	mux.HandleFunc("POST /group/event/vote", Vote_handler)
+	mux.HandleFunc("POST /group", CreateGroup_handler);
+	mux.HandleFunc("GET /group", GetGroupInfo_handler);
+	mux.HandleFunc("GET /groups", GetAllGroups_handler);
+	mux.HandleFunc("GET /group/members", GetGroupMembers_handler);
+	mux.HandleFunc("POST /group/event", CreateEvent_handler);
+	mux.HandleFunc("GET /group/events", GetEvents_handler);
+	mux.HandleFunc("GET /groups/CreatedBy", GetGroupsCreatedBy_handler);
+	mux.HandleFunc("GET /groups/JoinedBy", GetGroupsJoinedBy_handler); //POST /groups/join
+	mux.HandleFunc("POST /group/join", JoinGroup_handler);
+	mux.HandleFunc("POST /group/leave", LeaveGroup_handler);
+	mux.HandleFunc("POST /group/event/vote", Vote_handler);
+	mux.HandleFunc("GET /group/event/votes", GetVote_handler);
+
 }
 func CreateGroup_handler(res http.ResponseWriter, req *http.Request) {
 	name := req.FormValue("name")
@@ -196,10 +198,24 @@ func Vote_handler(res http.ResponseWriter, req *http.Request) {
 		global.JsonResponse(res, 400, "data Error")
 		return
 	}
-	result := Vote(int(member.ID), event, option)
+	result := Vote(int(member.ID),event,option);
 	if !result {
-		global.JsonResponse(res, 500, "Internal Server 500")
-		return
+		global.JsonResponse(res,500,"Internal Server 500");
+		return;
 	}
-	global.JsonResponse(res, 200, "Data saved Succesfuly")
+	global.JsonResponse(res,200,"Data saved Succesfuly");
+}
+
+func GetVotes_handler(res http.ResponseWriter, req *http.Request) {
+	event,err := strconv.Atoi(req.FormValue("event"));
+	if  err != nil{
+		global.JsonResponse(res,400,"data Error");
+		return;
+	}
+	NumberVotes_ := GetHowManyVotesForEvent(event);
+	if NumberVotes_ == nil {
+		global.JsonResponse(res,500,"Internal Server 500");
+		return;
+	}
+	global.JsonResponse(res,200,NumberVotes_);
 }
