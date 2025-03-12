@@ -7,7 +7,7 @@
 .searchBar{
     position: relative;
 }
-.seach-Section {
+.search-Section {
     position: absolute;
     max-height: 50vh;
     max-width: 100%;
@@ -23,11 +23,11 @@
     flex-direction: column;
     box-shadow: 0 0 20px var(--Box-ShadowColor);
 }
-.seach-Section::-webkit-scrollbar{
+.search-Section::-webkit-scrollbar{
     width: 5px;
     height: 5px;
 }
-.seach-Section::-webkit-scrollbar-thumb{
+.search-Section::-webkit-scrollbar-thumb{
     background-color: var(--ScrollColor);
 }
 .res {
