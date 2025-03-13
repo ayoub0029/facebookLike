@@ -248,7 +248,7 @@ func DeleteVote_handler(res http.ResponseWriter, req *http.Request) {
 		global.JsonResponse(res,400,"data Error");
 		return;
 	}
-	result := Invite(group,member,int(member.ID));
+	result := DeleteVote(int(member.ID),event);
 	if !result {
 		global.JsonResponse(res,500,"Internal Server 500");
 		return;
