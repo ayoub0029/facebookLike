@@ -54,7 +54,7 @@ export default function Profile() {
     return <div>Error: {error}</div>
   }
 
-  if (groupProfile && (groupProfile.status === "accepted" || groupProfile.status === "owner")) {
+  if (groupProfile && (groupProfile.status === "accepted" || groupProfile.owner == window.userState.id)) {
     return (
       <>
         <div>
@@ -68,9 +68,10 @@ export default function Profile() {
       </>
     )
   }
-
+  
   return (
     <>
+    {console.log(groupProfile)}
       <div className="rightSidebar">
         <ProfileGrp />
       </div>

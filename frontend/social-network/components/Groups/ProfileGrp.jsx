@@ -133,7 +133,7 @@ export default function ProfileGrp() {
                     <p className="MemberCount">
                         {`${groupProfile.members} Members`}
                     </p>
-                    {groupProfile.status === "nothing" && (
+                    {groupProfile.status === "nothing" && groupProfile.owner != window.userState.id && (
                         <div className="reqToJoin">
                             <button onClick={() => requestJoin(groupProfile.id)} className="btn btnGreen">
                                 +Join
@@ -147,7 +147,7 @@ export default function ProfileGrp() {
                             </button>
                         </div>
                     )}
-                    {(groupProfile.status === "accepted" || groupProfile.status === "owner") && (
+                    {(groupProfile.status === "accepted" || groupProfile.owner === window.userState.id) && (
                         <div className='groupCard'>
                             <button className='btn btnGreen'>
                                 <Link href={`/chats/group?group_id=${pathname}&page=0`} style={{ textDecoration: 'none' }}>

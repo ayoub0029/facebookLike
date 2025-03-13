@@ -15,14 +15,21 @@ export default function DisplayEvents({ reloadKey }) {
     const [votesData, setVotesData] = useState({});
     const fetchEvents = async (page) => {
         try {
-            console.log(page);
             const data = await fetchApi(`/group/events?group=${groupID}&page=${page}`, 'GET', null, false)
             if (data.status !== undefined) {
                 return { error: data.error, status: data.status }
             }
-            console.log(data);
-
-            const events = Array.isArray(data) ? data : []
+            const events = Array.isArray(data) ? data : [];
+            const newVotedEvents = { ...votedEvents };
+            events.forEach(event => {
+                if (event.state === 0 || event.state === 1) {
+                    newVotedEvents[event.id] = event.state === 1 ? "Going" : "NotGoing";
+                    if (!votesData[event.id]) {
+                        getVotes(event.id);
+                    }
+                }
+            });
+            setVotedEvents(newVotedEvents);
             return {
                 items: events,
                 nextPage: events.length > 0 ? page + 5 : null
@@ -55,8 +62,8 @@ export default function DisplayEvents({ reloadKey }) {
                 ...prev,
                 [eventId]: choice
             }));
+            await getVotes(eventId);
             setError(null);
-            return { status: "success" };
         } catch (error) {
             console.error("Error voting on event:", error);
             setError(error.message || "An unexpected error occurred");
@@ -71,13 +78,12 @@ export default function DisplayEvents({ reloadKey }) {
         try {
             const data = await fetchApi(`group/deleteVote`, 'POST', formData, true)
             if (data.status !== undefined) return { error: "error", status: data.status }
-
             setVotedEvents(prev => {
                 const newState = { ...prev };
                 delete newState[id];
                 return newState;
             });
-
+            await getVotes(id);
         } catch (error) {
             console.error(error);
             return { error: data.error, status: data.status }
@@ -95,12 +101,11 @@ export default function DisplayEvents({ reloadKey }) {
     const getVotes = async (id) => {
         try {
             const data = await fetchApi(`/group/event/votes?event=${id}`, 'GET', null, false);
+            console.log("datt0:", data, id)
             setVotesData(prev => ({
                 ...prev,
                 [id]: data
             }));
-
-            return data;
         } catch (error) {
             console.error(error);
             return null;
@@ -117,7 +122,7 @@ export default function DisplayEvents({ reloadKey }) {
         }
     }, [votedEvents, votesData])
     useEffect(() => {
-        fetchEvents();
+        fetchEvents(0);
     }, [reloadKey]);
     const {
         data,
@@ -154,6 +159,7 @@ export default function DisplayEvents({ reloadKey }) {
                             aria-labelledby={`event-name-${event.id}`}
                             role="article"
                         >
+                            {/* {console.log(event)} */}
                             <div className="event">
                                 <h4 id={`event-name-${event.id}`}>{event.title}</h4>
                                 <p>{event.description}</p>
@@ -189,6 +195,7 @@ export default function DisplayEvents({ reloadKey }) {
                                     <>
                                         <div className="percentageBars">
                                             <div className="percentageLabel">
+                                                {console.log(votesData[event.id], event.id)}
                                                 Going {votesData[event.id]?.going || 0}
                                             </div>
                                             <svg xmlns="http://www.w3.org/2000/svg">
