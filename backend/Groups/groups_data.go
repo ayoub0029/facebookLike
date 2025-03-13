@@ -15,6 +15,33 @@ type group_data struct {
 	Created_At  string
 }
 
+type groupApplication struct {
+	ID       int    `json:"id"`
+	Name     string `json:"name"`
+	UserID   int    `json:"userID"`
+	FullName string `json:"fullName"`
+	State    string `json:"state"`
+}
+
+func getGroupsOwnerApplications(OwnerID, page int) []groupApplication {
+	query := `SELECT g.id,g.name,u.id AS userID,concat(u.first_name ," ",u.last_name) AS fullName,gm.status FROM groups g
+			JOIN group_members gm ON g.id = gm.group_id JOIN users u ON u.id = gm.user_id
+			WHERE (g.owner_id = ? OR gm.user_id = ?) AND gm.status = "request" OR (gm.status = "pending" AND gm.user_id = ?)
+			LIMIT 10 OFFSET ?;`
+	data_Rows, err := d.SelectQuery(query, OwnerID, OwnerID, OwnerID, page)
+	if err != nil {
+		return nil
+	}
+	Applications_lists := make([]groupApplication, 0)
+	for data_Rows.Next() {
+		Application := groupApplication{}
+		_ = data_Rows.Scan(&Application.ID, &Application.Name, &Application.UserID, &Application.FullName, &Application.State)
+		Applications_lists = append(Applications_lists, Application)
+	}
+	fmt.Println(Applications_lists)
+	return Applications_lists
+}
+
 func getGroupInfo(UserId, groupID int) *group {
 	query := `SELECT g.id,g.name,g.description,g.owner_id,g.created_at,(SELECT count(*) from group_members gm
 			WHERE gm.group_id = g.id AND gm.status = 'accepted') AS members, (select COALESCE((SELECT gm.status from group_members gm WHERE gm.group_id = g.id and gm.user_id = ?),'nothing')) as status
@@ -151,25 +178,12 @@ func getAllGroupsJoinedBy(userID, page int) []group {
 	return groupsList
 }
 
-func getAllGroupRequets(userID, group, page int) []profiles.Profile {
-	query := `SELECT
-				u.id,
-				u.first_name,
-				u.last_name,
-				u.avatar
-			FROM
-				users u
-				INNER JOIN group_members gm ON u.id = gm.user_id
-				INNER JOIN groups g ON gm.group_id = g.id
-			WHERE
-				g.owner_id = ?
-				AND gm.group_id = ?
-				AND gm.status = 'request'
-			LIMIT
-				5
-			OFFSET
-				?;`
-	data_Rows, err := d.SelectQuery(query, userID, group, page)
+func getAllGroupRequets(group, page int) []profiles.Profile {
+	query := `SELECT u.id,u.first_name,u.last_name,u.avatar
+				FROM users u INNER JOIN group_members gm
+				on u.id = gm.user_id
+				WHERE gm.group_id = ? AND gm.status = 'request' LIMIT 5 OFFSET ?;`
+	data_Rows, err := d.SelectQuery(query, group, page)
 	if err != nil {
 		return nil
 	}

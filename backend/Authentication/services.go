@@ -11,10 +11,11 @@ import (
 	"net/url"
 	"os"
 	"regexp"
-	database "socialNetwork/Database"
-	global "socialNetwork/Global"
 	"strings"
 	"time"
+
+	database "socialNetwork/Database"
+	global "socialNetwork/Global"
 
 	"github.com/gofrs/uuid"
 	"golang.org/x/crypto/bcrypt"

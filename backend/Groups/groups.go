@@ -13,7 +13,8 @@ type group struct {
 	Owner       int    `json:"owner"`
 	CreatedAt   string `json:"createdAt"`
 	Members     int    `json:"members"`
-	Status      string `json:"status"`
+	Status      string  `json:"status"`
+
 }
 
 func NewGroup(_name, _description string, _owner int) *group {
@@ -22,8 +23,8 @@ func NewGroup(_name, _description string, _owner int) *group {
 		Name:        _name,
 		Description: _description,
 		Owner:       _owner,
-		Members:     0,
-		Status:      "nothing",
+		Members : 0,
+		Status : "nothing",
 	}
 }
 
@@ -75,7 +76,7 @@ func convert(g_data group_data) *group {
 }
 
 func RequestToJoin(groupId, memberId int) bool {
-	if requestToJoin(groupId, memberId, "request") {
+	if requestToJoin(groupId, memberId,"request") {
 		// Sending Notification code ...
 		return true
 	}
@@ -86,12 +87,13 @@ func Join(groupId, memberId int) bool {
 	return join(groupId, memberId)
 }
 
+
 func Leave(groupId, memberId int) bool {
 	if leaveGroup(groupId, memberId) {
 		// notification to group members
-		return true
+		return true;
 	}
-	return false
+	return false;
 }
 
 func GetGroupsCreatedBy(userID, page int) []group {
@@ -102,18 +104,22 @@ func GetGroupsJoinedBy(userID, page int) []group {
 	return getAllGroupsJoinedBy(userID, page)
 }
 
-func GetGroupInfo(UserId, groupID int) *group {
-	return getGroupInfo(UserId, groupID)
+func GetGroupInfo(UserId,groupID int) *group {
+	return getGroupInfo(UserId,groupID);
 }
 
-func Invite(groupID, member, inviterID int) bool {
-	if requestToJoin(groupID, member, "") {
+func Invite(groupID,member,inviterID int) bool {
+	if requestToJoin(groupID, member,"") {
 		// Sending Notification code ...
 		return true
 	}
 	return false
 }
 
-func GetAllGroupRequets(userID, group, page int) []profiles.Profile {
-	return getAllGroupRequets(userID, group, page)
+func GetAllGroupRequets(group,page int) []profiles.Profile {
+	return getAllGroupRequets(group,page);
+}
+
+func GetGroupsOwnerApplications(OwnerID,page int) []groupApplication {
+	return getGroupsOwnerApplications(OwnerID,page);
 }

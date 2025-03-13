@@ -1,0 +1,26 @@
+/* ============================ invite ============================== */
+.inviters {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.inviters button {
+    background-color: #8e8e8e;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    margin-left: 10px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.inviters button:hover {
+    background-color: #696969;
+}
+
+.inviters button i {
+    margin-right: 5px;
+}

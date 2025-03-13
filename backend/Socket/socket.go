@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 
+
 	chats "socialNetwork/Chats"
 	global "socialNetwork/Global"
 	middleware "socialNetwork/Middlewares"
@@ -32,7 +33,7 @@ func AddClient(client *global.Client) {
 func SendMessage(client *global.Client, msg any) error {
 	clientsMutex.Lock()
 	defer clientsMutex.Unlock()
-	return client.Conn.WriteJSON(msg)
+	return client.Conn.WriteJSON(msg);
 }
 
 // removing client from the map
@@ -54,16 +55,21 @@ func WsHandling(w http.ResponseWriter, r *http.Request) {
 	}
 	user, ok := r.Context().Value(middleware.UserContextKey).(middleware.User)
 	if !ok {
+	user, ok := r.Context().Value(middleware.UserContextKey).(middleware.User)
+	if !ok {
 		return
 	}
 	fmt.Printf("userName : %s\n", user.Name)
 	client := &global.Client{
 		UserId: user.ID,
+		UserId: user.ID,
 		State:  true,
 		Conn:   conn,
 	}
 
+
 	AddClient(client)
+	fmt.Println(client.UserId)
 	fmt.Println(client.UserId)
 	go SocketListner(client, r)
 }
@@ -77,7 +83,7 @@ func handlePrvChatMessage(wsMessage WebSocketMessage, userID uint64) error {
 	if err := json.Unmarshal(data, &chatMsg); err != nil {
 		return fmt.Errorf("error unmarshaling chat message: %v", err)
 	}
-	/* is_followed, err := profiles.IsFollowed(int(chatMsg.SenderID), int(receiverID))
+	is_followed, err := profiles.IsFollowed(int(chatMsg.Receiver_id), int(userID))
 	if is_followed == -1 {
 		log.Println(err)
 		return nil
@@ -115,11 +121,15 @@ func SocketListner(client *global.Client, r *http.Request) {
 	for {
 		user, ok := r.Context().Value(middleware.UserContextKey).(middleware.User)
 		if !ok {
+		user, ok := r.Context().Value(middleware.UserContextKey).(middleware.User)
+		if !ok {
 			return
 		}
 
+
 		var wsMessage WebSocketMessage
 		if err := client.Conn.ReadJSON(&wsMessage); err != nil {
+			fmt.Println("eeorr")
 			fmt.Println("eeorr")
 			log.Println(err)
 			break
@@ -127,6 +137,7 @@ func SocketListner(client *global.Client, r *http.Request) {
 		fmt.Println(wsMessage.Type)
 		if wsMessage.Type == "privateChat" {
 			fmt.Println(wsMessage.Content)
+			if err := handlePrvChatMessage(wsMessage, user.ID); err != nil {
 			if err := handlePrvChatMessage(wsMessage, user.ID); err != nil {
 				log.Printf("Error handling %s message: %v", wsMessage.Type, err)
 			}

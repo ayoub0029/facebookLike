@@ -43,7 +43,7 @@ func Auth(next http.Handler) http.Handler {
 			res.WriteHeader(http.StatusNoContent)
 			return
 		}
-
+		
 		id, err := auth.IsLoggedIn(req, "token")
 		if err != nil {
 			logger.Error("Message: %v", err)
@@ -57,9 +57,6 @@ func Auth(next http.Handler) http.Handler {
 				return
 			}
 			global.JsonResponse(res, http.StatusUnauthorized, "you need to login")
-			return
-		} else if auth.CheckIsNotNeedLogin(req.URL.Path) {
-			global.JsonResponse(res, http.StatusBadRequest, "you already logged in")
 			return
 		}
 

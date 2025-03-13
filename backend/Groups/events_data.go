@@ -1,6 +1,7 @@
 package groups
 
 import (
+	"fmt"
 	d "socialNetwork/Database"
 )
 
@@ -18,9 +19,11 @@ func createEvent(e *event) bool {
 }
 
 func getAllEvents(group, page, member int) []event {
-	query := `SELECT *,(SELECT ev.option FROM event_votes ev
-				WHERE ev.user_id = ? AND ev.event_id = e.id) AS state FROM events e 
-				WHERE e.group_id = ? LIMIT 10 OFFSET ?;`
+	query := `SELECT *,
+  COALESCE((SELECT ev.option FROM event_votes ev 
+    WHERE ev.user_id = ? AND ev.event_id = e.id), -1) AS state 
+FROM events e
+WHERE e.group_id = ? LIMIT 5 OFFSET ?;`
 	data_Rows, err := d.SelectQuery(query, member, group, page)
 	if err != nil {
 		return nil
@@ -32,6 +35,7 @@ func getAllEvents(group, page, member int) []event {
 			&myevent.StartDate, &myevent.EndDate, &myevent.CreatedAt, &myevent.State)
 		events_list = append(events_list, myevent)
 	}
+	fmt.Println(events_list)
 	return events_list
 }
 
