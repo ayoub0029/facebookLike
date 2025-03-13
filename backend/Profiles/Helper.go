@@ -71,6 +71,7 @@ func IsFollowed(a, b int) (int, error) {
 	if err != nil {
 		return -1, err
 	}
+
 	if err := row.Scan(&RelationID); err != nil {
 		if err == sql.ErrNoRows {
 			return -1, ErrCantFindRelationId

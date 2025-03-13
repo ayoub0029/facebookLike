@@ -1,6 +1,7 @@
 package posts
 
 import (
+	"fmt"
 	"html"
 	"net/http"
 	database "socialNetwork/Database"
@@ -47,6 +48,7 @@ func addComment(w http.ResponseWriter, r *http.Request) {
 
 	okAuth, err := isAuthorized(post_id, userID, group_id)
 	if err != nil {
+		fmt.Println(err)
 		global.JsonResponse(w, http.StatusInternalServerError, "Something was wrong")
 		return
 	}
@@ -132,6 +134,7 @@ func getComments(w http.ResponseWriter, r *http.Request) {
 
 	okAuth, err := isAuthorized(postId, userID, group_id)
 	if err != nil {
+		fmt.Println(err)
 		global.JsonResponse(w, http.StatusInternalServerError, "Something is wrong")
 		return
 	}

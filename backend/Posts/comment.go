@@ -43,15 +43,16 @@ func isAuthorized(post_id, user_id, group_id int) (bool, error) {
         return true, nil
     }
     
+	isPublic, err := profiles.IsPublic(post_owner_id)
+	if err != nil {
+		return false, err
+	}
+
     isFollow, err := profiles.IsFollowed(user_id, post_owner_id)
-    if err != nil {
+    if err != nil && err != profiles.ErrCantFindRelationId{
         return false, err
     }
     
-    isPublic, err := profiles.IsPublic(post_owner_id)
-    if err != nil {
-        return false, err
-    }
     
     return isFollow != -1 || isPublic, nil
 }
