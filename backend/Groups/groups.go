@@ -115,3 +115,8 @@ func Invite(groupID,member,inviterID int) bool {
 	}
 	return false
 }
+
+func GetAllGroupRequets(group,page int) []profiles.Profile {
+	return getAllGroupRequets(group,page);
+}
+

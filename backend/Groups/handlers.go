@@ -24,6 +24,7 @@ func Routes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /group/event/votes", GetVote_handler)
 	mux.HandleFunc("POST /group/invite", InviteMember_handler)
 	mux.HandleFunc("POST /group/deleteVote", DeleteVote_handler)
+	mux.HandleFunc("GET /group/requsts", GetGroupRequsts_handler)
 
 }
 func CreateGroup_handler(res http.ResponseWriter, req *http.Request) {
@@ -256,4 +257,19 @@ func DeleteVote_handler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 	global.JsonResponse(res, 200, "data saved succesfuly")
+}
+
+func GetGroupRequsts_handler(res http.ResponseWriter, req *http.Request) {
+	page, err := strconv.Atoi(req.FormValue("page"))
+	groupId, err2 := strconv.Atoi(req.FormValue("group"))
+	if err != nil || err2 != nil {
+		global.JsonResponse(res, 400, "data Error")
+		return
+	}
+	groupRequestsArray := GetAllGroupRequets(groupId, page)
+	if groupRequestsArray == nil {
+		global.JsonResponse(res, 404, "data Not Found")
+		return
+	}
+	global.JsonResponse(res, 200, groupRequestsArray)
 }
