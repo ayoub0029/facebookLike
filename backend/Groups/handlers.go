@@ -23,6 +23,8 @@ func Routes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /group/event/vote", Vote_handler);
 	mux.HandleFunc("GET /group/event/votes", GetVote_handler);
 	mux.HandleFunc("POST /group/invite", InviteMember_handler);
+	mux.HandleFunc("POST /group/deleteVote", DeleteVote_handler);
+
 
 
 }
@@ -230,6 +232,22 @@ func InviteMember_handler(res http.ResponseWriter, req *http.Request)  {
 		return;
 	}
 	result := Invite(group,member,int(Inviter.ID));
+	if !result {
+		global.JsonResponse(res,500,"Internal Server 500");
+		return;
+	}
+	global.JsonResponse(res,200,"data saved succesfuly");
+}
+
+
+func DeleteVote_handler(res http.ResponseWriter, req *http.Request) {
+	member, ok := req.Context().Value(middleware.UserContextKey).(middleware.User);
+	event,err2 := strconv.Atoi(req.FormValue("event"));
+	if !ok || err2 != nil {
+		global.JsonResponse(res,400,"data Error");
+		return;
+	}
+	result := Invite(group,member,int(member.ID));
 	if !result {
 		global.JsonResponse(res,500,"Internal Server 500");
 		return;
