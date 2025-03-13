@@ -44,7 +44,7 @@ func (e *event) Create() bool {
 }
 
 func GetEvents(group, page, member int) []event {
-	return getAllEvents(member,group, page)
+	return getAllEvents(group, page,member)
 }
 
 func Vote(member,event,option int) bool {
