@@ -23,7 +23,7 @@ import useLazyLoad from '@/hooks/lazyload'
 
 const fetchRqsts = async (page) => {
     try {
-        const data = await fetchApi(`group/requsts?group=37&page=${page}`, 'GET', null, false)
+        const data = await fetchApi(`group/applications?page=${page}`, 'GET', null, false)
         console.log("requests", data);
 
         if (data.status !== undefined) {
@@ -94,14 +94,17 @@ const GroupRequests = () => {
                     <div className="invitationRequests">
                         {data.map(request => (
                             <div key={request.id} className="invitationCard">
-                                <img
-                                    src={request.image || groupImage}
-                                    alt={request.name}
-                                    className="group-avatar"
-                                />
-                                <div className="invitation-details">
-                                    <h3 className="group-name">Invitation from {request.name}</h3>
-                                </div>
+                                {request.state === "request" &&
+                                    < div className="invitation-details">
+                                        <h3 className="group-name">Request from {request.fullName}</h3>
+                                    </div>
+                                }
+                                {request.state === "pending" &&
+                                    < div className="invitation-details">
+                                        {console.log("ra00:",request)}
+                                        <h3 className="group-name">Invitation from {request.name}</h3>
+                                    </div>
+                                }
                                 <div className="invitation-actions">
                                     <button
                                         onClick={() => handleAccept(request.id)}
@@ -127,7 +130,7 @@ const GroupRequests = () => {
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     )
 }
 
