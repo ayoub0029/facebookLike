@@ -130,6 +130,7 @@ func CreateEvent_handler(res http.ResponseWriter, req *http.Request) {
 }
 
 func GetEvents_handler(res http.ResponseWriter, req *http.Request) {
+	member, ok := req.Context().Value(middleware.UserContextKey).(middleware.User);
 	group, err := strconv.Atoi(req.FormValue("group"))
 	page, err2 := strconv.Atoi(req.FormValue("page"))
 
@@ -137,7 +138,7 @@ func GetEvents_handler(res http.ResponseWriter, req *http.Request) {
 		global.JsonResponse(res, 400, "data Error")
 		return
 	}
-	events := GetEvents(group, page)
+	events := GetEvents(int(member.ID),group, page);
 	if events == nil {
 		global.JsonResponse(res, 404, "events not found")
 	}
@@ -146,7 +147,7 @@ func GetEvents_handler(res http.ResponseWriter, req *http.Request) {
 
 func JoinGroup_handler(res http.ResponseWriter, req *http.Request) {
 	//member,err := strconv.Atoi(req.FormValue("member"));
-	member, ok := req.Context().Value(middleware.UserContextKey).(middleware.User)
+	member, ok := req.Context().Value(middleware.UserContextKey).(middleware.User);
 	groupId, err2 := strconv.Atoi(req.FormValue("group"))
 	fmt.Println("grpId", groupId)
 	if !ok || err2 != nil {
