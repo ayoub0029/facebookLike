@@ -9,7 +9,7 @@ import (
 )
 
 func CreateDatabase() {
-	db, err := sql.Open("sqlite3", "./Database/socialNetwork.db")
+	db, err := sql.Open("sqlite3", "./Database/socialNetwork2.db")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -98,21 +98,13 @@ func CreateDatabase() {
 			FOREIGN KEY (owner_id) REFERENCES users(id)
 		);`,
 
-		`CREATE TABLE IF NOT EXISTS event_options (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			event_id INTEGER NOT NULL,
-			option_text TEXT,
-			FOREIGN KEY (event_id) REFERENCES events(id)
-		);`,
-
 		`CREATE TABLE IF NOT EXISTS event_votes (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			user_id INTEGER NOT NULL,
-			event_id INTEGER NOT NULL,
-			option_id INTEGER NOT NULL,
-			FOREIGN KEY (user_id) REFERENCES users(id),
-			FOREIGN KEY (event_id) REFERENCES events(id),
-			FOREIGN KEY (option_id) REFERENCES event_options(id)
+    		id INTEGER PRIMARY KEY AUTOINCREMENT,
+    		user_id INTEGER NOT NULL,
+    		event_id INTEGER NOT NULL,
+    		option INTEGER NOT NULL DEFAULT 1,
+    		FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    		FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE
 		);`,
 
 		`CREATE TABLE IF NOT EXISTS group_chat (
