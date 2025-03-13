@@ -56,15 +56,3 @@ func GetHowManyVotesForEvent(eventId int) *NumberOfVotes {
 func DeleteVote(member, event int) bool {
 	return deleteVote(member, event)
 }
-
-func Vote(member,event,option int) bool {
-	return vote(member,event,option);
-}
-
-func GetHowManyVotesForEvent(eventId int) *NumberOfVotes{
-	return getHowManyVotesForEvent(eventId);
-}
-
-func DeleteVote(member,event int) bool {
-	return deleteVote(member,event);
-}

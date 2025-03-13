@@ -2,13 +2,11 @@ package chats
 
 import (
 	"fmt"
-	"fmt"
 	"log"
 	"net/http"
 
 
 	database "socialNetwork/Database"
-	middleware "socialNetwork/Middlewares"
 	middleware "socialNetwork/Middlewares"
 )
 
@@ -31,22 +29,18 @@ ORDER BY t.created_at ASC; `
 	if err != nil {
 		log.Println("Getting data from db error: ", err)
 		return nil, err
-		return nil, err
 	}
 	msg := privateMsg{}
 	for rows.Next() {
 		err := rows.Scan(&msg.Avatar, &msg.FullName, &msg.MessageID, &msg.SenderID, &msg.ReceiverID, &msg.Message, &msg.CreatedDate)
-		err := rows.Scan(&msg.Avatar, &msg.FullName, &msg.MessageID, &msg.SenderID, &msg.ReceiverID, &msg.Message, &msg.CreatedDate)
 		if err != nil {
 			log.Println("Scan error: ", err)
-			return nil, err
 			return nil, err
 		}
 
 		msgs = append(msgs, msg)
 	}
 	if len(msgs) == 0 {
-		return nil, nil
 		return nil, nil
 	}
 	return msgs, nil
@@ -58,14 +52,9 @@ func GetMsgFromGrpChatDB(groupID, page int, r *http.Request) ([]groupMsg, error)
 			  join users u
 			  on m.sender_id = u.id
 			  WHERE m.group_id = ? LIMIT 10 OFFSET ?;`
-	query := `SELECT u.avatar, CONCAT(u.first_name, ' ', u.last_name) AS full_name,m.id, m.sender_id, m.group_id, m.message, m.created_at FROM group_chat m
-			  join users u
-			  on m.sender_id = u.id
-			  WHERE m.group_id = ? LIMIT 10 OFFSET ?;`
 	rows, err := database.SelectQuery(query, groupID, page)
 	if err != nil {
 		log.Println("Getting data from db error: ", err)
-		return nil, err
 		return nil, err
 	}
 	msg := groupMsg{}
@@ -74,12 +63,10 @@ func GetMsgFromGrpChatDB(groupID, page int, r *http.Request) ([]groupMsg, error)
 		if err != nil {
 			log.Println("Scan error: ", err)
 			return nil, err
-			return nil, err
 		}
 		msgs = append(msgs, msg)
 	}
 	if len(msgs) == 0 {
-		return nil, nil
 		return nil, nil
 	}
 	return msgs, nil

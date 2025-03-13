@@ -23,10 +23,6 @@ func main() {
 		fmt.Printf("Migration error: %v\n", err)
 		os.Exit(1)
 	}
-	if err := database.InitializeMigrations(); err != nil {
-		fmt.Printf("Migration error: %v\n", err)
-		os.Exit(1)
-	}
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/public/", handleStaticFile)
@@ -38,7 +34,6 @@ func main() {
 	socket.Routes(mux)
 	notifications.Routes(mux)
 	search.Routes(mux)
-	groups.Routes(mux)
 	mux.HandleFunc("/", notFound)
 
 	Server := &http.Server{

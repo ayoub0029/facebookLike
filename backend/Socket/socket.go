@@ -6,10 +6,10 @@ import (
 	"log"
 	"net/http"
 
-
 	chats "socialNetwork/Chats"
 	global "socialNetwork/Global"
 	middleware "socialNetwork/Middlewares"
+	profiles "socialNetwork/Profiles"
 
 	"github.com/gorilla/websocket"
 )
@@ -33,7 +33,7 @@ func AddClient(client *global.Client) {
 func SendMessage(client *global.Client, msg any) error {
 	clientsMutex.Lock()
 	defer clientsMutex.Unlock()
-	return client.Conn.WriteJSON(msg);
+	return client.Conn.WriteJSON(msg)
 }
 
 // removing client from the map
@@ -55,18 +55,14 @@ func WsHandling(w http.ResponseWriter, r *http.Request) {
 	}
 	user, ok := r.Context().Value(middleware.UserContextKey).(middleware.User)
 	if !ok {
-	user, ok := r.Context().Value(middleware.UserContextKey).(middleware.User)
-	if !ok {
 		return
 	}
 	fmt.Printf("userName : %s\n", user.Name)
 	client := &global.Client{
 		UserId: user.ID,
-		UserId: user.ID,
 		State:  true,
 		Conn:   conn,
 	}
-
 
 	AddClient(client)
 	fmt.Println(client.UserId)
@@ -87,7 +83,7 @@ func handlePrvChatMessage(wsMessage WebSocketMessage, userID uint64) error {
 	if is_followed == -1 {
 		log.Println(err)
 		return nil
-	} */
+	}
 	chats.HandleChatPrvMessage(chatMsg, userID)
 	if Clients[chatMsg.Receiver_id] != nil {
 		chatMsg.Sender_id = int(userID)
@@ -121,23 +117,17 @@ func SocketListner(client *global.Client, r *http.Request) {
 	for {
 		user, ok := r.Context().Value(middleware.UserContextKey).(middleware.User)
 		if !ok {
-		user, ok := r.Context().Value(middleware.UserContextKey).(middleware.User)
-		if !ok {
 			return
 		}
 
-
 		var wsMessage WebSocketMessage
 		if err := client.Conn.ReadJSON(&wsMessage); err != nil {
-			fmt.Println("eeorr")
-			fmt.Println("eeorr")
 			log.Println(err)
 			break
 		}
 		fmt.Println(wsMessage.Type)
 		if wsMessage.Type == "privateChat" {
 			fmt.Println(wsMessage.Content)
-			if err := handlePrvChatMessage(wsMessage, user.ID); err != nil {
 			if err := handlePrvChatMessage(wsMessage, user.ID); err != nil {
 				log.Printf("Error handling %s message: %v", wsMessage.Type, err)
 			}
