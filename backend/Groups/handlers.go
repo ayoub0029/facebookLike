@@ -22,6 +22,9 @@ func Routes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /group/leave", LeaveGroup_handler)
 	mux.HandleFunc("POST /group/event/vote", Vote_handler)
 	mux.HandleFunc("GET /group/event/votes", GetVotes_handler)
+	mux.HandleFunc("POST /group/invite", InviteMember_handler)
+	mux.HandleFunc("POST /group/deleteVote", DeleteVote_handler)
+	mux.HandleFunc("GET /group/requsts", GetGroupRequsts_handler)
 
 }
 func CreateGroup_handler(res http.ResponseWriter, req *http.Request) {
@@ -126,14 +129,15 @@ func CreateEvent_handler(res http.ResponseWriter, req *http.Request) {
 }
 
 func GetEvents_handler(res http.ResponseWriter, req *http.Request) {
+	member, ok := req.Context().Value(middleware.UserContextKey).(middleware.User)
 	group, err := strconv.Atoi(req.FormValue("group"))
 	page, err2 := strconv.Atoi(req.FormValue("page"))
 
-	if err != nil || err2 != nil {
+	if !ok || err != nil || err2 != nil {
 		global.JsonResponse(res, 400, "data Error")
 		return
 	}
-	events := GetEvents(group, page)
+	events := GetEvents(group, page, int(member.ID))
 	if events == nil {
 		global.JsonResponse(res, 404, "events not found")
 	}
@@ -217,4 +221,51 @@ func GetVotes_handler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 	global.JsonResponse(res, 200, NumberVotes_)
+}
+
+func InviteMember_handler(res http.ResponseWriter, req *http.Request) {
+	Inviter, ok := req.Context().Value(middleware.UserContextKey).(middleware.User)
+	group, err2 := strconv.Atoi(req.FormValue("group"))
+	member, err3 := strconv.Atoi(req.FormValue("member"))
+	if !ok || err2 != nil || err3 != nil {
+		global.JsonResponse(res, 400, "data Error")
+		return
+	}
+	result := Invite(group, member, int(Inviter.ID))
+	if !result {
+		global.JsonResponse(res, 500, "Internal Server 500")
+		return
+	}
+	global.JsonResponse(res, 200, "data saved succesfuly")
+}
+
+func DeleteVote_handler(res http.ResponseWriter, req *http.Request) {
+	member, ok := req.Context().Value(middleware.UserContextKey).(middleware.User)
+	event, err2 := strconv.Atoi(req.FormValue("event"))
+	if !ok || err2 != nil {
+		global.JsonResponse(res, 400, "data Error")
+		return
+	}
+	result := DeleteVote(int(member.ID), event)
+	if !result {
+		global.JsonResponse(res, 500, "Internal Server 500")
+		return
+	}
+	global.JsonResponse(res, 200, "data saved succesfuly")
+}
+
+func GetGroupRequsts_handler(res http.ResponseWriter, req *http.Request) {
+	member, ok := req.Context().Value(middleware.UserContextKey).(middleware.User)
+	page, err := strconv.Atoi(req.FormValue("page"))
+	groupId, err2 := strconv.Atoi(req.FormValue("group"))
+	if !ok || err != nil || err2 != nil {
+		global.JsonResponse(res, 400, "data Error")
+		return
+	}
+	groupRequestsArray := GetAllGroupRequets(int(member.ID), groupId, page)
+	if groupRequestsArray == nil {
+		global.JsonResponse(res, 404, "data Not Found")
+		return
+	}
+	global.JsonResponse(res, 200, groupRequestsArray)
 }

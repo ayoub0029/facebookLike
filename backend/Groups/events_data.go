@@ -17,10 +17,11 @@ func createEvent(e *event) bool {
 	}
 }
 
-func getAllEvents(group, page int) []event {
-	query := `SELECT * FROM events e 
-	WHERE e.group_id = ? LIMIT 10 OFFSET ?;`
-	data_Rows, err := d.SelectQuery(query, group, page)
+func getAllEvents(group, page, member int) []event {
+	query := `SELECT *,(SELECT ev.option FROM event_votes ev
+				WHERE ev.user_id = ? AND ev.event_id = e.id) AS state FROM events e 
+				WHERE e.group_id = ? LIMIT 10 OFFSET ?;`
+	data_Rows, err := d.SelectQuery(query, member, group, page)
 	if err != nil {
 		return nil
 	}
@@ -28,7 +29,7 @@ func getAllEvents(group, page int) []event {
 	for data_Rows.Next() {
 		myevent := event{}
 		_ = data_Rows.Scan(&myevent.ID, &myevent.GroupID, &myevent.OwnerID, &myevent.Title, &myevent.Description,
-			&myevent.StartDate, &myevent.EndDate, &myevent.CreatedAt)
+			&myevent.StartDate, &myevent.EndDate, &myevent.CreatedAt, &myevent.State)
 		events_list = append(events_list, myevent)
 	}
 	return events_list
@@ -37,6 +38,17 @@ func getAllEvents(group, page int) []event {
 func vote(member, event, option int) bool {
 	query := `INSERT INTO event_votes (user_id,event_id,option) VALUES(?,?,?);`
 	_, err := d.ExecQuery(query, member, event, option)
+	if err != nil {
+		return false
+	} else {
+		return true
+	}
+}
+
+func deleteVote(member, event int) bool {
+	query := `DELETE FROM event_votes 
+			WHERE user_id = ? AND event_id = ?;`
+	_, err := d.ExecQuery(query, member, event)
 	if err != nil {
 		return false
 	} else {

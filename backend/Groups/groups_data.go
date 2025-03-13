@@ -79,7 +79,7 @@ func getAllMembers(groupID, page int) []profiles.Profile {
 	query := `SELECT u.id,u.first_name,u.last_name,u.avatar
 				FROM users u INNER JOIN group_members gm
 				on u.id = gm.user_id
-				WHERE gm.group_id = ? LIMIT 5 OFFSET ?;`
+				WHERE gm.group_id = ? AND gm.status = 'accepted' LIMIT 5 OFFSET ?;`
 	data_Rows, err := d.SelectQuery(query, groupID, page)
 	if err != nil {
 		return nil
@@ -100,9 +100,12 @@ func join(groupId, memberId int) bool {
 	return err == nil
 }
 
-func requestToJoin(groupId, memberId int) bool {
+func requestToJoin(groupId, memberId int, state string) bool {
 	query := `INSERT INTO group_members (group_id,user_id) VALUES(?,?);`
-	_, err := d.ExecQuery(query, groupId, memberId)
+	if state != "" {
+		query = `INSERT INTO group_members (group_id,user_id,status) VALUES(?,?,?);`
+	}
+	_, err := d.ExecQuery(query, groupId, memberId, state)
 	return err == nil
 }
 
@@ -146,4 +149,35 @@ func getAllGroupsJoinedBy(userID, page int) []group {
 		groupsList = append(groupsList, MyGroup)
 	}
 	return groupsList
+}
+
+func getAllGroupRequets(userID, group, page int) []profiles.Profile {
+	query := `SELECT
+				u.id,
+				u.first_name,
+				u.last_name,
+				u.avatar
+			FROM
+				users u
+				INNER JOIN group_members gm ON u.id = gm.user_id
+				INNER JOIN groups g ON gm.group_id = g.id
+			WHERE
+				g.owner_id = ?
+				AND gm.group_id = ?
+				AND gm.status = 'request'
+			LIMIT
+				5
+			OFFSET
+				?;`
+	data_Rows, err := d.SelectQuery(query, userID, group, page)
+	if err != nil {
+		return nil
+	}
+	members_lists := make([]profiles.Profile, 0)
+	for data_Rows.Next() {
+		Member := profiles.Profile{}
+		_ = data_Rows.Scan(&Member.Id, &Member.ProfileData.First_Name, &Member.ProfileData.Last_Name, &Member.ProfileData.Avatar)
+		members_lists = append(members_lists, Member)
+	}
+	return members_lists
 }

@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS users (
     avatar TEXT,
     nickname TEXT,
     about_me TEXT,
-    profile_status TEXT DEFAULT 'private',
+    profile_status TEXT DEFAULT 'public',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     github_id TEXT UNIQUE,

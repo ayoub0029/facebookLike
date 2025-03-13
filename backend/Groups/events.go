@@ -9,6 +9,7 @@ type event struct {
 	StartDate   string `json:"startdate"`
 	EndDate     string `json:"enddate"`
 	CreatedAt   string `json:"createdat"`
+	State       int    `json:"state"`
 }
 
 type NumberOfVotes struct {
@@ -32,6 +33,7 @@ func NewEvent(_groupID, _ownerID int, _title, _description, _startdate, _enddate
 		StartDate:   _startdate,
 		EndDate:     _enddate,
 		CreatedAt:   _createdat,
+		State:       -1,
 	}
 }
 
@@ -39,8 +41,8 @@ func (e *event) Create() bool {
 	return createEvent(e)
 }
 
-func GetEvents(group, page int) []event {
-	return getAllEvents(group, page)
+func GetEvents(group, page, member int) []event {
+	return getAllEvents(group, page, member)
 }
 
 func Vote(member, event, option int) bool {
@@ -49,4 +51,8 @@ func Vote(member, event, option int) bool {
 
 func GetHowManyVotesForEvent(eventId int) *NumberOfVotes {
 	return getHowManyVotesForEvent(eventId)
+}
+
+func DeleteVote(member, event int) bool {
+	return deleteVote(member, event)
 }

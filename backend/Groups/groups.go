@@ -75,7 +75,7 @@ func convert(g_data group_data) *group {
 }
 
 func RequestToJoin(groupId, memberId int) bool {
-	if requestToJoin(groupId, memberId) {
+	if requestToJoin(groupId, memberId, "request") {
 		// Sending Notification code ...
 		return true
 	}
@@ -106,10 +106,14 @@ func GetGroupInfo(UserId, groupID int) *group {
 	return getGroupInfo(UserId, groupID)
 }
 
-func Invite(groupID, inviterID int) bool {
-	if requestToJoin(groupID, inviterID) {
+func Invite(groupID, member, inviterID int) bool {
+	if requestToJoin(groupID, member, "") {
 		// Sending Notification code ...
 		return true
 	}
 	return false
+}
+
+func GetAllGroupRequets(userID, group, page int) []profiles.Profile {
+	return getAllGroupRequets(userID, group, page)
 }
