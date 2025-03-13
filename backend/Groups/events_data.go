@@ -44,6 +44,17 @@ func vote(member,event,option int) bool {
 	}
 }
 
+func deleteVote(member,event int) bool {
+	query := `DELETE FROM event_votes 
+			WHERE user_id = ? AND event_id = ?;`
+	_, err := d.ExecQuery(query,member,event);
+	if err != nil {
+		return false;
+	} else {
+		return true;
+	}
+}
+
 func getHowManyVotesForEvent(eventID int) *NumberOfVotes {
 	query := `SELECT (SELECT count(*) from event_votes ev
 				WHERE ev.option = 1) AS going,(SELECT count(*) from event_votes ev
