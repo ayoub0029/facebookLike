@@ -100,10 +100,13 @@ func join(groupId, memberId int) bool {
 	return err == nil
 }
 
-func requestToJoin(groupId, memberId int) bool {
-	query := `INSERT INTO group_members (group_id,user_id) VALUES(?,?);`
-	_, err := d.ExecQuery(query, groupId, memberId)
-	return err == nil
+func requestToJoin(groupId, memberId int,state string) bool {
+	query := `INSERT INTO group_members (group_id,user_id) VALUES(?,?);`;
+	if state != "" {
+		query = `INSERT INTO group_members (group_id,user_id,status) VALUES(?,?,?);`;
+	}
+	_, err := d.ExecQuery(query, groupId, memberId,state);
+	return err == nil;
 }
 
 func leaveGroup(groupId, memberId int) bool {

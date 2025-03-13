@@ -76,7 +76,7 @@ func convert(g_data group_data) *group {
 }
 
 func RequestToJoin(groupId, memberId int) bool {
-	if requestToJoin(groupId, memberId) {
+	if requestToJoin(groupId, memberId,"request") {
 		// Sending Notification code ...
 		return true
 	}
@@ -109,7 +109,7 @@ func GetGroupInfo(UserId,groupID int) *group {
 }
 
 func Invite(groupID,member,inviterID int) bool {
-	if requestToJoin(groupID, member) {
+	if requestToJoin(groupID, member,"") {
 		// Sending Notification code ...
 		return true
 	}
