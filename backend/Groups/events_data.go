@@ -17,10 +17,11 @@ func createEvent(e *event) bool {
 	}
 }
 
-func getAllEvents(group, page int) []event {
-	query := `SELECT * FROM events e 
-	WHERE e.group_id = ? LIMIT 5 OFFSET ?;`
-	data_Rows, err := d.SelectQuery(query, group, page)
+func getAllEvents(group, page, member int) []event {
+	query := `SELECT *,(SELECT ev.option FROM event_votes ev
+				WHERE ev.user_id = ? AND ev.event_id = e.id) AS state FROM events e 
+				WHERE e.group_id = ? LIMIT 10 OFFSET ?;`
+	data_Rows, err := d.SelectQuery(query, member ,group, page)
 	if err != nil {
 		return nil
 	}
@@ -28,7 +29,7 @@ func getAllEvents(group, page int) []event {
 	for data_Rows.Next() {
 		myevent := event{}
 		_ = data_Rows.Scan(&myevent.ID, &myevent.GroupID, &myevent.OwnerID, &myevent.Title, &myevent.Description,
-			&myevent.StartDate, &myevent.EndDate, &myevent.CreatedAt)
+			&myevent.StartDate, &myevent.EndDate, &myevent.CreatedAt,&myevent.State);
 		events_list = append(events_list, myevent)
 	}
 	return events_list
