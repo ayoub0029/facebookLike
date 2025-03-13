@@ -20,8 +20,8 @@ func createEvent(e *event) bool {
 func getAllEvents(group, page, member int) []event {
 	query := `SELECT *,(SELECT ev.option FROM event_votes ev
 				WHERE ev.user_id = ? AND ev.event_id = e.id) AS state FROM events e 
-				WHERE e.group_id = ? LIMIT 10 OFFSET ?;`
-	data_Rows, err := d.SelectQuery(query, member ,group, page)
+				WHERE e.group_id = ? LIMIT 5 OFFSET ?;`
+	data_Rows, err := d.SelectQuery(query, member, group, page)
 	if err != nil {
 		return nil
 	}
@@ -29,45 +29,45 @@ func getAllEvents(group, page, member int) []event {
 	for data_Rows.Next() {
 		myevent := event{}
 		_ = data_Rows.Scan(&myevent.ID, &myevent.GroupID, &myevent.OwnerID, &myevent.Title, &myevent.Description,
-			&myevent.StartDate, &myevent.EndDate, &myevent.CreatedAt,&myevent.State);
+			&myevent.StartDate, &myevent.EndDate, &myevent.CreatedAt, &myevent.State)
 		events_list = append(events_list, myevent)
 	}
 	return events_list
 }
 
-func vote(member,event,option int) bool {
-	query := `INSERT INTO event_votes (user_id,event_id,option) VALUES(?,?,?);`;
-	_, err := d.ExecQuery(query,member,event,option);
+func vote(member, event, option int) bool {
+	query := `INSERT INTO event_votes (user_id,event_id,option) VALUES(?,?,?);`
+	_, err := d.ExecQuery(query, member, event, option)
 	if err != nil {
-		return false;
+		return false
 	} else {
-		return true;
+		return true
 	}
 }
 
-func deleteVote(member,event int) bool {
+func deleteVote(member, event int) bool {
 	query := `DELETE FROM event_votes 
 			WHERE user_id = ? AND event_id = ?;`
-	_, err := d.ExecQuery(query,member,event);
+	_, err := d.ExecQuery(query, member, event)
 	if err != nil {
-		return false;
+		return false
 	} else {
-		return true;
+		return true
 	}
 }
 
 func getHowManyVotesForEvent(eventID int) *NumberOfVotes {
 	query := `SELECT (SELECT count(*) from event_votes ev
 				WHERE ev.option = 1) AS going,(SELECT count(*) from event_votes ev
-				WHERE ev.option = 0) AS notgoing;`;
-	res, err := d.SelectOneRow(query);
+				WHERE ev.option = 0) AS notgoing;`
+	res, err := d.SelectOneRow(query)
 	if err != nil {
-		return nil;
+		return nil
 	}
 	NumberVotes := &NumberOfVotes{}
-	err = res.Scan(&NumberVotes.Going, &NumberVotes.NotGoing);
+	err = res.Scan(&NumberVotes.Going, &NumberVotes.NotGoing)
 	if err != nil {
-		return nil;
+		return nil
 	}
-	return NumberVotes;
+	return NumberVotes
 }

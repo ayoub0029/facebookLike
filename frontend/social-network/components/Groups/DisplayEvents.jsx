@@ -20,6 +20,8 @@ export default function DisplayEvents({ reloadKey }) {
             if (data.status !== undefined) {
                 return { error: data.error, status: data.status }
             }
+            console.log(data);
+
             const events = Array.isArray(data) ? data : []
             return {
                 items: events,
@@ -115,7 +117,7 @@ export default function DisplayEvents({ reloadKey }) {
         }
     }, [votedEvents, votesData])
     useEffect(() => {
-        fetchEvents(0);
+        fetchEvents();
     }, [reloadKey]);
     const {
         data,

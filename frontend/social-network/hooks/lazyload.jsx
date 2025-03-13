@@ -51,7 +51,6 @@ export default function useLazyLoad(fetchData) {
             },
             { threshold: 0.1 }
         )
-        
         if (loaderRef.current) observer.observe(loaderRef.current)
         return () => {
             if (loaderRef.current) observer.disconnect()
