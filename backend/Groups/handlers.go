@@ -138,7 +138,7 @@ func GetEvents_handler(res http.ResponseWriter, req *http.Request) {
 		global.JsonResponse(res, 400, "data Error")
 		return
 	}
-	events := GetEvents(int(member.ID),group, page);
+	events := GetEvents(group, page,int(member.ID));
 	if events == nil {
 		global.JsonResponse(res, 404, "events not found")
 	}
