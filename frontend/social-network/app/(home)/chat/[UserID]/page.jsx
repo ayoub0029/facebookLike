@@ -5,6 +5,8 @@ import { fetchApi } from "@/api/fetchApi";
 import { useParams } from "next/navigation";
 
 async function getData(messageType,chatwith,page) {
+  let applications = await fetchApi('group/applications?page=0');
+  console.log("applications : ",applications);
   let response = await fetchApi(`chats/${GetDataSource(messageType)}=${chatwith}&page=${page}`);
     return response;
 }
@@ -23,6 +25,7 @@ let Profiles = [
 ]
 
 export default function Chat() {
+
   const UserID = useParams();
   const [page, setPage] = useState(0);
   const [msgType, setMsgType] = useState('');

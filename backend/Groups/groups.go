@@ -120,3 +120,6 @@ func GetAllGroupRequets(group,page int) []profiles.Profile {
 	return getAllGroupRequets(group,page);
 }
 
+func GetGroupsOwnerApplications(OwnerID,page int) []groupApplication {
+	return getGroupsOwnerApplications(OwnerID,page);
+}
