@@ -24,7 +24,7 @@ func Routes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /group/event/votes", GetVote_handler);
 	mux.HandleFunc("POST /group/invite", InviteMember_handler);
 	mux.HandleFunc("POST /group/deleteVote", DeleteVote_handler);
-	mux.HandleFunc("POST /group/requsts", GetGroupRequsts_handler);
+	mux.HandleFunc("GET /group/requsts", GetGroupRequsts_handler);
 
 }
 func CreateGroup_handler(res http.ResponseWriter, req *http.Request) {
