@@ -21,10 +21,12 @@ func Routes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /group/join", JoinGroup_handler);
 	mux.HandleFunc("POST /group/leave", LeaveGroup_handler);
 	mux.HandleFunc("POST /group/event/vote", Vote_handler);
-	mux.HandleFunc("GET /group/event/votes", GetVote_handler);
+	mux.HandleFunc("GET /group/event/votes", GetVotes_handler);
 	mux.HandleFunc("POST /group/invite", InviteMember_handler);
 	mux.HandleFunc("POST /group/deleteVote", DeleteVote_handler);
 	mux.HandleFunc("GET /group/requsts", GetGroupRequsts_handler);
+	mux.HandleFunc("GET /group/applications", GetGroupApplications_handler);
+
 
 }
 func CreateGroup_handler(res http.ResponseWriter, req *http.Request) {
@@ -133,7 +135,7 @@ func GetEvents_handler(res http.ResponseWriter, req *http.Request) {
 	group, err := strconv.Atoi(req.FormValue("group"))
 	page, err2 := strconv.Atoi(req.FormValue("page"))
 
-	if err != nil || err2 != nil {
+	if err != nil || err2 != nil || !ok {
 		global.JsonResponse(res, 400, "data Error")
 		return
 	}
@@ -269,4 +271,19 @@ func GetGroupRequsts_handler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 	global.JsonResponse(res, 200, groupRequestsArray);
+}
+
+func GetGroupApplications_handler(res http.ResponseWriter, req *http.Request) {
+	page, err := strconv.Atoi(req.FormValue("page"));
+	Owner, ok := req.Context().Value(middleware.UserContextKey).(middleware.User);
+	if err != nil || !ok {
+		global.JsonResponse(res, 400, "data Error");
+		return
+	}
+	GroupsOwnerApplicationsArray := GetGroupsOwnerApplications(int(Owner.ID), page);
+	if GroupsOwnerApplicationsArray == nil {
+		global.JsonResponse(res, 404, "data Not Found")
+		return
+	}
+	global.JsonResponse(res, 200, GroupsOwnerApplicationsArray);
 }
