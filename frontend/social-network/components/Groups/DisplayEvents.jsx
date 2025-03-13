@@ -15,6 +15,7 @@ export default function DisplayEvents({ reloadKey }) {
     const [votesData, setVotesData] = useState({});
     const fetchEvents = async (page) => {
         try {
+            console.log(page);
             const data = await fetchApi(`/group/events?group=${groupID}&page=${page}`, 'GET', null, false)
             if (data.status !== undefined) {
                 return { error: data.error, status: data.status }
@@ -114,7 +115,7 @@ export default function DisplayEvents({ reloadKey }) {
         }
     }, [votedEvents, votesData])
     useEffect(() => {
-        fetchEvents();
+        fetchEvents(0);
     }, [reloadKey]);
     const {
         data,
