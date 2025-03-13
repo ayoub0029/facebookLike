@@ -36,7 +36,7 @@ export default function DisplayEvents({ reloadKey }) {
         let option;
         if (choice === "Going") option = 1;
         else option = 0;
-        
+
         const formData = new FormData();
         formData.append("event", eventId);
         formData.append("option", option);
@@ -63,28 +63,22 @@ export default function DisplayEvents({ reloadKey }) {
 
     const deleteVote = async (id) => {
         // console.log("Deleting vote for event:", id);
-
-        /* try {
-            const data = await fetchApi(`/group/deleteVote?eventId=${id}`, 'DELETE', null, false)
+        const formData = new FormData();
+        formData.append("event", id);
+        try {
+            const data = await fetchApi(`group/deleteVote`, 'POST', formData, true)
             if (data.status !== undefined) return { error: "error", status: data.status }
-            
+
             setVotedEvents(prev => {
-                const newState = {...prev};
+                const newState = { ...prev };
                 delete newState[id];
                 return newState;
             });
-            
+
         } catch (error) {
             console.error(error);
             return { error: data.error, status: data.status }
-        } */
-
-        setVotedEvents(prev => {
-            const newState = { ...prev };
-            // console.log(newState);
-            delete newState[id];
-            return newState;
-        });
+        }
     }
 
     const checkDate = (endDate) => {
