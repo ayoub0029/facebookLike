@@ -10,20 +10,19 @@ import (
 )
 
 func Routes(mux *http.ServeMux) {
-	mux.HandleFunc("POST /group", CreateGroup_handler);
-	mux.HandleFunc("GET /group", GetGroupInfo_handler);
-	mux.HandleFunc("GET /groups", GetAllGroups_handler);
-	mux.HandleFunc("GET /group/members", GetGroupMembers_handler);
-	mux.HandleFunc("POST /group/event", CreateEvent_handler);
-	mux.HandleFunc("GET /group/events", GetEvents_handler);
-	mux.HandleFunc("GET /groups/CreatedBy", GetGroupsCreatedBy_handler);
-	mux.HandleFunc("GET /groups/JoinedBy", GetGroupsJoinedBy_handler); //POST /groups/join
-	mux.HandleFunc("POST /group/join", JoinGroup_handler);
-	mux.HandleFunc("POST /group/leave", LeaveGroup_handler);
-	mux.HandleFunc("POST /group/event/vote", Vote_handler);
-	mux.HandleFunc("GET /group/event/votes", GetVote_handler);
-	mux.HandleFunc("POST /group/invite", InviteMember_handler);
-
+	mux.HandleFunc("POST /group", CreateGroup_handler)
+	mux.HandleFunc("GET /group", GetGroupInfo_handler)
+	mux.HandleFunc("GET /groups", GetAllGroups_handler)
+	mux.HandleFunc("GET /group/members", GetGroupMembers_handler)
+	mux.HandleFunc("POST /group/event", CreateEvent_handler)
+	mux.HandleFunc("GET /group/events", GetEvents_handler)
+	mux.HandleFunc("GET /groups/CreatedBy", GetGroupsCreatedBy_handler)
+	mux.HandleFunc("GET /groups/JoinedBy", GetGroupsJoinedBy_handler) //POST /groups/join
+	mux.HandleFunc("POST /group/join", JoinGroup_handler)
+	mux.HandleFunc("POST /group/leave", LeaveGroup_handler)
+	mux.HandleFunc("POST /group/event/vote", Vote_handler)
+	mux.HandleFunc("GET /group/event/votes", GetVote_handler)
+	mux.HandleFunc("POST /group/invite", InviteMember_handler)
 
 }
 func CreateGroup_handler(res http.ResponseWriter, req *http.Request) {
@@ -200,40 +199,41 @@ func Vote_handler(res http.ResponseWriter, req *http.Request) {
 		global.JsonResponse(res, 400, "data Error")
 		return
 	}
-	result := Vote(int(member.ID),event,option);
+	result := Vote(int(member.ID), event, option)
 	if !result {
-		global.JsonResponse(res,500,"Internal Server 500");
-		return;
+		global.JsonResponse(res, 500, "Internal Server 500")
+		return
 	}
-	global.JsonResponse(res,200,"Data saved Succesfuly");
+	global.JsonResponse(res, 200, "Data saved Succesfuly")
 }
 
-func GetVotes_handler(res http.ResponseWriter, req *http.Request) {
-	event,err := strconv.Atoi(req.FormValue("event"));
-	if  err != nil{
-		global.JsonResponse(res,400,"data Error");
-		return;
+func GetVote_handler(res http.ResponseWriter, req *http.Request) {
+	event, err := strconv.Atoi(req.FormValue("event"))
+	if err != nil {
+		global.JsonResponse(res, 400, "data Error")
+		return
 	}
-	NumberVotes_ := GetHowManyVotesForEvent(event);
+	NumberVotes_ := GetHowManyVotesForEvent(event)
 	if NumberVotes_ == nil {
-		global.JsonResponse(res,500,"Internal Server 500");
-		return;
+		global.JsonResponse(res, 500, "Internal Server 500")
+		return
 	}
-	global.JsonResponse(res,200,NumberVotes_);
+	global.JsonResponse(res, 200, NumberVotes_)
 }
 
-func InviteMember_handler(res http.ResponseWriter, req *http.Request)  {
-	Inviter, ok := req.Context().Value(middleware.UserContextKey).(middleware.User);
-	group,err2 := strconv.Atoi(req.FormValue("group"));
-	member,err3 := strconv.Atoi(req.FormValue("member"));
+func InviteMember_handler(res http.ResponseWriter, req *http.Request) {
+	Inviter, ok := req.Context().Value(middleware.UserContextKey).(middleware.User)
+	group, err2 := strconv.Atoi(req.FormValue("group"))
+	member, err3 := strconv.Atoi(req.FormValue("member"))
+	fmt.Println(Inviter, group, member)
 	if !ok || err2 != nil || err3 != nil {
-		global.JsonResponse(res,400,"data Error");
-		return;
+		global.JsonResponse(res, 400, "data Error")
+		return
 	}
-	result := Invite(group,member,int(Inviter.ID));
+	result := Invite(group, member, int(Inviter.ID))
 	if !result {
-		global.JsonResponse(res,500,"Internal Server 500");
-		return;
+		global.JsonResponse(res, 500, "Internal Server 500")
+		return
 	}
-	global.JsonResponse(res,200,"data saved succesfuly");
+	global.JsonResponse(res, 200, "data saved succesfuly")
 }

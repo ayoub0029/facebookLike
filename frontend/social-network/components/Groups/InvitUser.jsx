@@ -200,15 +200,20 @@ function User({ data, route }) {
     const groupID = pathParts[pathParts.length - 1];
     const Invit = async (id) => {
         console.log("id :", id, groupID);
-        // try {
-        //     const response = await fetchApi(`groups/invite?group=${groupID}&invite=${id}`, "GET")
-        //     if (response && response.status !== "accepted") {
-        //         return { status: response.status, error: response.error };
-        //     }
-        // } catch (error) {
-        //     console.error("Invitation error:", error);
-        //     return { status: 500, error: "Failed to process invitation" };
-        // }
+        const formData = new FormData();
+        formData.append("group", groupID);
+        formData.append("member", id);
+        try {
+            const response = await fetchApi(`group/invite`, "POST", formData, true);
+            if (response.error || response.status >= 400) {
+                console.error("Error voting on event:", response.error);
+                // setError(response.error?.message || `Error: ${response.status}`);
+                return { error: response.error?.message || `Error: ${response.status}`, status: "error" };
+            }
+        } catch (error) {
+            console.error("Invitation error:", error);
+            return { status: 500, error: "Failed to process invitation" };
+        }
     }
     return (
         <div>
