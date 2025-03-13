@@ -19,7 +19,7 @@ export default function Groups() {
         <MyGroups key={reloadKey}/>
       </div>
       <div className="rightSidebar">
-        {/* <GroupRequests /> */}
+        <GroupRequests />
       </div>
     </>
   );
