@@ -216,6 +216,7 @@ func (req *Follow_Request) RejectRequest() (int, error) {
 
 func (Params *FollowersParams) GetFollowing() ([]Following, error) {
 	if Params.Page < 1 {
+		
 		Params.Page = 1
 	}
 

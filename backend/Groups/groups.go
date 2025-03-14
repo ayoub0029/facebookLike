@@ -123,3 +123,7 @@ func GetAllGroupRequets(group,page int) []profiles.Profile {
 func GetGroupsOwnerApplications(OwnerID,page int) []groupApplication {
 	return getGroupsOwnerApplications(OwnerID,page);
 }
+
+func GetPeopleToInvite(userID, groupID,page int) []profiles.Profile{
+	return  getPeopleToInvite(userID, groupID,page);
+}
