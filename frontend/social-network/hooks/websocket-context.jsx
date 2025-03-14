@@ -1,6 +1,7 @@
 "use client"
 
 import { createContext, useContext, useEffect, useState, useRef } from "react"
+import { useToast } from "./toast-context.jsx"
 
 const WebSocketContext = createContext({
   socket: null,
@@ -13,6 +14,7 @@ export function WebSocketProvider({ children }) {
   const [isConnected, setIsConnected] = useState(false)
   const socketRef = useRef(null)
   const messageHandlerRef = useRef(null)
+  const { showToast } = useToast()
 
   useEffect(() => {
     const socket = new WebSocket(process.env.NEXT_PUBLIC_WS_URL)
@@ -28,7 +30,7 @@ export function WebSocketProvider({ children }) {
       if (messageHandlerRef.current) {
         messageHandlerRef.current(event.data)
       } else {
-        alert(`New message: ${event.data}`)
+        showToast("information", event.data)
       }
     }
 
@@ -37,7 +39,7 @@ export function WebSocketProvider({ children }) {
       setIsConnected(false)
 
       setTimeout(() => {
-        
+
       }, 3000);
     }
 

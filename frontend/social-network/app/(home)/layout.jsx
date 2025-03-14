@@ -6,6 +6,7 @@ import { checkIfLoggedIn } from "@/api/isLoggedIn";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { WebSocketProvider } from "@/hooks/websocket-context.jsx";
+import { ToastProvider } from "@/hooks/toast-context.jsx";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -58,7 +59,9 @@ export default function RootLayout({ children }) {
               <div className="leftSidebar">
                 <Navigation />
               </div>
-              <WebSocketProvider >{children}</WebSocketProvider>
+              <ToastProvider>
+                <WebSocketProvider >{children}</WebSocketProvider>
+              </ToastProvider>
               {/* {children} */}
             </div>
           </>
