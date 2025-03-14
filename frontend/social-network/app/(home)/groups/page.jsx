@@ -1,22 +1,39 @@
 "use client"
 
-import  GroupRequests  from "@/components/Groups/GroupRequests"
-import  JoinedGrp  from "@/components/Groups/JoinedGrp"
+import GroupRequests from "@/components/Groups/GroupRequests"
+import JoinedGrp from "@/components/Groups/JoinedGrp"
 import CreateGroup from "@/components/Groups/CreateGroup";
 import MyGroups from "@/components/Groups/MyGroups";
 import { useState, useCallback } from 'react'
+
 export default function Groups() {
   const [reloadKey, setReloadKey] = useState(0);
+  const [hamberMenu, setHamberMenu] = useState(false);
 
   const handleReload = useCallback(() => {
     setReloadKey((key) => key + 1);
   }, []);
+  const toggleMenu = () => {
+    if (hamberMenu) {
+      setHamberMenu(false);
+    } else {
+      setHamberMenu(true);
+    }
+  };
   return (
     <>
       <div>
-        <CreateGroup onSuccess={handleReload}/>
-        <JoinedGrp/>
-        <MyGroups key={reloadKey}/>
+        <div>
+          <button onClick={toggleMenu} className="rightMenuToggle">
+            <i className="fas fa-bars"></i>
+          </button>
+          <CreateGroup onSuccess={handleReload} />
+          <JoinedGrp />
+          <MyGroups key={reloadKey} />
+        </div>
+        <div className={"rightSidebar" + (hamberMenu ? " show" : "")}>
+          <GroupRequests />
+        </div>
       </div>
       <div className="rightSidebar">
         <GroupRequests />
