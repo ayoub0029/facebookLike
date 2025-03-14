@@ -44,6 +44,29 @@ body {
   /* z-index: 1; */
 }
 
+.grpContainer .feedTabs {
+  display: flex;
+  flex-direction: row;
+  margin-top: 10px;
+  gap: 10px;
+}
+.grpContainer {
+  margin-left: 10px;
+}
+.grpContainer .feedTabs .tab {
+  padding: 10px 20px;
+  border: 1px solid var(--third-color);
+  border-radius: 8px;
+  background-color: var(--lightGray-color);
+  cursor: pointer;
+}
+
+.grpContainer .feedTabs .tab.active {
+  background-color: var(--btn-color);
+  color: var(--background);
+  font-weight: bold;
+}
+
 .logo {
   margin-bottom: 10px;
 }
