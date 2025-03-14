@@ -85,10 +85,20 @@ func getAllGroups(page int) []group_data {
 }
 
 func isMember(groupId, userId int) bool {
-	query := `SELECT COALESCE((SELECT  gm.user_id
-	 			FROM group_members gm
-				WHERE gm.group_id = ? AND gm.user_id = ?), 0) AS id`
-	res, err := d.SelectOneRow(query, groupId, userId)
+	query := `
+    SELECT
+        COALESCE(
+            (
+                SELECT gm.user_id
+                FROM group_members gm
+                INNER JOIN groups g ON gm.group_id = g.id
+                WHERE g.owner_id = $1
+                OR (gm.status = 'accept' AND gm.group_id = $2 AND gm.user_id = $1)
+                LIMIT 1
+            ),
+            0
+        ) AS id;`
+	res, err := d.SelectOneRow(query, userId, groupId)
 	if err != nil {
 		return false
 	} else {

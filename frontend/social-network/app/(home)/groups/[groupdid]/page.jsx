@@ -17,6 +17,7 @@ export default function Profile() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [section, setSection] = useState("post")
+  const [hamberMenu, setHamberMenu] = useState(false);
 
   useEffect(() => {
     const fetchGroupProfile = async () => {
@@ -52,6 +53,14 @@ export default function Profile() {
     setSection(state);
   }
 
+  const toggleMenu = () => {
+    if (hamberMenu) {
+      setHamberMenu(false);
+    } else {
+      setHamberMenu(true);
+    }
+  };
+
   if (loading) {
     return <div>Loading group profile...</div>
   }
@@ -86,10 +95,19 @@ export default function Profile() {
             </div>
           )}
           {section === "event" && (
-            <div>
-              <EventContainer onSuccess={handleReload} />
-              <DisplayEvents key={reloadKey} />
-            </div>
+            <>
+              <div>
+                <button onClick={toggleMenu} className="rightMenuToggle">
+                  <i className="fas fa-bars"></i>
+                </button>
+                <EventContainer onSuccess={handleReload} />
+                <DisplayEvents key={reloadKey} />
+              </div>
+              <div className={"rightSidebar" + (hamberMenu ? " show" : "")}>
+                <ProfileGrp />
+                <InvitUser userID={window.userState.id} />
+              </div>
+            </>
           )}
         </div >
 

@@ -199,7 +199,6 @@ function User({ data, route }) {
     const pathParts = fullPath.split("/");
     const groupID = pathParts[pathParts.length - 1];
     const Invit = async (id) => {
-        console.log("id :", id, groupID);
         const formData = new FormData();
         formData.append("group", groupID);
         formData.append("member", id);
@@ -214,6 +213,9 @@ function User({ data, route }) {
             console.error("Invitation error:", error);
             return { status: 500, error: "Failed to process invitation" };
         }
+    }
+    const isUserHasRelation = (id) => {
+        
     }
     return (
         <div>
@@ -239,9 +241,11 @@ function User({ data, route }) {
                                 </span>
                             </div>
                         </Link>
-                        <button onClick={() => Invit(item.Id)}>
-                            <i className="fas fa-plus"></i>invite
-                        </button>
+                        {isUserHasRelation(item.id) &&
+                            <button onClick={() => Invit(item.Id)}>
+                                <i className="fas fa-plus"></i>invite
+                            </button>
+                        }
                     </div>
                 ))
             )}
