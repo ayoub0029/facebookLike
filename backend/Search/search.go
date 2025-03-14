@@ -9,6 +9,7 @@ type UsersSearch struct {
 	Nickname   string `json:"nickname"`
 	First_name string `json:"firstName"`
 	Last_name  string `json:"lastName"`
+	Avatar     string
 }
 
 type GroupSearch struct {
@@ -25,7 +26,8 @@ func searchUsersInDb(target, lastId string) ([]UsersSearch, error) {
     	id,
     	nickname,
     	first_name,
-    	last_name
+    	last_name,
+		avatar
 	FROM
     	users
 	WHERE
@@ -51,6 +53,7 @@ func searchUsersInDb(target, lastId string) ([]UsersSearch, error) {
 			&us.Nickname,
 			&us.First_name,
 			&us.Last_name,
+			&us.Avatar,
 		)
 		if err != nil {
 			return nil, err

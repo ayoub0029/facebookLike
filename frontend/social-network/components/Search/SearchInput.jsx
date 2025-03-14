@@ -106,11 +106,15 @@ function SearchResultItem({ data }) {
     if (data.firstName) {
         data.firstName = data.firstName + " ";
     }
+    let ImageUrl = data.Avatar != "undefined"
+        ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/public/${data.Avatar}`
+        : process.env.NEXT_PUBLIC_GLOBAL_IMG;
+    
     return (
         <Link href={`${data.name ? "/groups/" + data.id : "/profile/" + data.id}`} className="res">
             <div>
                 <img
-                    src={`${data.name ? "/images/group.jpg" : data.avatar ? data.avatar : "/images/test.jpg"}`}
+                    src={`${data.name ? "/images/group.jpg" : data.Avatar ? ImageUrl : "/images/test.jpg"}`}
                     alt="profile"
                 />
                 <p>{(data.firstName + data.lastName) || data.name}</p>

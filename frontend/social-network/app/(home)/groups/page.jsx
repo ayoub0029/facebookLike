@@ -5,6 +5,7 @@ import JoinedGrp from "@/components/Groups/JoinedGrp"
 import CreateGroup from "@/components/Groups/CreateGroup";
 import MyGroups from "@/components/Groups/MyGroups";
 import { useState, useCallback } from 'react'
+import { SearchInput } from "@/components/Search/SearchInput";
 
 export default function Groups() {
   const [reloadKey, setReloadKey] = useState(0);
@@ -23,6 +24,7 @@ export default function Groups() {
   return (
     <>
       <div>
+          <SearchInput FetchGroups={true} />
         <div>
           <button onClick={toggleMenu} className="rightMenuToggle">
             <i className="fas fa-bars"></i>
