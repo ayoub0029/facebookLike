@@ -5,6 +5,7 @@ import { Navigation } from "@/components/navbar";
 import { checkIfLoggedIn } from "@/api/isLoggedIn";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { WebSocketProvider } from "@/hooks/websocket-context.jsx";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -57,7 +58,8 @@ export default function RootLayout({ children }) {
               <div className="leftSidebar">
                 <Navigation />
               </div>
-              {children}
+              <WebSocketProvider >{children}</WebSocketProvider>
+              {/* {children} */}
             </div>
           </>
         )}

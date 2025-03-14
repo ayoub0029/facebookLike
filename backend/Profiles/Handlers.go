@@ -9,6 +9,7 @@ import (
 
 	auth "socialNetwork/Authentication"
 	global "socialNetwork/Global"
+	notifications "socialNetwork/Notifications"
 )
 
 type Data struct {
@@ -167,10 +168,16 @@ func Follow(w http.ResponseWriter, r *http.Request) {
 		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": global.ErrServer.Error()})
 		return
 	}
-
+	var notif = notifications.NewNotification("", uint64(CurrentUserID), uint64(FollowedID), 0)
 	if Public {
+		if err := notif.Following(false); err != nil {
+			global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": "failed to send notification"})
+		}
 		global.JsonResponse(w, http.StatusOK, map[string]string{"Message": "User Followed Successfully"})
 		return
+	}
+	if err := notif.Following(true); err != nil {
+		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": "failed to send notification"})
 	}
 	global.JsonResponse(w, http.StatusOK, map[string]string{"Message": "Send Follow Request Successfully"})
 }

@@ -1,15 +1,16 @@
 package socket
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 
 	chats "socialNetwork/Chats"
+	database "socialNetwork/Database"
 	global "socialNetwork/Global"
 	middleware "socialNetwork/Middlewares"
-	profiles "socialNetwork/Profiles"
 
 	"github.com/gorilla/websocket"
 )
@@ -79,7 +80,7 @@ func handlePrvChatMessage(wsMessage WebSocketMessage, userID uint64) error {
 	if err := json.Unmarshal(data, &chatMsg); err != nil {
 		return fmt.Errorf("error unmarshaling chat message: %v", err)
 	}
-	is_followed, err := profiles.IsFollowed(int(chatMsg.Receiver_id), int(userID))
+	is_followed, err := IsFollowed(int(chatMsg.Receiver_id), int(userID))
 	if is_followed == -1 {
 		log.Println(err)
 		return nil
@@ -139,4 +140,49 @@ func SocketListner(client *global.Client, r *http.Request) {
 	}
 	client.State = false
 	RemoveClient(client.UserId)
+}
+
+// ================================
+// check if A if follow user B
+// If This function return -1 That mean false
+func IsFollowed(a, b int) (int, error) {
+	if a == b {
+		return -1, fmt.Errorf("err Follow Yourself")
+	}
+
+	if !UserExists(a) || !UserExists(b) {
+		return -1, fmt.Errorf("errUserNotExist")
+	}
+
+	var RelationID int
+
+	Query := `SELECT id FROM followers WHERE follower_id = ? AND followed_id = ? AND status = 'accept'`
+	row, err := database.SelectOneRow(Query, a, b)
+	if err != nil {
+		return -1, err
+	}
+
+	if err := row.Scan(&RelationID); err != nil {
+		if err == sql.ErrNoRows {
+			return -1, fmt.Errorf("errCantFindRelationId")
+		}
+		return -1, err
+	}
+
+	return RelationID, nil
+}
+
+func UserExists(userID int) bool {
+	var Exist bool
+	Query := "SELECT COUNT(1) FROM users WHERE id = ?"
+
+	Row, err := database.SelectOneRow(Query, userID)
+	if err != nil {
+		fmt.Println(err)
+		return false
+	}
+	if err := Row.Scan(&Exist); err != nil {
+		return false
+	}
+	return Exist
 }
