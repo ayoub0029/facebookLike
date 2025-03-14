@@ -203,3 +203,23 @@ func getAllGroupRequets(group, page int) []profiles.Profile {
 	}
 	return members_lists
 }
+
+
+func getPeopleToInvite(userID, groupID,page int) []profiles.Profile {
+	query := `SELECT u.id, u.first_name, u.last_name, u.avatar
+			FROM users u JOIN followers f ON u.id = f.follower_id  OR u.id = f.followed_id
+			WHERE (f.followed_id = ? OR f.follower_id = ?) AND f.status = 'accept' AND u.id != ? 
+			AND u.id NOT in (SELECT gm.user_id AS UserID FROM group_members gm
+			WHERE gm.group_id = ?) LIMIT 10 OFFSET ?;`;
+	data_Rows, err := d.SelectQuery(query, userID,userID,userID,groupID, page);
+	if err != nil {
+		return nil
+	}
+	users_lists := make([]profiles.Profile, 0);
+	for data_Rows.Next() {
+	user := profiles.Profile{};
+	_ = data_Rows.Scan(&user.Id, &user.ProfileData.First_Name, &user.ProfileData.Last_Name, &user.ProfileData.Avatar);
+	users_lists = append(users_lists, user);
+	}
+	return users_lists;
+}

@@ -28,7 +28,7 @@ func Routes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /group/applications", GetGroupApplications_handler);
 	mux.HandleFunc("POST /group/accepte", AccepteMemberInGroup_handler);
 	mux.HandleFunc("POST /group/reject", RejectMemberFromGroup_handler);
-
+	mux.HandleFunc("GET /group/people", GetPeopleToInvte_handler);
 
 
 }
@@ -323,4 +323,21 @@ func RejectMemberFromGroup_handler(res http.ResponseWriter, req *http.Request)  
 		return;
 	}
 	global.JsonResponse(res, 200, "data saved Succesfuly");
+}
+
+func GetPeopleToInvte_handler(res http.ResponseWriter, req *http.Request) {
+	page, err := strconv.Atoi(req.FormValue("page"))
+	groupId, err2 := strconv.Atoi(req.FormValue("group"))
+	owner, ok := req.Context().Value(middleware.UserContextKey).(middleware.User)
+
+	if err != nil || err2 != nil || !ok {
+		global.JsonResponse(res, 400, "data Error")
+		return
+	}
+	groupPeoplesArray := GetPeopleToInvite(int(owner.ID),groupId, page);
+	if groupPeoplesArray == nil {
+		global.JsonResponse(res, 404, "data Not Found")
+		return
+	}
+	global.JsonResponse(res, 200, groupPeoplesArray)
 }
