@@ -17,6 +17,7 @@ type group_data struct {
 
 type groupApplication struct {
 	ID          int    `json:"id"`
+	GroupID     int    `json:"groupID"`
 	Name        string `json:"name"`
 	UserID      int 	`json:"userID"`
 	FullName    string `json:"fullName"`
@@ -24,7 +25,7 @@ type groupApplication struct {
 }
 
 func getGroupsOwnerApplications(OwnerID, page int) []groupApplication {
-	query := `SELECT gm.id , g.id AS groupID,g.name,u.id AS userID,concat(u.first_name ," ",u.last_name) AS fullName,gm.status FROM groups g
+	query := `SELECT gm.id, g.id AS groupID,g.name,u.id AS userID,concat(u.first_name ," ",u.last_name) AS fullName,gm.status FROM groups g
 			JOIN group_members gm ON g.id = gm.group_id JOIN users u ON u.id = gm.user_id
 			WHERE (g.owner_id = ? OR gm.user_id = ?) AND gm.status = "request" OR (gm.status = "pending" AND gm.user_id = ?)
 			LIMIT 10 OFFSET ?;`;
@@ -35,7 +36,7 @@ func getGroupsOwnerApplications(OwnerID, page int) []groupApplication {
 	Applications_lists := make([]groupApplication, 0);
 	for data_Rows.Next() {
 		Application := groupApplication{};
-		_ = data_Rows.Scan(&Application.ID, &Application.Name, &Application.UserID, &Application.FullName, &Application.State);
+		_ = data_Rows.Scan(&Application.ID,&Application.GroupID, &Application.Name, &Application.UserID, &Application.FullName, &Application.State);
 		Applications_lists = append(Applications_lists, Application);
 	}
 	return Applications_lists;
