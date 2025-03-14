@@ -107,7 +107,7 @@ function SearchResultItem({ data }) {
         data.firstName = data.firstName + " ";
     }
     let ImageUrl = data.Avatar != "undefined"
-        ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/public/${data.Avatar}`
+        ? data.Avatar.startsWith("http")? data.Avatar : `${process.env.NEXT_PUBLIC_API_BASE_URL}/public/${data.Avatar}`
         : process.env.NEXT_PUBLIC_GLOBAL_IMG;
     
     return (
