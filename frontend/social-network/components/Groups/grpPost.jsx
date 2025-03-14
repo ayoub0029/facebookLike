@@ -3,7 +3,6 @@
 import { useState, useCallback } from "react";
 import { CreatePost } from "@/components/Posts/CreatePost";
 import { FetchPosts } from "@/components/Posts/FetchPosts";
-import { useParams } from "next/navigation";
 
 export default function GroupById(id) {
     console.log(id.groupId);
@@ -11,7 +10,6 @@ export default function GroupById(id) {
     const [reloadKey, setReloadKey] = useState(0);
     const [hamberMenu, setHamberMenu] = useState(false);
 
-    const params = useParams()
 
     const toggleMenu = () => {
         if (hamberMenu) {
