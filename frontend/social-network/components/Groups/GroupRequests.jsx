@@ -53,16 +53,21 @@ const GroupRequests = () => {
         nextPage
     } = useLazyLoad(fetchRqsts)
 
-    const handleAccept = async (id) => {
-        try {
-            await fetchApi(`/groups/accept?id=${id}`, 'GET', null, false);
-            setReloadKey(prevKey => prevKey + 1);
-        } catch (err) {
-            console.error('Error accepting group request:', err);
-        }
+    const handleAccept = async () => {
+        // const formData = new FormData()
+        // formData.append("user",)
+        // try {
+        //     await fetchApi(`/groups/accept?id=${id}`, 'GET', null, false);
+        //     setReloadKey(prevKey => prevKey + 1);
+        // } catch (err) {
+        //     console.error('Error accepting group request:', err);
+        // }
+        console.log(window.userState.id);
+        
+        
     };
 
-    const handleDecline = async (id) => {
+    const handleDecline = async () => {
         try {
             await fetchApi(`/groups/decline?id=${id}`, 'DELETE', null, false);
             setReloadKey(prevKey => prevKey + 1);
@@ -94,6 +99,7 @@ const GroupRequests = () => {
                     <div className="invitationRequests">
                         {data.map(request => (
                             <div key={request.id} className="invitationCard">
+                                {console.log(request)}
                                 {request.state === "request" &&
                                     < div className="invitation-details">
                                         <h3 className="group-name">Request from {request.fullName}</h3>
@@ -101,20 +107,20 @@ const GroupRequests = () => {
                                 }
                                 {request.state === "pending" &&
                                     < div className="invitation-details">
-                                        {console.log("ra00:",request)}
+                                        {console.log("ra00:", request)}
                                         <h3 className="group-name">Invitation from {request.name}</h3>
                                     </div>
                                 }
                                 <div className="invitation-actions">
                                     <button
-                                        onClick={() => handleAccept(request.id)}
+                                        onClick={() => handleAccept()}
                                         className="btn btnGreen"
                                         title="Accept invitation"
                                     >
                                         Accept
                                     </button>
                                     <button
-                                        onClick={() => handleDecline(request.id)}
+                                        onClick={() => handleDecline()}
                                         className="btn btnRed"
                                         title="Decline invitation"
                                     >
