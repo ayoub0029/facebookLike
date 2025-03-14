@@ -32,7 +32,7 @@ export default function GroupById(id) {
                 <CreatePost onSuccess={handleReload} onGroup={true} groupId={id.groupId} />
                 <FetchPosts key={reloadKey} endpoint={`/posts/group?group_id=${id.groupId}&last_id=`} lastId={0} />
             </aside>
-            {hamberMenu === "show" && <div className={"rightSidebar" + (hamberMenu ? " show" : "")}>
+            {hamberMenu === true && <div className={"rightSidebar" + (hamberMenu ? " show" : "")}>
                 <ProfileGrp />
                 <InvitUser userID={window.userState.id} />
             </div>}

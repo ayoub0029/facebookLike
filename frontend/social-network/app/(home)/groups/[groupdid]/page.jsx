@@ -103,7 +103,7 @@ export default function Profile() {
                 <EventContainer onSuccess={handleReload} />
                 <DisplayEvents key={reloadKey} />
               </div>
-              {hamberMenu === "show" && <div className={"rightSidebar" + (hamberMenu ? " show" : "")}>
+              {hamberMenu === true && <div className={"rightSidebar" + (hamberMenu ? " show" : "")}>
                 <ProfileGrp />
                 <InvitUser userID={window.userState.id} />
               </div>}
