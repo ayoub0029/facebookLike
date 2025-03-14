@@ -41,7 +41,6 @@ func CreateGroup_handler(res http.ResponseWriter, req *http.Request) {
 		global.JsonResponse(res, 400, "data Error")
 		return
 	}
-	fmt.Println(name, description, user)
 	myGroup := NewGroup(name, description, int(user.ID))
 	status := myGroup.Create()
 	if !status {
@@ -298,6 +297,7 @@ func GetGroupApplications_handler(res http.ResponseWriter, req *http.Request) {
 func AccepteMemberInGroup_handler(res http.ResponseWriter, req *http.Request)  {
 	member, err := strconv.Atoi(req.FormValue("user"));
 	group, err2 := strconv.Atoi(req.FormValue("group"));
+	fmt.Println(member, group)
 	if err != nil || err2 != nil {
 		global.JsonResponse(res, 400, "data Error");
 		return;

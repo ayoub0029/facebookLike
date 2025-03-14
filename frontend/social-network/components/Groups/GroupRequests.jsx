@@ -2,29 +2,12 @@
 import React, { useState, useEffect } from 'react'
 import { fetchApi } from '@/api/fetchApi'
 import '../../styles/GroupRequests.css'
-import groupImage from '../../Img/group.png'
 import useLazyLoad from '@/hooks/lazyload'
-/* const fetchUserGroups = async (page) => {
-    try {
-        const data = await fetchApi(`/groups/CreatedBy?page=${page}`, 'GET', null, false)
-        if (data.status !== undefined) {
-            return { error: data.error, status: data.status }
-        }
-        const groups = Array.isArray(data) ? data : []
-        return {
-            items: groups,
-            nextPage: groups.length > 0 ? page + 5 : null
-        }
-    } catch (err) {
-        console.error('Error fetching groups:', err)
-        return { items: [], nextPage: null }
-    }
-} */
 
 const fetchRqsts = async (page) => {
     try {
         const data = await fetchApi(`group/applications?page=${page}`, 'GET', null, false)
-        console.log("requests", data);
+        console.log("requests", data)
 
         if (data.status !== undefined) {
             return { error: data.error, status: data.status }
@@ -41,10 +24,7 @@ const fetchRqsts = async (page) => {
 }
 
 const GroupRequests = () => {
-    const [reloadKey, setReloadKey] = useState(0)
-    useEffect(() => {
-        fetchRqsts(0);
-    }, [reloadKey]);
+    const [requests, setRequests] = useState([])
     const {
         data,
         loaderRef,
@@ -52,29 +32,41 @@ const GroupRequests = () => {
         error,
         nextPage
     } = useLazyLoad(fetchRqsts)
-
-    const handleAccept = async () => {
-        // const formData = new FormData()
-        // formData.append("user",)
-        // try {
-        //     await fetchApi(`/groups/accept?id=${id}`, 'GET', null, false);
-        //     setReloadKey(prevKey => prevKey + 1);
-        // } catch (err) {
-        //     console.error('Error accepting group request:', err);
-        // }
-        console.log(window.userState.id);
-        
-        
-    };
-
-    const handleDecline = async () => {
-        try {
-            await fetchApi(`/groups/decline?id=${id}`, 'DELETE', null, false);
-            setReloadKey(prevKey => prevKey + 1);
-        } catch (err) {
-            console.error('Error declining group request:', err);
+    useEffect(() => {
+        if (data) {
+            setRequests(data)
         }
-    };
+    }, [data])
+
+    const handleAccept = async (grpID, usrID) => {
+        const formData = new FormData()
+        formData.append("user", usrID)
+        formData.append("group", grpID)
+
+        try {
+            await fetchApi(`group/accepte`, 'POST', formData, true)
+            setRequests(prevRequests =>
+                prevRequests.filter(req => !(req.groupID === grpID && req.userID === usrID))
+            )
+        } catch (err) {
+            console.error('Error accepting group request:', err)
+        }
+    }
+
+    const handleDecline = async (grpID, usrID) => {
+        const formData = new FormData()
+        formData.append("user", usrID)
+        formData.append("group", grpID)
+
+        try {
+            await fetchApi(`group/reject`, 'POST', formData, true)
+            setRequests(prevRequests =>
+                prevRequests.filter(req => !(req.groupID === grpID && req.userID === usrID))
+            )
+        } catch (err) {
+            console.error('Error declining group request:', err)
+        }
+    }
 
     return (
         <div className="group-invitations-container">
@@ -93,11 +85,11 @@ const GroupRequests = () => {
                     borderRadius: '8px'
                 }}
             >
-                {!loading && !error && data.length === 0 ? (
+                {!loading && !error && requests.length === 0 ? (
                     <p>No pending group invitations</p>
                 ) : (
                     <div className="invitationRequests">
-                        {data.map(request => (
+                        {requests.map(request => (
                             <div key={request.id} className="invitationCard">
                                 {console.log(request)}
                                 {request.state === "request" &&
@@ -113,14 +105,14 @@ const GroupRequests = () => {
                                 }
                                 <div className="invitation-actions">
                                     <button
-                                        onClick={() => handleAccept()}
+                                        onClick={() => handleAccept(request.groupID, request.userID)}
                                         className="btn btnGreen"
                                         title="Accept invitation"
                                     >
                                         Accept
                                     </button>
                                     <button
-                                        onClick={() => handleDecline()}
+                                        onClick={() => handleDecline(request.groupID, request.userID)}
                                         className="btn btnRed"
                                         title="Decline invitation"
                                     >
