@@ -120,9 +120,7 @@ export default function Profile() {
   if (groupProfile && groupProfile.status !== "accept" && groupProfile.owner !== window.userState.id) {
     return (
       <>
-        <div className="rightSidebar">
-          <ProfileGrp />
-        </div>
+          <ProfileGrp onSuccess={handleReload} />
       </>
     )
   }

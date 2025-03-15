@@ -7,7 +7,7 @@ import Image from "next/image"
 import '../../styles/Groups.css'
 import Link from "next/link"
 
-export default function ProfileGrp() {
+export default function ProfileGrp({ onSuccess }) {
     const fullPath = usePathname()
     const pathParts = fullPath.split("/")
     const pathname = pathParts[pathParts.length - 1]
@@ -52,50 +52,27 @@ export default function ProfileGrp() {
         }
     }
 
-    const cancelJoin = async (id) => {
+    const handleAccept = async (grpID, usrID) => {
+        const formData = new FormData()
+        formData.append("user", usrID)
+        formData.append("group", grpID)
         try {
-            const formData = new FormData();
-            formData.append("group", id.toString());
-            const data = await fetchApi('group/join', 'POST', formData, true);
-
-            if (data.status !== undefined && data.status !== "success") {
-                console.error('Error requesting to join group')
-                setError(data.error || "Failed to send join request")
-                return
-            }
-            setStateChange("nothing")
-        } catch (error) {
-            console.error('Error requesting to join group:', error)
-            setError('Failed to send join request')
+            await fetchApi(`group/accepte`, 'POST', formData, true)
+            onSuccess()
+        } catch (err) {
+            console.error('Error accepting group request:', err)
         }
     }
 
-    const inviteFollowers = async () => {
-        if (isFetching.current) return;
-        isFetching.current = true;
-        setLoading(true);
-
+    const handleDecline = async (grpID, usrID) => {
+        const formData = new FormData()
+        formData.append("user", usrID)
+        formData.append("group", grpID)
         try {
-            const response = await fetchApi(
-                `profiles/followers?user_id=${window.userState.id}&page=${currentPage}&limit=10`
-            );
-
-            if (!response || !Array.isArray(response)) {
-                setHasMore(false);
-                return;
-            }
-
-            setData((prev) => [...prev, ...response]);
-
-            if (response.length < 10) {
-                setHasMore(false);
-            }
-        } catch (error) {
-            console.error("Fetch error:", error);
-            setHasMore(false);
-        } finally {
-            setLoading(false);
-            isFetching.current = false;
+            await fetchApi(`group/reject`, 'POST', formData, true)
+            onSuccess()
+        } catch (err) {
+            console.error('Error declining group request:', err)
         }
     }
 
@@ -138,9 +115,21 @@ export default function ProfileGrp() {
                         </div>
                     )}
                     {groupProfile.status === "pending" && (
-                        <div className="reqToJoin">
-                            <button onClick={() => cancelJoin(groupProfile.id)} className="btn btnGray">
-                                Cancel Request
+                        <div className="invitation-actions">
+                            {console.log(groupProfile)}
+                            <button
+                                onClick={() => handleAccept(groupProfile.id, window.userState.id)}
+                                className="btn btnGreen"
+                                title="Accept invitation"
+                            >
+                                Accept
+                            </button>
+                            <button
+                                onClick={() => handleDecline(groupProfile.id, window.userState.id)}
+                                className="btn btnRed"
+                                title="Decline invitation"
+                            >
+                                Decline
                             </button>
                         </div>
                     )}
@@ -155,6 +144,6 @@ export default function ProfileGrp() {
                     )}
                 </div>
             </div>
-        </div>
+        </div >
     )
 }
