@@ -209,8 +209,9 @@ func getPeopleToInvite(userID, groupID, page int) []profiles.Profile {
 			FROM users u JOIN followers f ON u.id = f.follower_id  OR u.id = f.followed_id
 			WHERE (f.followed_id = ? OR f.follower_id = ?) AND f.status = 'accept' AND u.id != ? 
 			AND u.id NOT in (SELECT gm.user_id AS UserID FROM group_members gm
-			WHERE gm.group_id = ?) LIMIT 10 OFFSET ?;`
-	data_Rows, err := d.SelectQuery(query, userID, userID, userID, groupID, page)
+			WHERE gm.group_id = ?) AND u.id != (SELECT g.owner_id FROM groups g 
+			WHERE g.id = ?) LIMIT 10 OFFSET ?;`;
+	data_Rows, err := d.SelectQuery(query, userID,userID,userID,groupID,groupID, page);
 	if err != nil {
 		return nil
 	}
