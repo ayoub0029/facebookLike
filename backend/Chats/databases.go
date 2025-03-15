@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 
-
 	database "socialNetwork/Database"
 	middleware "socialNetwork/Middlewares"
 )
@@ -92,4 +91,30 @@ func AddmessageGrpToDB(senderId uint64, groupid uint64, message string) error {
 		return err
 	}
 	return nil
+}
+
+func GetUsersIchatWith(userID int, r *http.Request) ([]User, error) {
+	var users []User
+	query := `SELECT u.avatar, CONCAT(u.first_name, ' ', u.last_name) AS full_name
+			  FROM users u
+			  WHERE u.id IN (SELECT DISTINCT pch.sender_id FROM private_chat pch WHERE pch.receiver_id = ?)
+			  OR u.id IN (SELECT DISTINCT pch.receiver_id FROM private_chat pch WHERE pch.sender_id = ?);`
+	rows, err := database.SelectQuery(query, userID, userID)
+	if err != nil {
+		log.Println("Getting data from db error: ", err)
+		return nil, err
+	}
+	user := User{}
+	for rows.Next() {
+		err := rows.Scan(&user.ID, &user.FullName)
+		if err != nil {
+			log.Println("Scan error: ", err)
+			return nil, err
+		}
+		users = append(users, user)
+	}
+	if len(users) == 0 {
+		return nil, nil
+	}
+	return users, nil
 }

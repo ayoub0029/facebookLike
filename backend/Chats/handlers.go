@@ -27,3 +27,13 @@ func groupChat(w http.ResponseWriter, r *http.Request) {
 	}
 	global.JsonResponse(w, 200, message)
 }
+
+func userIchatWith(w http.ResponseWriter, r *http.Request) {
+	message, err := GetUserIchatWith(r)
+	if err != nil {
+		logger.Error("mesage: %v", err)
+		global.JsonResponse(w, http.StatusInternalServerError, "server side error")
+		return
+	}
+	global.JsonResponse(w, 200, message)
+}
