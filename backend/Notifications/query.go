@@ -8,7 +8,9 @@ import (
 
 type DataNotif struct {
 	Id        uint64 `json:"id"`
-	Sender    string `json:"seneder"`
+	FirstName string
+	LastName  string
+	Avatar    string
 	Type      string `json:"type"`
 	Message   string `json:"message"`
 	CreatedAt string `json:"creatat"`
@@ -83,7 +85,9 @@ func selectNotifications(user, lastNotif string) ([]DataNotif, error) {
 
 	query := `SELECT
     	notifications.id,
-    	users.nickname,
+    	users.first_name,
+    	users.last_name,
+		users.avatar,
     	notifications.content,
     	notifications.type,
     	notifications.created_at
@@ -112,7 +116,9 @@ func selectNotifications(user, lastNotif string) ([]DataNotif, error) {
 	for rows.Next() {
 		err = rows.Scan(
 			&nf.Id,
-			&nf.Sender,
+			&nf.FirstName,
+			&nf.LastName,
+			&nf.Avatar,
 			&nf.Message,
 			&nf.Type,
 			&nf.CreatedAt,
