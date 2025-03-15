@@ -13,6 +13,8 @@ export default function ChatPage() {
   const [inputMessage, setInputMessage] = useState("")
   const messagesEndRef = useRef(null)
   const { isConnected, sendMessage, setMessageHandler } = useWebSocket()
+  const [hamberMenu, setHamberMenu] = useState(false);
+
 
   // Handle incoming messages
   useEffect(() => {
@@ -81,62 +83,74 @@ export default function ChatPage() {
     if (msg._isOutgoing) return true
     return msg.sender_id === window.userState.id
   }
+  const toggleMenu = () => {
+    if (hamberMenu) {
+      setHamberMenu(false);
+    } else {
+      setHamberMenu(true);
+    }
+  };
 
-  return (
+  return (<>
+    <button onClick={toggleMenu} className="rightMenuToggle">
+      <i className="fas fa-bars"></i>
+    </button>
 
-    <div className={styles.chatContainer}>
-      <span className={isConnected ? styles.statusConnected : styles.statusDisconnected}>
-        {isConnected ? "you Connected" : "you Disconnected"}
-      </span>
+    <aside className="feed" style={{ backgroundColor: '#f5f5f5' }} >
+      <div className={styles.chatContainer}>
+        <div className={styles.chatCard}>
+          <div className={styles.chatHeader}>
+            <h2 className={styles.chatTitle}>Chat with {UserID}</h2>
+            <span className={isConnected ? styles.statusConnected : styles.statusDisconnected}>
+            {isConnected ? "you Connected" : "you Disconnected"}
+          </span>
+          </div>
 
-      <div className={styles.chatCard}>
-        <div className={styles.chatHeader}>
-          <h2 className={styles.chatTitle}>Chat with {UserID}</h2>
-          {/* <span className={isConnected ? styles.statusConnected : styles.statusDisconnected}>
-            {isConnected ? "Connected" : "Disconnected"}
-          </span> */}
-        </div>
-
-        <div className={styles.chatContent}>
-          {messages.length === 0 && (
-            <div className={styles.emptyState}>
-              <p>No messages yet. Start the conversation!</p>
-            </div>
-          )}
-
-          {messages.map((msg, index) => (
-            <div
-              key={index}
-              className={`${styles.messageRow} ${isCurrentUser(msg) ? styles.outgoing : styles.incoming}`}
-            >
-              <div className={isCurrentUser(msg) ? styles.outgoingMessage : styles.incomingMessage}>
-                {!isCurrentUser(msg) && <div className={styles.messageSender}>{msg.sender_id}</div>}
-                <div className={styles.messageContent}>{msg.message}</div>
-                <div className={styles.messageTime}>{formatTime(msg.timestamp)}</div>
+          <div className={styles.chatContent}>
+            {messages.length === 0 && (
+              <div className={styles.emptyState}>
+                <p>No messages yet. Start the conversation!</p>
               </div>
-            </div>
-          ))}
+            )}
 
-          <div ref={messagesEndRef} />
-        </div>
+            {messages.map((msg, index) => (
+              <div
+                key={index}
+                className={`${styles.messageRow} ${isCurrentUser(msg) ? styles.outgoing : styles.incoming}`}
+              >
+                <div className={isCurrentUser(msg) ? styles.outgoingMessage : styles.incomingMessage}>
+                  {!isCurrentUser(msg) && <div className={styles.messageSender}>{msg.sender_id}</div>}
+                  <div className={styles.messageContent}>{msg.message}</div>
+                  <div className={styles.messageTime}>{formatTime(msg.timestamp)}</div>
+                </div>
+              </div>
+            ))}
 
-        <div className={styles.chatFooter}>
-          <form onSubmit={handleSendMessage} className={styles.messageForm}>
-            <input
-              type="text"
-              placeholder={isConnected ? "Type a message..." : "Connecting..."}
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              disabled={!isConnected}
-              className={styles.messageInput}
-            />
-            <button type="submit" disabled={!isConnected || !inputMessage.trim()} className={styles.sendButton}>
-            <i className="fa-solid fa-paper-plane"></i>
-            </button>
-          </form>
+            <div ref={messagesEndRef} />
+          </div>
+
+          <div className={styles.chatFooter}>
+            <form onSubmit={handleSendMessage} className={styles.messageForm}>
+              <input
+                type="text"
+                placeholder={isConnected ? "Type a message..." : "Connecting..."}
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+                disabled={!isConnected}
+                className={styles.messageInput}
+              />
+              <button type="submit" disabled={!isConnected || !inputMessage.trim()} className={styles.sendButton}>
+                <i className="fa-solid fa-paper-plane"></i>
+              </button>
+            </form>
+          </div>
         </div>
       </div>
+    </aside>
+
+    <div className={"rightSidebar" + (hamberMenu ? " show" : "")}>
+
     </div>
-  )
+  </>)
 }
 
