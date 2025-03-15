@@ -63,7 +63,6 @@ func WsHandling(w http.ResponseWriter, r *http.Request) {
 		State:  true,
 		Conn:   conn,
 	}
-	fmt.Println("has conection",client)
 	AddClient(client)
 	go SocketListner(client, r)
 }
@@ -123,7 +122,6 @@ func SocketListner(client *global.Client, r *http.Request) {
 			log.Println(err)
 			break
 		}
-		fmt.Printf("%+v\n", wsMessage)
 		if wsMessage.Type == "privateChat" {
 			if err := handlePrvChatMessage(wsMessage, user.ID); err != nil {
 				log.Printf("Error handling %s message: %v", wsMessage.Type, err)

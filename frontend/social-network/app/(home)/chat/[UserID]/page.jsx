@@ -22,7 +22,7 @@ export default function ChatPage() {
       try {
         const parsedData = JSON.parse(data)
 
-        if (parsedData.receiver_id === Number.parseInt(UserID) || parsedData.sender_id === Number.parseInt(UserID)) {
+        if (parsedData.sender_id === Number.parseInt(UserID)) {
           console.log("Matched message:", parsedData)
           setMessages((prev) => [...prev, parsedData])
         }
@@ -43,7 +43,7 @@ export default function ChatPage() {
     }
   }, [messages])
 
-  function handleSendMessage(e)  {
+  function handleSendMessage(e) {
     e.preventDefault()
 
     if (!inputMessage.trim() || !isConnected) return
@@ -61,8 +61,7 @@ export default function ChatPage() {
 
 
     const localMessageObj = {
-      sender_id: Number.parseInt(localStorage.getItem("userId") || "0"),
-      receiver_id: Number.parseInt(UserID),
+      receiver_id: UserID,
       message: inputMessage,
       timestamp: new Date().toISOString(),
       _isOutgoing: true,
@@ -78,20 +77,24 @@ export default function ChatPage() {
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
   }
 
-  function isCurrentUser(msg)  {
+  function isCurrentUser(msg) {
     if (msg._isOutgoing) return true
-    const currentUserId = Number.parseInt(localStorage.getItem("userId") || "0")
-    return msg.sender_id === currentUserId
+    return msg.sender_id === window.userState.id
   }
 
   return (
+
     <div className={styles.chatContainer}>
+      <span className={isConnected ? styles.statusConnected : styles.statusDisconnected}>
+        {isConnected ? "you Connected" : "you Disconnected"}
+      </span>
+
       <div className={styles.chatCard}>
         <div className={styles.chatHeader}>
           <h2 className={styles.chatTitle}>Chat with {UserID}</h2>
-          <span className={isConnected ? styles.statusConnected : styles.statusDisconnected}>
+          {/* <span className={isConnected ? styles.statusConnected : styles.statusDisconnected}>
             {isConnected ? "Connected" : "Disconnected"}
-          </span>
+          </span> */}
         </div>
 
         <div className={styles.chatContent}>
@@ -128,7 +131,7 @@ export default function ChatPage() {
               className={styles.messageInput}
             />
             <button type="submit" disabled={!isConnected || !inputMessage.trim()} className={styles.sendButton}>
-              Send
+            <i className="fa-solid fa-paper-plane"></i>
             </button>
           </form>
         </div>
