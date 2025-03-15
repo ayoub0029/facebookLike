@@ -152,7 +152,12 @@ func getComments(w http.ResponseWriter, r *http.Request) {
 			u.last_name,
     		cmt.comment_text,
     		cmt.created_at,
-			cmt.image
+			cmt.image,
+			CASE u.id 
+           		WHEN ? 
+           		    THEN true 
+           		ELSE false 
+       		END edit
 		FROM
 		    comments AS cmt
 		    JOIN users AS u on cmt.user_id = u.id
@@ -164,7 +169,7 @@ func getComments(w http.ResponseWriter, r *http.Request) {
 		LIMIT 5
 `
 
-	sqlrows, err := database.SelectQuery(query, postId, lastId)
+	sqlrows, err := database.SelectQuery(query, userID, postId, lastId)
 	if err != nil {
 		global.JsonResponse(w, http.StatusInternalServerError, "Something was wrong")
 		return
@@ -182,6 +187,7 @@ func getComments(w http.ResponseWriter, r *http.Request) {
 			&comment.CommentContent,
 			&comment.CreatedAt,
 			&comment.Image,
+			&comment.Edit,
 		); err != nil {
 			global.JsonResponse(w, http.StatusInternalServerError, "Failed to process comments")
 			return
