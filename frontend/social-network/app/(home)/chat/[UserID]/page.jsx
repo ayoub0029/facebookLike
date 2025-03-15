@@ -1,241 +1,139 @@
-"use client";
-import { useEffect, useState } from "react";
-import styles from "./page.module.css";
-import { fetchApi } from "@/api/fetchApi";
-import { useParams } from "next/navigation";
-import { UsersFollowing } from "@/components/profile/users_follow";
+"use client"
 
-async function getData(messageType, chatwith, page) {
-  let response = await fetchApi(
-    `chats/${GetDataSource(messageType)}=${chatwith}&page=${page}`
-  );
-  return response;
-}
+import { useState, useEffect, useRef } from "react"
+import { useWebSocket } from "@/hooks/websocket-context.jsx"
+import styles from "./chat.module.css"
+import { useParams } from "next/navigation"
 
-let Profiles = [
-  // { id: 1, UserId: 1, fullName: "lahmami ayoub" },
-  // { id: 2, UserId: 2, fullName: "cheddad ahmed" },
-  // { id: 3, UserId: 3, fullName: "rrr rrr" },
-  { id: 4, UserId: 4, fullName: "khir abdelouahab" },
-  // { id: 5, UserId: 5, fullName: "bouchikhi abdelilah" },
-  // { id: 6, UserId: 6, fullName: "kharkhach yassine" },
-  // { id: 7, UserId: 7, fullName: "elhabti mohammed" },
-  // { id: 8, UserId: 8, fullName: "serraf rachid" },
-  // { id: 9, GroupId: 2, fullName: "Group 1" },
-];
+export default function ChatPage() {
+  const params = useParams()
+  const UserID = params.UserID
 
-export default function Chat() {
+  const [messages, setMessages] = useState([])
+  const [inputMessage, setInputMessage] = useState("")
+  const messagesEndRef = useRef(null)
+  const { isConnected, sendMessage, setMessageHandler } = useWebSocket()
 
-// chof window.userState
-console.log(window.userState)
-
-  const UserID = useParams();
-  const [page, setPage] = useState(0);
-  const [msgType, setMsgType] = useState("");
-  const [Receiver, setReceiver] = useState(0);
-  const [messages, setMessages] = useState([]);
-  const [connected, setConnected] = useState(false);
-  const [ws, setWs] = useState(null);
-  // Establish WebSock\et connection when the component mounts
+  // Handle incoming messages
   useEffect(() => {
-    const socket = new WebSocket("ws://localhost:8080/ws"); // Replace with your WebSocket server URL
-    setWs(socket);
-    socket.onopen = () => {
-      console.log("WebSocket connected");
-      setConnected(true);
-    };
-    socket.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      const msg = data.message;
-      const sender = data.sender_id;
-      const date = new Date(data.timestamp).toString();
-      let fullName = "";
-      Profiles.forEach((elem) => {
-        if (elem.id == sender) {
-          fullName = elem.fullName;
-          return;
-        }
-      });
-      setReceiver(sender);
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        {
-          senderid: sender,
-          messageid: 20,
-          fullname: fullName,
-          avatar: "./images/profile.jpeg",
-          createdDate: date,
-          message: msg,
-        },
-      ]);
-    };
-    socket.onerror = (error) => {
-      console.error("WebSocket Error:", error);
-    };
-    socket.onclose = () => {
-      console.log("WebSocket closed");
-      setConnected(false);
-    };
-    return () => {
-      if (socket) {
-        socket.close();
-      }
-    };
-  }, []);
-  const sendMessage = () => {
-    if (ws && connected) {
-      let msg = {
-        Type: msgType,
-        Content: {
-          Receiver_id: Receiver,
-          message: document.getElementById("MessageText").value,
-        },
-      };
-      ws.send(JSON.stringify(msg));
-      setPage(0);
-    }
-  };
+    setMessageHandler((data) => {
+      console.log("Received data:", data)
 
-  function profileClick(profile) {
-    let msgtype = MessageType(profile);
-    let chatwith = msgtype == "privateChat" ? profile.UserId : profile.GroupId;
-    setMsgType(msgtype);
-    setReceiver(chatwith);
-    setPage(0);
-  }
-  useEffect(() => {
-    console.log("data changed! page : ", page);
-    async function fetchData() {
       try {
-        let response = await getData(msgType, Receiver, page);
-        if (!Array.isArray(response)) {
-          response = [];
+        const parsedData = JSON.parse(data)
+
+        if (parsedData.receiver_id === Number.parseInt(UserID) || parsedData.sender_id === Number.parseInt(UserID)) {
+          console.log("Matched message:", parsedData)
+          setMessages((prev) => [...prev, parsedData])
         }
-        setMessages((prevMessages = []) => {
-          return prevMessages.length > 0
-            ? [...response, ...prevMessages]
-            : response;
-        });
       } catch (error) {
-        console.error("Error fetching messages:", error);
+        console.error("Error parsing message:", error)
       }
+    })
+
+    return () => {
+      setMessageHandler(null)
     }
-    fetchData();
-  }, [page, Receiver]);
-  let ArrayOfMessages = [];
-  if (messages !== null && messages.length > 0) {
-    ArrayOfMessages = messages.map((item) => {
-      return <MessageSection key={item.messageid} profile={item} />;
-    });
+  }, [setMessageHandler, UserID])
+
+  useEffect(() => {
+    const chatContent = document.querySelector(`.${styles.chatContent}`)
+    if (chatContent) {
+      chatContent.scrollTop = chatContent.scrollHeight
+    }
+  }, [messages])
+
+  function handleSendMessage(e)  {
+    e.preventDefault()
+
+    if (!inputMessage.trim() || !isConnected) return
+
+    const messageObj = {
+      type: "privateChat",
+      content: {
+        receiver_id: Number.parseInt(UserID),
+        message: inputMessage,
+        timestamp: new Date().toISOString(),
+      },
+    }
+
+    sendMessage(JSON.stringify(messageObj))
+
+
+    const localMessageObj = {
+      sender_id: Number.parseInt(localStorage.getItem("userId") || "0"),
+      receiver_id: Number.parseInt(UserID),
+      message: inputMessage,
+      timestamp: new Date().toISOString(),
+      _isOutgoing: true,
+    }
+
+    setMessages((prev) => [...prev, localMessageObj])
+    setInputMessage("")
   }
 
-  let ArrayOfProfiles = Profiles.map((item) => {
-    /*let key = 0;
-    if (MessageType(item) == 'privateChat') {
-      key = item.UserId;
-    }else{
-      key = item.GroupId;
-    }*/
-    return (
-      <Profile
-        key={item.id}
-        onProfileClick={() => profileClick(item)}
-        profile={item}
-      />
-    );
-  });
-
-  const scrollHandler = (event) => {
-    const { scrollTop, scrollHeight, clientHeight } = event.target;
-    if (scrollTop == 0) {
-      setPage(page + 15);
-    }
-  };
-  return (
-    <>
-      <aside className={styles.ChatSection}>
-        <header className={styles.HeaderChat}>
-          <h1>hello</h1>
-          <h2>there</h2>
-          <h3>world</h3>
-        </header>
-        <section onScroll={scrollHandler} className={styles.ContentMessages}>
-          {ArrayOfMessages}
-        </section>
-        <footer className={styles.Footer}>
-          {Receiver != 0 && <InputsSend onSendMessage={sendMessage} />}
-        </footer>
-      </aside>
-      <div className="rightSidebar">
-        <div style={{ fontSize: "18px", fontWeight: "bold" }}>Private Chat</div>
-        <UsersFollowing userID={window.userState.id} route={"/chat"} />
-        {ArrayOfProfiles}
-      </div>
-    </>
-  );
-}
-
-function getDataInfo(profile) {
-  return {
-    msgtype: MessageType(profile),
-    chatwith: msgType == "privateChat" ? profile.UserId : profile.GroupId,
-  };
-}
-function GetDataSource(state) {
-  return state == "privateChat" ? "private?receiver_id" : "group?group_id";
-}
-function MessageType(profile) {
-  if (profile.GroupId !== undefined) {
-    return "groupChat";
-  } else {
-    return "privateChat";
+  function formatTime(timestamp) {
+    if (!timestamp) return ""
+    const date = new Date(timestamp)
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
   }
-}
 
-function Profile({ profile, onProfileClick }) {
+  function isCurrentUser(msg)  {
+    if (msg._isOutgoing) return true
+    const currentUserId = Number.parseInt(localStorage.getItem("userId") || "0")
+    return msg.sender_id === currentUserId
+  }
+
   return (
-    <div onClick={onProfileClick} className={styles.ProfileContainer}>
-      <div className={styles.Image}></div>
-      <div className={styles.MessageHeaderContainer}>
-        <h3>{profile.fullName}</h3>
+    <div className={styles.chatContainer}>
+      <div className={styles.chatCard}>
+        <div className={styles.chatHeader}>
+          <h2 className={styles.chatTitle}>Chat with {UserID}</h2>
+          <span className={isConnected ? styles.statusConnected : styles.statusDisconnected}>
+            {isConnected ? "Connected" : "Disconnected"}
+          </span>
+        </div>
+
+        <div className={styles.chatContent}>
+          {messages.length === 0 && (
+            <div className={styles.emptyState}>
+              <p>No messages yet. Start the conversation!</p>
+            </div>
+          )}
+
+          {messages.map((msg, index) => (
+            <div
+              key={index}
+              className={`${styles.messageRow} ${isCurrentUser(msg) ? styles.outgoing : styles.incoming}`}
+            >
+              <div className={isCurrentUser(msg) ? styles.outgoingMessage : styles.incomingMessage}>
+                {!isCurrentUser(msg) && <div className={styles.messageSender}>{msg.sender_id}</div>}
+                <div className={styles.messageContent}>{msg.message}</div>
+                <div className={styles.messageTime}>{formatTime(msg.timestamp)}</div>
+              </div>
+            </div>
+          ))}
+
+          <div ref={messagesEndRef} />
+        </div>
+
+        <div className={styles.chatFooter}>
+          <form onSubmit={handleSendMessage} className={styles.messageForm}>
+            <input
+              type="text"
+              placeholder={isConnected ? "Type a message..." : "Connecting..."}
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              disabled={!isConnected}
+              className={styles.messageInput}
+            />
+            <button type="submit" disabled={!isConnected || !inputMessage.trim()} className={styles.sendButton}>
+              Send
+            </button>
+          </form>
+        </div>
       </div>
     </div>
-  );
+  )
 }
 
-function MessageSection({ profile }) {
-  return (
-    <section className={styles.MessageSection}>
-      <div className={styles.Image}></div>
-      <div className={styles.MessageHeaderContainer}>
-        <header className={styles.MessageHeader}>
-          <h3>{profile.fullname}</h3>
-          <span>{new Date(profile.createdDate).toDateString()}</span>
-        </header>
-        <section>
-          <Message content={profile.message} />
-        </section>
-      </div>
-    </section>
-  );
-}
-
-function Message({ content }) {
-  return <p className={styles.MessageContent}>{content}</p>;
-}
-
-function InputsSend({ onSendMessage }) {
-  return (
-    <>
-      <input
-        id="MessageText"
-        className={styles.MessageText}
-        type="text"
-        placeholder="type your message..."
-      />
-      <button id={styles.ButtonSend} onClick={onSendMessage}>
-        Send
-      </button>
-    </>
-  );
-}

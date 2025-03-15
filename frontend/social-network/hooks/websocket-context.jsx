@@ -26,7 +26,6 @@ export function WebSocketProvider({ children }) {
     }
 
     socket.onmessage = (event) => {
-      console.log("Message from server:", event.data)
       if (messageHandlerRef.current) {
         messageHandlerRef.current(event.data)
       } else {
@@ -38,9 +37,9 @@ export function WebSocketProvider({ children }) {
       console.log("WebSocket Disconnected")
       setIsConnected(false)
 
-      setTimeout(() => {
-
-      }, 3000);
+      // setTimeout(() => {
+            // try conection again
+      // }, 3000);
     }
 
     socket.onerror = (error) => {

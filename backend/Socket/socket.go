@@ -58,16 +58,13 @@ func WsHandling(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	fmt.Printf("userName : %s\n", user.Name)
 	client := &global.Client{
 		UserId: user.ID,
 		State:  true,
 		Conn:   conn,
 	}
-
+	fmt.Println("has conection",client)
 	AddClient(client)
-	fmt.Println(client.UserId)
-	fmt.Println(client.UserId)
 	go SocketListner(client, r)
 }
 
@@ -82,7 +79,7 @@ func handlePrvChatMessage(wsMessage WebSocketMessage, userID uint64) error {
 	}
 	is_followed, err := IsFollowed(int(chatMsg.Receiver_id), int(userID))
 	if is_followed == -1 {
-		log.Println(err)
+		log.Println("IS FOLLOW ER",err, chatMsg.Receiver_id)
 		return nil
 	}
 	chats.HandleChatPrvMessage(chatMsg, userID)
@@ -126,9 +123,8 @@ func SocketListner(client *global.Client, r *http.Request) {
 			log.Println(err)
 			break
 		}
-		fmt.Println(wsMessage.Type)
+		fmt.Printf("%+v\n", wsMessage)
 		if wsMessage.Type == "privateChat" {
-			fmt.Println(wsMessage.Content)
 			if err := handlePrvChatMessage(wsMessage, user.ID); err != nil {
 				log.Printf("Error handling %s message: %v", wsMessage.Type, err)
 			}
