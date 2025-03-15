@@ -69,7 +69,7 @@ export default function Profile() {
     return <div>Error: {error}</div>
   }
 
-  if (groupProfile && (groupProfile.status === "accepted" || groupProfile.owner == window.userState.id)) {
+  if (groupProfile && (groupProfile.status === "accept" || groupProfile.owner === window.userState.id)) {
     return (
       <>
         <div className='grpContainer'>
@@ -103,15 +103,13 @@ export default function Profile() {
                 <EventContainer onSuccess={handleReload} />
                 <DisplayEvents key={reloadKey} />
               </div>
-              <div className={"rightSidebar" + (hamberMenu ? " show" : "")}>
+              {hamberMenu === true && <div className={"rightSidebar" + (hamberMenu ? " show" : "")}>
                 <ProfileGrp />
                 <InvitUser userID={window.userState.id} />
-              </div>
+              </div>}
             </>
           )}
         </div >
-
-
         <div className="rightSidebar">
           <ProfileGrp />
           <InvitUser userID={window.userState.id} />
@@ -119,13 +117,11 @@ export default function Profile() {
       </>
     )
   }
-
-  return (
-    <>
-      {console.log(groupProfile)}
-      <div className="rightSidebar">
-        <ProfileGrp />
-      </div>
-    </>
-  )
+  if (groupProfile && groupProfile.status !== "accept" && groupProfile.owner !== window.userState.id) {
+    return (
+      <>
+          <ProfileGrp onSuccess={handleReload} />
+      </>
+    )
+  }
 } 

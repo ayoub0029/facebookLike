@@ -62,9 +62,9 @@ func deleteVote(member, event int) bool {
 
 func getHowManyVotesForEvent(eventID int) *NumberOfVotes {
 	query := `SELECT (SELECT count(*) from event_votes ev
-				WHERE ev.option = 1) AS going,(SELECT count(*) from event_votes ev
-				WHERE ev.option = 0) AS notgoing;`
-	res, err := d.SelectOneRow(query)
+				WHERE ev.option = 1 AND ev.event_id = ?) AS going,(SELECT count(*) from event_votes ev
+				WHERE ev.option = 0 AND ev.event_id = ?) AS notgoing;`;
+	res, err := d.SelectOneRow(query,eventID,eventID);
 	if err != nil {
 		return nil
 	}

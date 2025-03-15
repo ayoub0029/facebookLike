@@ -33,9 +33,9 @@ export default function Groups() {
           <JoinedGrp />
           <MyGroups key={reloadKey} />
         </div>
-        <div className={"rightSidebar" + (hamberMenu ? " show" : "")}>
+        {hamberMenu === true && <div className={"rightSidebar" + (hamberMenu ? " show" : "")}>
           <GroupRequests />
-        </div>
+        </div>}
       </div>
       <div className="rightSidebar">
         <GroupRequests />

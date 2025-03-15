@@ -17,6 +17,7 @@ type group_data struct {
 
 type groupApplication struct {
 	ID       int    `json:"id"`
+	GroupID  int    `json:"groupID"`
 	Name     string `json:"name"`
 	UserID   int    `json:"userID"`
 	FullName string `json:"fullName"`
@@ -24,7 +25,7 @@ type groupApplication struct {
 }
 
 func getGroupsOwnerApplications(OwnerID, page int) []groupApplication {
-	query := `SELECT g.id,g.name,u.id AS userID,concat(u.first_name ," ",u.last_name) AS fullName,gm.status FROM groups g
+	query := `SELECT gm.id, g.id AS groupID,g.name,u.id AS userID,concat(u.first_name ," ",u.last_name) AS fullName,gm.status FROM groups g
 			JOIN group_members gm ON g.id = gm.group_id JOIN users u ON u.id = gm.user_id
 			WHERE (g.owner_id = ? OR gm.user_id = ?) AND gm.status = "request" OR (gm.status = "pending" AND gm.user_id = ?)
 			LIMIT 10 OFFSET ?;`
@@ -35,7 +36,7 @@ func getGroupsOwnerApplications(OwnerID, page int) []groupApplication {
 	Applications_lists := make([]groupApplication, 0)
 	for data_Rows.Next() {
 		Application := groupApplication{}
-		_ = data_Rows.Scan(&Application.ID, &Application.Name, &Application.UserID, &Application.FullName, &Application.State)
+		_ = data_Rows.Scan(&Application.ID, &Application.GroupID, &Application.Name, &Application.UserID, &Application.FullName, &Application.State)
 		Applications_lists = append(Applications_lists, Application)
 	}
 	fmt.Println(Applications_lists)
@@ -44,7 +45,7 @@ func getGroupsOwnerApplications(OwnerID, page int) []groupApplication {
 
 func getGroupInfo(UserId, groupID int) *group {
 	query := `SELECT g.id,g.name,g.description,g.owner_id,g.created_at,(SELECT count(*) from group_members gm
-			WHERE gm.group_id = g.id AND gm.status = 'accepted') AS members, (select COALESCE((SELECT gm.status from group_members gm WHERE gm.group_id = g.id and gm.user_id = ?),'nothing')) as status
+			WHERE gm.group_id = g.id AND gm.status = 'accept') AS members, (select COALESCE((SELECT gm.status from group_members gm WHERE gm.group_id = g.id and gm.user_id = ?),'nothing')) as status
 			FROM groups g  WHERE g.id = ?;`
 	res, err := d.SelectOneRow(query, UserId, groupID)
 	if err != nil {
@@ -116,7 +117,7 @@ func getAllMembers(groupID, page int) []profiles.Profile {
 	query := `SELECT u.id,u.first_name,u.last_name,u.avatar
 				FROM users u INNER JOIN group_members gm
 				on u.id = gm.user_id
-				WHERE gm.group_id = ? AND gm.status = 'accepted' LIMIT 5 OFFSET ?;`
+				WHERE gm.group_id = ? AND gm.status = 'accept' LIMIT 5 OFFSET ?;`
 	data_Rows, err := d.SelectQuery(query, groupID, page)
 	if err != nil {
 		return nil
@@ -131,7 +132,7 @@ func getAllMembers(groupID, page int) []profiles.Profile {
 }
 
 func join(groupId, memberId int) bool {
-	query := `UPDATE group_members  SET status = 'accepted' 
+	query := `UPDATE group_members  SET status = 'accept' 
 			  WHERE group_id = ? AND user_id = ?`
 	_, err := d.ExecQuery(query, groupId, memberId)
 	return err == nil
@@ -174,7 +175,7 @@ func getAllGroupsCreatedBy(userID, page int) []group {
 func getAllGroupsJoinedBy(userID, page int) []group {
 	query := `SELECT g.id,g.name,g.description,g.owner_id,g.created_at FROM groups g
 				INNER JOIN group_members gm on gm.group_id = g.id
-			WHERE gm.user_id = ? AND gm.status = 'accepted' LIMIT 5 OFFSET ?;`
+			WHERE gm.user_id = ? AND gm.status = 'accept' LIMIT 5 OFFSET ?;`
 	groupsList := make([]group, 0)
 	data_Rows, err := d.SelectQuery(query, userID, page)
 	if err != nil {
@@ -204,4 +205,23 @@ func getAllGroupRequets(group, page int) []profiles.Profile {
 		members_lists = append(members_lists, Member)
 	}
 	return members_lists
+}
+
+func getPeopleToInvite(userID, groupID, page int) []profiles.Profile {
+	query := `SELECT u.id, u.first_name, u.last_name, u.avatar
+			FROM users u JOIN followers f ON u.id = f.follower_id  OR u.id = f.followed_id
+			WHERE (f.followed_id = ? OR f.follower_id = ?) AND f.status = 'accept' AND u.id != ? 
+			AND u.id NOT in (SELECT gm.user_id AS UserID FROM group_members gm
+			WHERE gm.group_id = ?) LIMIT 10 OFFSET ?;`
+	data_Rows, err := d.SelectQuery(query, userID, userID, userID, groupID, page)
+	if err != nil {
+		return nil
+	}
+	users_lists := make([]profiles.Profile, 0)
+	for data_Rows.Next() {
+		user := profiles.Profile{}
+		_ = data_Rows.Scan(&user.Id, &user.ProfileData.First_Name, &user.ProfileData.Last_Name, &user.ProfileData.Avatar)
+		users_lists = append(users_lists, user)
+	}
+	return users_lists
 }

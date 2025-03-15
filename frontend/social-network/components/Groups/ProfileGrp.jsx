@@ -7,7 +7,7 @@ import Image from "next/image"
 import '../../styles/Groups.css'
 import Link from "next/link"
 
-export default function ProfileGrp() {
+export default function ProfileGrp({ onSuccess }) {
     const fullPath = usePathname()
     const pathParts = fullPath.split("/")
     const pathname = pathParts[pathParts.length - 1]
@@ -36,8 +36,6 @@ export default function ProfileGrp() {
 
     const requestJoin = async (id) => {
         try {
-            console.log(id);
-
             const formData = new FormData();
             formData.append("group", id.toString());
             const data = await fetchApi('group/join', 'POST', formData, true);
@@ -54,52 +52,27 @@ export default function ProfileGrp() {
         }
     }
 
-    const cancelJoin = async (id) => {
+    const handleAccept = async (grpID, usrID) => {
+        const formData = new FormData()
+        formData.append("user", usrID)
+        formData.append("group", grpID)
         try {
-            console.log(id);
-
-            const formData = new FormData();
-            formData.append("group", id.toString());
-            const data = await fetchApi('group/join', 'POST', formData, true);
-
-            if (data.status !== undefined && data.status !== "success") {
-                console.error('Error requesting to join group')
-                setError(data.error || "Failed to send join request")
-                return
-            }
-            setStateChange("nothing")
-        } catch (error) {
-            console.error('Error requesting to join group:', error)
-            setError('Failed to send join request')
+            await fetchApi(`group/accepte`, 'POST', formData, true)
+            onSuccess()
+        } catch (err) {
+            console.error('Error accepting group request:', err)
         }
     }
 
-    const inviteFollowers = async () => {
-        if (isFetching.current) return;
-        isFetching.current = true;
-        setLoading(true);
-
+    const handleDecline = async (grpID, usrID) => {
+        const formData = new FormData()
+        formData.append("user", usrID)
+        formData.append("group", grpID)
         try {
-            const response = await fetchApi(
-                `profiles/followers?user_id=${window.userState.id}&page=${currentPage}&limit=10`
-            );
-
-            if (!response || !Array.isArray(response)) {
-                setHasMore(false);
-                return;
-            }
-
-            setData((prev) => [...prev, ...response]);
-
-            if (response.length < 10) {
-                setHasMore(false);
-            }
-        } catch (error) {
-            console.error("Fetch error:", error);
-            setHasMore(false);
-        } finally {
-            setLoading(false);
-            isFetching.current = false;
+            await fetchApi(`group/reject`, 'POST', formData, true)
+            onSuccess()
+        } catch (err) {
+            console.error('Error declining group request:', err)
         }
     }
 
@@ -131,6 +104,7 @@ export default function ProfileGrp() {
                         {groupProfile.description || 'No description available'}
                     </h3>
                     <p className="MemberCount">
+                        {console.log(groupProfile)}
                         {`${groupProfile.members} Members`}
                     </p>
                     {groupProfile.status === "nothing" && groupProfile.owner != window.userState.id && (
@@ -141,26 +115,35 @@ export default function ProfileGrp() {
                         </div>
                     )}
                     {groupProfile.status === "pending" && (
-                        <div className="reqToJoin">
-                            <button onClick={() => cancelJoin(groupProfile.id)} className="btn btnGray">
-                                Cancel Request
+                        <div className="invitation-actions">
+                            {console.log(groupProfile)}
+                            <button
+                                onClick={() => handleAccept(groupProfile.id, window.userState.id)}
+                                className="btn btnGreen"
+                                title="Accept invitation"
+                            >
+                                Accept
+                            </button>
+                            <button
+                                onClick={() => handleDecline(groupProfile.id, window.userState.id)}
+                                className="btn btnRed"
+                                title="Decline invitation"
+                            >
+                                Decline
                             </button>
                         </div>
                     )}
-                    {(groupProfile.status === "accepted" || groupProfile.owner === window.userState.id) && (
+                    {(groupProfile.status === "accept" || groupProfile.owner === window.userState.id) && (
                         <div className='groupCard'>
                             <button className='btn btnGreen'>
                                 <Link href={`/chats/group?group_id=${pathname}&page=0`} style={{ textDecoration: 'none' }}>
                                     Group Chat
                                 </Link>
                             </button>
-                            <button className="inviteButton" onClick={inviteFollowers}>
-
-                            </button>
                         </div>
                     )}
                 </div>
             </div>
-        </div>
+        </div >
     )
 }

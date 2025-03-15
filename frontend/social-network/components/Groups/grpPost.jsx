@@ -6,8 +6,6 @@ import { FetchPosts } from "@/components/Posts/FetchPosts";
 import ProfileGrp from "./ProfileGrp";
 import InvitUser from "./InvitUser";
 export default function GroupById(id) {
-    console.log(id.groupId);
-
     const [reloadKey, setReloadKey] = useState(0);
     const [hamberMenu, setHamberMenu] = useState(false);
 
@@ -32,10 +30,10 @@ export default function GroupById(id) {
                 <CreatePost onSuccess={handleReload} onGroup={true} groupId={id.groupId} />
                 <FetchPosts key={reloadKey} endpoint={`/posts/group?group_id=${id.groupId}&last_id=`} lastId={0} />
             </aside>
-            <div className={"rightSidebar" + (hamberMenu ? " show" : "")}>
+            {hamberMenu === true && <div className={"rightSidebar" + (hamberMenu ? " show" : "")}>
                 <ProfileGrp />
                 <InvitUser userID={window.userState.id} />
-            </div>
+            </div>}
         </>
     );
 }

@@ -101,7 +101,6 @@ export default function DisplayEvents({ reloadKey }) {
     const getVotes = async (id) => {
         try {
             const data = await fetchApi(`/group/event/votes?event=${id}`, 'GET', null, false);
-            console.log("datt0:", data, id)
             setVotesData(prev => ({
                 ...prev,
                 [id]: data
@@ -195,7 +194,6 @@ export default function DisplayEvents({ reloadKey }) {
                                     <>
                                         <div className="percentageBars">
                                             <div className="percentageLabel">
-                                                {console.log(votesData[event.id], event.id)}
                                                 Going {votesData[event.id]?.going || 0}
                                             </div>
                                             <svg xmlns="http://www.w3.org/2000/svg">
