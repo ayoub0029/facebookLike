@@ -93,19 +93,24 @@ func AddmessageGrpToDB(senderId uint64, groupid uint64, message string) error {
 	return nil
 }
 
-func GetUsersIchatWith(userID, itenId int, r *http.Request) ([]User, error) {
+func GetUsersIchatWith(userID, item_id int, r *http.Request) ([]User, error) {
 	var users []User
-	query := `SELECT u.avatar, CONCAT(u.first_name, ' ', u.last_name) AS full_name
-			  FROM users u
-			  WHERE u.id IN (SELECT DISTINCT pch.sender_id FROM private_chat pch WHERE pch.receiver_id = ?)
-			  OR u.id IN (SELECT DISTINCT pch.receiver_id FROM private_chat pch WHERE pch.sender_id = ?) where id = ?;`
-	rows, err := database.SelectQuery(query, userID, userID, itenId)
+	query := `SELECT u.id, CONCAT(u.first_name, ' ', u.last_name) AS full_name
+              FROM users u
+              WHERE u.id IN (SELECT DISTINCT pch.sender_id 
+			  FROM private_chat pch WHERE pch.receiver_id = ? AND pch.id = ?)
+              OR u.id IN (SELECT DISTINCT pch.receiver_id FROM private_chat pch 
+              WHERE pch.sender_id = ? AND pch.id = ?);`
+
+	rows, err := database.SelectQuery(query, userID, item_id, userID, item_id)
 	if err != nil {
 		log.Println("Getting data from db error: ", err)
 		return nil, err
 	}
-	user := User{}
+	defer rows.Close()
+
 	for rows.Next() {
+		user := User{}
 		err := rows.Scan(&user.ID, &user.FullName)
 		if err != nil {
 			log.Println("Scan error: ", err)
@@ -113,8 +118,10 @@ func GetUsersIchatWith(userID, itenId int, r *http.Request) ([]User, error) {
 		}
 		users = append(users, user)
 	}
+
 	if len(users) == 0 {
 		return nil, nil
 	}
+
 	return users, nil
 }
