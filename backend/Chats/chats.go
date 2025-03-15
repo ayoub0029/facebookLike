@@ -74,7 +74,12 @@ func GetUserIchatWith(r *http.Request) (any, error) {
 	if !ok {
 		return nil, fmt.Errorf("user not login")
 	}
-	message, err := GetUsersIchatWith(int(user.ID), r)
+	item_id, err := strconv.Atoi(r.URL.Query().Get("item_id"))
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	message, err := GetUsersIchatWith(int(user.ID), item_id, r)
 	if err != nil {
 		log.Println(err)
 		return nil, err
