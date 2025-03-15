@@ -47,7 +47,7 @@ func SeenNotifications(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 	err = MarkSenn(id)
-	if(err != nil){
+	if err != nil {
 		global.JsonResponse(res, http.StatusInternalServerError, "server side error")
 		return
 	}

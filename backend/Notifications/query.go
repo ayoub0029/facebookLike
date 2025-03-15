@@ -14,25 +14,34 @@ type DataNotif struct {
 	CreatedAt string `json:"creatat"`
 }
 
-func Savenotifications(nf NotifServes, sen bool) error {
+func Savenotifications(nf NotifService, sen bool) error {
+	var reference any
+	if nf.GroupID != 0 {
+		reference = nf.GroupID
+	} else {
+		reference = nil
+	}
 	_, err := database.ExecQuery(`INSERT INTO notifications(
 					user_id,
 					sender_id,
 					type,
+					reference_id,
 					content,
 					seen)
-					VALUES(?,?,?,?,?)`,
-		nf.SederId,
-		nf.ReceverId,
+					VALUES(?,?,?,?,?,?)`,
+		nf.SenderID,
+		nf.ReceiverID,
 		nf.Type,
+		reference,
 		nf.Message,
 		sen)
 	return err
 }
+
 // _, err := ExecQuery("UPDATE chat SET last_send = ? WHERE id = ?", lastmessage, chatID)
 
 func MarkSenn(id int) error {
-	_,  err := database.ExecQuery("UPDATE notifications SET seen = 1 WHERE id = ?",id)
+	_, err := database.ExecQuery("UPDATE notifications SET seen = 1 WHERE id = ?", id)
 	return err
 }
 
@@ -119,4 +128,28 @@ func selectNotifications(user, lastNotif string) ([]DataNotif, error) {
 		return nil, err
 	}
 	return notifications, nil
+}
+
+func GetFullNameById(id uint) (string, error) {
+	row, err := database.SelectOneRow("SELECT first_name, last_name FROM users WHERE id = ?", id)
+	if err != nil {
+		return "", err
+	}
+	var fn string
+	var ln string
+	if err := row.Scan(&fn, &ln); err != nil {
+		return "", err
+	}
+	return fn + " " + ln, nil
+}
+func GetNameOfGroupById(id uint) (string, error) {
+	row, err := database.SelectOneRow("SELECT name FROM groups WHERE id = ?", id)
+	if err != nil {
+		return "", err
+	}
+	var nm string
+	if err := row.Scan(&nm); err != nil {
+		return "", err
+	}
+	return nm, nil
 }

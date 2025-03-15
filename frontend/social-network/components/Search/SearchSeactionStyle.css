@@ -21,6 +21,7 @@
     align-items: center;
     flex-direction: column;
     box-shadow: 0 0 20px var(--Box-ShadowColor);
+    z-index: 99;
 }
 .search-Section::-webkit-scrollbar{
     width: 5px;
