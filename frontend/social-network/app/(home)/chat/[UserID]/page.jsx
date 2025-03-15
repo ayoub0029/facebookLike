@@ -12,6 +12,7 @@ export default function ChatPage() {
   const [messages, setMessages] = useState([])
   const [inputMessage, setInputMessage] = useState("")
   const messagesEndRef = useRef(null)
+  const containerRef = useRef()
   const { isConnected, sendMessage, setMessageHandler } = useWebSocket()
   const [hamberMenu, setHamberMenu] = useState(false);
 
@@ -39,9 +40,8 @@ export default function ChatPage() {
   }, [setMessageHandler, UserID])
 
   useEffect(() => {
-    const chatContent = document.querySelector(`.${styles.chatContent}`)
-    if (chatContent) {
-      chatContent.scrollTop = chatContent.scrollHeight
+    if (containerRef.current) {
+      containerRef.current.scrollTop = containerRef.current.scrollHeight
     }
   }, [messages])
 
@@ -101,12 +101,12 @@ export default function ChatPage() {
         <div className={styles.chatCard}>
           <div className={styles.chatHeader}>
             <h2 className={styles.chatTitle}>Chat with {UserID}</h2>
-            <span className={isConnected ? styles.statusConnected : styles.statusDisconnected}>
+            {/* <span className={isConnected ? styles.statusConnected : styles.statusDisconnected}>
             {isConnected ? "you Connected" : "you Disconnected"}
-          </span>
+          </span> */}
           </div>
 
-          <div className={styles.chatContent}>
+          <div className={styles.chatContent} ref={containerRef}>
             {messages.length === 0 && (
               <div className={styles.emptyState}>
                 <p>No messages yet. Start the conversation!</p>
