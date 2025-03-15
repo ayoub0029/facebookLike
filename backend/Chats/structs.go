@@ -35,3 +35,8 @@ type ChatGrpMessage struct {
 	SenderID uint64 `json:"senderid"`
 	Message  string `json:"message"`
 }
+
+type User struct {
+	ID       uint64 `json:"id"`
+	FullName string `json:"fullname"`
+}

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	middleware "socialNetwork/Middlewares"
 	"strconv"
 )
 
@@ -66,4 +67,17 @@ func HandleChatGrpMessage(msg ChatGrpMessage) error {
 		}
 	}
 	return nil
+}
+
+func GetUserIchatWith(r *http.Request) (any, error) {
+	user, ok := r.Context().Value(middleware.UserContextKey).(middleware.User)
+	if !ok {
+		return nil, fmt.Errorf("user not login")
+	}
+	message, err := GetUsersIchatWith(int(user.ID), r)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	return message, nil
 }
