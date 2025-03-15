@@ -24,6 +24,15 @@ export default function EventContainer({onSuccess}) {
 
     const createEvent = async (event) => {
         event.preventDefault()
+        console.log("event dates: ",event.target.start.value, event.target.end.value);
+        if (new Date(event.target.start.value) > new Date(event.target.end.value)) {
+            setError('End date must be after start date')
+            return
+        }
+        if (new Date(event.target.start.value) < new Date()) {
+            setError('Start date must be in the future')
+            return
+        }
         const data = new FormData(event.target)
         data.append('group', groupID)
         try {
