@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { fetchApi } from '@/api/fetchApi'
 import useLazyLoad from '@/hooks/lazyload'
 import '../../styles/GroupRequests.css'
@@ -7,7 +7,7 @@ import groupImage from '../../Img/group.png'
 import Image from "next/image";
 import Link from 'next/link'
 
-const fetchJoinedGrp = async (page) => {
+const fetchJoinedGrp = async (page) => {    
     try {
         const data = await fetchApi(`groups/JoinedBy?page=${page}`, 'GET', null, false)
         if (data.status !== undefined) {
@@ -33,19 +33,25 @@ const JoinedGrp = () => {
         nextPage,
     } = useLazyLoad(fetchJoinedGrp)
 
+    useEffect(() => {
+        setGroupsData(data)
+    }, [data])
+
     const [leavingGroup, setLeavingGroup] = useState(false)
     const [leaveError, setLeaveError] = useState(null)
-
+    const [groupsData, setGroupsData] = useState(data)
     const leaveTheGroup = async (groupId) => {
         try {
             setLeavingGroup(true)
             setLeaveError(null)
-            const response = await fetchApi(`group/leave/${groupId}`, 'DELETE', null, false)
+            const formData = new FormData()
+            formData.append('group', groupId)
+            const response = await fetchApi(`group/leave?group=${groupId}`, 'POST', formData, true)
             if (response && response.status !== undefined && response.status !== 200) {
                 setLeaveError(`Error: ${response.error || 'Unknown error'} (Status: ${response.status})`);
                 return;
             }
-            setGroupsData(groupsData.filter(group => group.id !== groupId))
+            setGroupsData(groupsData.filter(group => !(group.id === groupId)))
         } catch (err) {
             console.error('Error leaving group:', err)
             setLeaveError('Failed to leave the group')

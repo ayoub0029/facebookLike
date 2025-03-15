@@ -7,7 +7,6 @@ import useLazyLoad from '@/hooks/lazyload'
 const fetchRqsts = async (page) => {
     try {
         const data = await fetchApi(`group/applications?page=${page}`, 'GET', null, false)
-        console.log("requests", data)
 
         if (data.status !== undefined) {
             return { error: data.error, status: data.status }
@@ -57,7 +56,6 @@ const GroupRequests = () => {
         const formData = new FormData()
         formData.append("user", usrID)
         formData.append("group", grpID)
-
         try {
             await fetchApi(`group/reject`, 'POST', formData, true)
             setRequests(prevRequests =>
@@ -91,7 +89,6 @@ const GroupRequests = () => {
                     <div className="invitationRequests">
                         {requests.map(request => (
                             <div key={request.id} className="invitationCard">
-                                {console.log(request)}
                                 {request.state === "request" &&
                                     < div className="invitation-details">
                                         <h3 className="group-name">Request from {request.fullName}</h3>
@@ -99,7 +96,6 @@ const GroupRequests = () => {
                                 }
                                 {request.state === "pending" &&
                                     < div className="invitation-details">
-                                        {console.log("ra00:", request)}
                                         <h3 className="group-name">Invitation from {request.name}</h3>
                                     </div>
                                 }

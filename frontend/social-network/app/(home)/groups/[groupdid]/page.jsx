@@ -69,7 +69,7 @@ export default function Profile() {
     return <div>Error: {error}</div>
   }
 
-  if (groupProfile && (groupProfile.status === "accepted" || groupProfile.owner === window.userState.id)) {
+  if (groupProfile && (groupProfile.status === "accept" || groupProfile.owner === window.userState.id)) {
     return (
       <>
         <div className='grpContainer'>
@@ -117,7 +117,7 @@ export default function Profile() {
       </>
     )
   }
-  if (groupProfile && groupProfile.status !== "accepted" && groupProfile.owner !== window.userState.id) {
+  if (groupProfile && groupProfile.status !== "accept" && groupProfile.owner !== window.userState.id) {
     return (
       <>
         <div className="rightSidebar">

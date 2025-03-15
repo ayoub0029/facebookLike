@@ -36,8 +36,6 @@ export default function ProfileGrp() {
 
     const requestJoin = async (id) => {
         try {
-            console.log(id);
-
             const formData = new FormData();
             formData.append("group", id.toString());
             const data = await fetchApi('group/join', 'POST', formData, true);
@@ -56,8 +54,6 @@ export default function ProfileGrp() {
 
     const cancelJoin = async (id) => {
         try {
-            console.log(id);
-
             const formData = new FormData();
             formData.append("group", id.toString());
             const data = await fetchApi('group/join', 'POST', formData, true);
@@ -131,6 +127,7 @@ export default function ProfileGrp() {
                         {groupProfile.description || 'No description available'}
                     </h3>
                     <p className="MemberCount">
+                        {console.log(groupProfile)}
                         {`${groupProfile.members} Members`}
                     </p>
                     {groupProfile.status === "nothing" && groupProfile.owner != window.userState.id && (
@@ -147,15 +144,12 @@ export default function ProfileGrp() {
                             </button>
                         </div>
                     )}
-                    {(groupProfile.status === "accepted" || groupProfile.owner === window.userState.id) && (
+                    {(groupProfile.status === "accept" || groupProfile.owner === window.userState.id) && (
                         <div className='groupCard'>
                             <button className='btn btnGreen'>
                                 <Link href={`/chats/group?group_id=${pathname}&page=0`} style={{ textDecoration: 'none' }}>
                                     Group Chat
                                 </Link>
-                            </button>
-                            <button className="inviteButton" onClick={inviteFollowers}>
-
                             </button>
                         </div>
                     )}

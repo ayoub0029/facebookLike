@@ -5,199 +5,30 @@ import style from "../../styles/profile.module.css";
 import "../../styles/inviteGrp.css";
 import Link from "next/link";
 import { usePathname } from "next/navigation"
+import useLazyLoad from "@/hooks/lazyload"
 
 export default function InvitUser({ userID }) {
-    const [data, setData] = useState([]);
-    const [page, setPage] = useState(1);
-    const [loading, setLoading] = useState(false);
-    const [hasMore, setHasMore] = useState(true);
-    const scrollContainerRef = useRef(null);
-    const isFetching = useRef(false);
-
-    const fetchMoreData = useCallback(
-        async (currentPage) => {
-            if (isFetching.current) return;
-            isFetching.current = true;
-            setLoading(true);
-
-            try {
-                const response = await fetchApi(
-                    `profiles/followers?user_id=${userID}&page=${currentPage}&limit=2`,
-                    "GET"
-                );
-
-                if (!response || !Array.isArray(response)) {
-                    setHasMore(false);
-                    return;
-                }
-
-                setData((prev) => [...prev, ...response]);
-
-                if (response.length < 10) {
-                    setHasMore(false);
-                }
-            } catch (error) {
-                console.error("Fetch error:", error);
-                setHasMore(false);
-            } finally {
-                setLoading(false);
-                isFetching.current = false;
-            }
-        },
-        [userID]
-    );
-
-    useEffect(() => {
-        fetchMoreData(page);
-    }, [page, fetchMoreData]);
-
-    useEffect(() => {
-        const container = scrollContainerRef.current;
-
-        if (!container) return;
-
-        const handleScroll = () => {
-            if (
-                container.scrollTop + container.clientHeight >=
-                container.scrollHeight - 100 &&
-                !loading &&
-                hasMore &&
-                !isFetching.current
-            ) {
-                setPage((prev) => prev + 1);
-            }
-        };
-
-        container.addEventListener("scroll", handleScroll);
-        return () => container.removeEventListener("scroll", handleScroll);
-    }, [loading, hasMore]);
-
-    useEffect(() => {
-        setData([]);
-        setPage(1);
-        setHasMore(true);
-    }, [userID]);
-
-    return (
-        <div
-            ref={scrollContainerRef}
-            style={{
-                height: "400px",
-                maxHeight: "400px",
-                overflowY: "auto",
-            }}
-        >
-            {data.length > 0 ? (
-                <User data={data} route={"/profile"} />
-            ) : (
-                !loading && <div>No followers found</div>
-            )}
-
-            {loading && <div>Loading more followers...</div>}
-
-            {!hasMore && data.length > 0 && <div>No more followers</div>}
-        </div>
-    );
-}
-
-export function UsersFollowing({ userID, route }) {
-    const [data, setData] = useState([]);
-    const [page, setPage] = useState(1);
-    const [loading, setLoading] = useState(false);
-    const [hasMore, setHasMore] = useState(true);
-    const scrollContainerRef = useRef(null);
-    const isFetching = useRef(false);
-
-    const fetchMoreData = useCallback(
-        async (currentPage) => {
-            if (isFetching.current) return;
-            isFetching.current = true;
-            setLoading(true);
-
-            try {
-                const response = await fetchApi(
-                    `profiles/following?user_id=${userID}&page=${currentPage}&limit=10`,
-                    "GET"
-                );
-
-                if (!response || !Array.isArray(response)) {
-                    setHasMore(false);
-                    return;
-                }
-
-                setData((prev) => [...prev, ...response]);
-
-                if (response.length < 10) {
-                    setHasMore(false);
-                }
-            } catch (error) {
-                console.error("Fetch error:", error);
-                setHasMore(false);
-            } finally {
-                setLoading(false);
-                isFetching.current = false;
-            }
-        },
-        [userID]
-    );
-
-    useEffect(() => {
-        fetchMoreData(page);
-    }, [page, fetchMoreData]);
-
-    useEffect(() => {
-        const container = scrollContainerRef.current;
-
-        if (!container) return;
-
-        const handleScroll = () => {
-            if (
-                container.scrollTop + container.clientHeight >=
-                container.scrollHeight - 100 &&
-                !loading &&
-                hasMore &&
-                !isFetching.current
-            ) {
-                setPage((prev) => prev + 1);
-            }
-        };
-
-        container.addEventListener("scroll", handleScroll);
-        return () => container.removeEventListener("scroll", handleScroll);
-    }, [loading, hasMore]);
-
-    useEffect(() => {
-        setData([]);
-        setPage(1);
-        setHasMore(true);
-    }, [userID]);
-
-    return (
-        <div
-            ref={scrollContainerRef}
-            style={{
-                height: "400px",
-                maxHeight: "400px",
-                overflowY: "auto",
-            }}
-        >
-            {data.length > 0 ? (
-                <User data={data} route={route} />
-            ) : (
-                !loading && <div>No following found</div>
-            )}
-
-            {loading && <div>Loading more followings...</div>}
-
-            {!hasMore && data.length > 0 && <div>No more followings</div>}
-        </div>
-    );
-}
-
-function User({ data, route }) {
+    const [errorInvit, setErrorInvite] = useState(null)
+    const [invitations, setInvitations] = useState([])
     const fullPath = usePathname();
     const pathParts = fullPath.split("/");
     const groupID = pathParts[pathParts.length - 1];
+    const fetchUserToInvite = async (page) => {
+        try {
+            const data = await fetchApi(`group/people?group=${groupID}&page=${page}`, `GET`, null, false)
+            if (data.status !== undefined) {
+                return { error: data.error, status: data.status }
+            }
+            const groups = Array.isArray(data) ? data : []
+            return {
+                items: groups,
+                nextPage: groups.length > 0 ? page + 5 : null
+            }
+        } catch (err) {
+            console.error(`Error fetch groups: ${err}`);
+            return { items: [], nextPage: null }
+        }
+    }
     const Invit = async (id) => {
         const formData = new FormData();
         formData.append("group", groupID);
@@ -206,49 +37,81 @@ function User({ data, route }) {
             const response = await fetchApi(`group/invite`, "POST", formData, true);
             if (response.error || response.status >= 400) {
                 console.error("Error voting on event:", response.error);
-                // setError(response.error?.message || `Error: ${response.status}`);
+                setErrorInvite(response.error?.message || `Error: ${response.status}`);
                 return { error: response.error?.message || `Error: ${response.status}`, status: "error" };
             }
+            setInvitations(prvInvats =>
+                prvInvats.filter(Inv => !(Inv.Id === id))
+            )
         } catch (error) {
             console.error("Invitation error:", error);
+            setErrorInvite("Failed to process invitation")
             return { status: 500, error: "Failed to process invitation" };
         }
     }
-    const isUserHasRelation = (id) => {
-        
-    }
+    const {
+        data,
+        loaderRef,
+        loading,
+        error,
+        nextPage,
+    } = useLazyLoad(fetchUserToInvite)
+
+    useEffect(() => {
+        if (data) {
+            setInvitations(data)
+        }
+    }, [data])
+
     return (
-        <div>
-            {data.length === 0 ? (
-                <div>No followers found</div>
-            ) : (
-                data.map((item, index) => (
-                    <div className="inviters" key={`user-${item.Id}-${index}`}>
-                        <Link href={`${route}/${item.Id}`}>
-                            <div className={style["cont_user_list"]}>
-                                <img
-                                    src={
-                                        item.Avatar?.startsWith("http")
-                                            ? item.Avatar
-                                            : item.Avatar && item.Avatar !== "undefined"
-                                                ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/public/${item.Avatar}`
-                                                : "/images/test.jpg"
-                                    }
-                                    alt={item.Nickname}
-                                />
-                                <span>
-                                    {item.FirstName} {item.LastName}
-                                </span>
-                            </div>
-                        </Link>
-                        {isUserHasRelation(item.id) &&
-                            <button onClick={() => Invit(item.Id)}>
+        <div className="ivitationCard-container">
+            {error && <p className="error-message">{error}</p>}
+            {errorInvit && <p className="error-message">{errorInvit}</p>}
+            <div
+                className="scrollable-container"
+                style={{
+                    maxHeight: '100%',
+                    overflowY: 'auto',
+                    padding: '10px',
+                    border: '1px solid #eee',
+                    borderRadius: '8px'
+                }}
+            >
+                {loading && invitations.length === 0 && (<p className="loading-message">Loading invitation...</p>)}
+                {!error && invitations.length === 0 && !loading && (
+                    <p className="no-invitaion">No invitation found</p>
+                )}
+                <div className="Invitaion-loop">
+                    {invitations.map(inviteCard => (
+                        <div key={inviteCard.Id} className="inviters">
+                            <Link href={`/profile/${inviteCard.Id}`}>
+                                <div className={style["cont_user_list"]}>
+                                    <img
+                                        src={
+                                            inviteCard.Avatar?.startsWith("http")
+                                                ? inviteCard.ProfileData.Avatar
+                                                : inviteCard.ProfileData.Avatar && inviteCard.ProfileData.Avatar !== "undefined"
+                                                    ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/public/${inviteCard.Avatar}`
+                                                    : "/images/test.jpg"
+                                        }
+                                        alt={inviteCard.ProfileData.Nickname}
+                                    />
+                                    <span>
+                                        {inviteCard.ProfileData.First_Name} {inviteCard.ProfileData.Last_Name}
+                                    </span>
+                                </div>
+                            </Link>
+                            <button onClick={() => Invit(inviteCard.Id)}>
                                 <i className="fas fa-plus"></i>invite
                             </button>
-                        }
-                    </div>
-                ))
-            )}
+                        </div>
+                    ))}
+                    {loading && nextPage !== null && (
+                        <p className="loading-more">Loading more events...</p>
+                    )}
+                    <div ref={loaderRef}></div>
+                </div>
+            </div >
         </div>
-    );
+    )
 }

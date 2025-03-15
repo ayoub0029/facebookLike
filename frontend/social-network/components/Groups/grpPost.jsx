@@ -6,8 +6,6 @@ import { FetchPosts } from "@/components/Posts/FetchPosts";
 import ProfileGrp from "./ProfileGrp";
 import InvitUser from "./InvitUser";
 export default function GroupById(id) {
-    console.log(id.groupId);
-
     const [reloadKey, setReloadKey] = useState(0);
     const [hamberMenu, setHamberMenu] = useState(false);
 
