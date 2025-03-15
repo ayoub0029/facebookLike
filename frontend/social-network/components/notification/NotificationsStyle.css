@@ -1,5 +1,40 @@
-.notcontainer {}
+.notifications {
+    display: flex;
+    flex-direction: column;
+}
+.notificationcontainer {
+    padding: 5px;
+    width: 100%;
+    margin: 10px;
+    border-radius: 2px;
+    box-shadow: 0 0 50px #e6e6e6;
+}
+.notification {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    word-wrap: break-word; 
+    overflow-wrap: break-word; 
+    cursor: pointer;
+}
 
-.title {}
-
-.notificationdata {}
+.notification div {
+    word-break: break-all;
+    display: flex;
+    gap: 10px;
+}
+.notificationcontainer img {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+}
+.notification h5 {
+    max-width: 30%;
+    color: gray;
+}
+.notification p {
+    font-size: 12px;
+    max-width: 70%;
+    font-weight: bold;
+}
