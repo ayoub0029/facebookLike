@@ -1,9 +1,11 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { useWebSocket } from "@/hooks/websocket-context.jsx"
 import styles from "./chat.module.css"
 import { useParams } from "next/navigation"
+import { fetchApi } from "@/api/fetchApi"
+import { useToast } from "@/hooks/toast-context"
 
 export default function ChatPage() {
   const params = useParams()
@@ -15,19 +17,87 @@ export default function ChatPage() {
   const containerRef = useRef()
   const { isConnected, sendMessage, setMessageHandler } = useWebSocket()
   const [hamberMenu, setHamberMenu] = useState(false);
+  const { showToast } = useToast()
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const isFetching = useRef(false);
+  const [loading, setLoading] = useState(false);
+  const [positionScroll, setPositionScroll] = useState(1200)
 
+  const fetchMoreData = useCallback(async (currPage) => {
+    if (isFetching.current || !hasMore) return
+    isFetching.current = true
+    setLoading(true)
+
+    try {
+      const data = await fetchApi(`/chats/private?receiver_id=${UserID}&page=${currPage}`, "GET")
+      console.log(data);
+      if (!data || !Array.isArray(data)) {
+        setHasMore(false);
+        return;
+      }
+      let dataParse = data.map((itm) => {
+        return {
+          sender_id: itm.senderid,
+          message: itm.message,
+          timestamp: itm.createdDate,
+        }
+      })
+
+      setMessages((prev) => [...dataParse, ...prev])
+      if (data.length < 15) {
+        setHasMore(false);
+      }
+    } catch (err) {
+      showToast("error", "failed to get messages")
+      setHasMore(false)
+    } finally {
+      setLoading(false)
+      isFetching.current = false
+    }
+  }, [UserID]);
+
+  useEffect(() => {
+    fetchMoreData(page)
+  }, [page, fetchMoreData])
+
+  // handel scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!containerRef.current || !hasMore) return;
+
+      const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
+      if (scrollTop === 0 && (scrollHeight !== clientHeight)) {
+        // const prevHeight = scrollHeight;
+        setPage((prev) => prev + 15);
+
+        // containerRef.current.scrollTop = containerRef.current.scrollHeight - (prevHeight - scrollTop);
+        // setPositionScroll(containerRef.current.scrollHeight - prevHeight)
+      }
+    };
+    const chatContainer = containerRef.current;
+    chatContainer.addEventListener("scroll", handleScroll);
+
+    return () => chatContainer.removeEventListener("scroll", handleScroll);
+
+  }, []);
+
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollTop = positionScroll
+    }
+  }, [messages])
 
   // Handle incoming messages
   useEffect(() => {
     setMessageHandler((data) => {
-      console.log("Received data:", data)
 
       try {
         const parsedData = JSON.parse(data)
 
         if (parsedData.sender_id === Number.parseInt(UserID)) {
-          console.log("Matched message:", parsedData)
           setMessages((prev) => [...prev, parsedData])
+          setPositionScroll(containerRef.current.scrollHeight)
         }
       } catch (error) {
         console.error("Error parsing message:", error)
@@ -39,12 +109,7 @@ export default function ChatPage() {
     }
   }, [setMessageHandler, UserID])
 
-  useEffect(() => {
-    if (containerRef.current) {
-      containerRef.current.scrollTop = containerRef.current.scrollHeight
-    }
-  }, [messages])
-
+  // handel send message
   function handleSendMessage(e) {
     e.preventDefault()
 
@@ -55,7 +120,7 @@ export default function ChatPage() {
       content: {
         receiver_id: Number.parseInt(UserID),
         message: inputMessage,
-        timestamp: new Date().toISOString(),
+        timestamp: new Date(),
       },
     }
 
@@ -65,18 +130,19 @@ export default function ChatPage() {
     const localMessageObj = {
       receiver_id: UserID,
       message: inputMessage,
-      timestamp: new Date().toISOString(),
+      timestamp: new Date(),
       _isOutgoing: true,
     }
 
     setMessages((prev) => [...prev, localMessageObj])
     setInputMessage("")
+    setPositionScroll(containerRef.current.scrollHeight)
   }
 
   function formatTime(timestamp) {
     if (!timestamp) return ""
-    const date = new Date(timestamp)
-    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+    const d = new Date(timestamp)
+    return `${d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} ${d.getDate()}-${d.getMonth() + 1}-${d.getFullYear()}`
   }
 
   function isCurrentUser(msg) {
@@ -112,6 +178,9 @@ export default function ChatPage() {
                 <p>No messages yet. Start the conversation!</p>
               </div>
             )}
+            {(!hasMore && messages.length !== 0) && <div className={styles.emptyState}>
+              <p>No more messages</p>
+            </div>}
 
             {messages.map((msg, index) => (
               <div

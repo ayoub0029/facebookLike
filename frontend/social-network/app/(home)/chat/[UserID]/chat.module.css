@@ -180,3 +180,9 @@
   background-color: #9ca3af;
   cursor: not-allowed;
 }
+
+@media (max-width: 768px) {
+  .chatContainer {
+    height: calc(100vh - 250px);
+  }
+}
