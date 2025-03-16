@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export default function RootLayout({ children }) {
+export default function HomeLayout({ children }) {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
@@ -37,36 +37,23 @@ export default function RootLayout({ children }) {
   }, [router]);
 
   return (
-    <html lang="en">
-      <head>
-        <link
-          rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
-          rel="stylesheet"
-        />
-      </head>
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        {isLoading ? (
-          <div className="loading-container">
-            <div className="loading-spinner"></div>
-          </div>
-        ) : (
-          <>
-            <div className="container">
-              <div className="leftSidebar">
-                <Navigation />
-              </div>
-              <ToastProvider>
-                <WebSocketProvider >{children}</WebSocketProvider>
-              </ToastProvider>
-              {/* {children} */}
+    <div className={`${geistSans.variable} ${geistMono.variable}`}>
+      {isLoading ? (
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+        </div>
+      ) : (
+        <>
+          <div className="container">
+            <div className="leftSidebar">
+              <Navigation />
             </div>
-          </>
-        )}
-      </body>
-    </html>
+            <ToastProvider>
+              <WebSocketProvider>{children}</WebSocketProvider>
+            </ToastProvider>
+          </div>
+        </>
+      )}
+    </div>
   );
 }
