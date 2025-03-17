@@ -128,14 +128,13 @@ export function FetchPosts({ endpoint, lastId }) {
 
     // success
     closeModal("editPost")();
-    setEditVisible(null);
+    setEditCommentVisible(null);
     setComments((allComments) =>
       allComments.map((comment) =>
         comment.id == e.target.comment_id.value
           ? {
               ...comment,
-              content: `${newContent}`,
-              updated_at_at: `${new Date()}`,
+              comment_content: `${newContent}`,
             }
           : comment
       )
@@ -423,7 +422,7 @@ export function FetchPosts({ endpoint, lastId }) {
                 </div>
               </form>
 
-              <div className="comments">
+              <div className="comments">                
                 {comments.map((comment) => (
                   <div key={comment.id} className="comment commentWithImage">
                     <Link
@@ -447,6 +446,7 @@ export function FetchPosts({ endpoint, lastId }) {
                       />
                     </Link>
                     <div className="commentContent">
+                      {comment.user_id === window.userState.id && (
                       <div
                         className="editPointContainer"
                         onClick={() => togglecommentMenu(comment.id)}
@@ -537,6 +537,7 @@ export function FetchPosts({ endpoint, lastId }) {
                           </div>
                         )}
                       </div>
+                      )}
                       <span className="commentName">
                         {comment.first_name + " " + comment.last_name}
                       </span>
