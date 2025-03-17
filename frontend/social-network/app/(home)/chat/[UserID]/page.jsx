@@ -3,13 +3,17 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useWebSocket } from "@/hooks/websocket-context.jsx";
 import styles from "./chat.module.css";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { fetchApi } from "@/api/fetchApi";
 import { useToast } from "@/hooks/toast-context";
+import { UsersFollowing } from "@/components/profile/users_follow";
 
 export default function ChatPage() {
   const params = useParams();
   const UserID = params.UserID;
+
+  const searchParams = useSearchParams();
+  const fullName = searchParams.get("fullname");
 
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
@@ -64,6 +68,7 @@ export default function ChatPage() {
             message: itm.message,
             timestamp: itm.createdDate,
             messageid: itm.messageid,
+            fullname: itm.fullname,
           };
         });
 
@@ -191,6 +196,8 @@ export default function ChatPage() {
     }
   };
 
+  const commonEmojis = ['😊', '😂', '❤️', '👍', '🙏', '🔥', '✨', '😎', '🤔', '😢'];
+
   return (
     <>
       <button onClick={toggleMenu} className="rightMenuToggle">
@@ -201,7 +208,9 @@ export default function ChatPage() {
         <div className={styles.chatContainer}>
           <div className={styles.chatCard}>
             <div className={styles.chatHeader}>
-              <h2 className={styles.chatTitle}>Chat with {UserID}</h2>
+              <h2 className={styles.chatTitle}>
+                Chat with {fullName ? fullName : UserID}
+              </h2>
               {/* <span className={isConnected ? styles.statusConnected : styles.statusDisconnected}>
             {isConnected ? "you Connected" : "you Disconnected"}
           </span> */}
@@ -236,9 +245,7 @@ export default function ChatPage() {
                     }
                   >
                     {!isCurrentUser(msg) && (
-                      <div className={styles.messageSender}>
-                        {msg.sender_id}
-                      </div>
+                      <div className={styles.messageSender}>{msg.fullname}</div>
                     )}
                     <div className={styles.messageContent}>{msg.message}</div>
                     <div className={styles.messageTime}>
@@ -252,6 +259,18 @@ export default function ChatPage() {
             </div>
 
             <div className={styles.chatFooter}>
+              <div className={styles.emojiPicker}>
+                  {commonEmojis.map((emoji) => (
+                    <button
+                      key={emoji}
+                      type="button"
+                      className={styles.emojiButton}
+                      onClick={() => setInputMessage((prev) => prev + emoji)}
+                    >
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
               <form onSubmit={handleSendMessage} className={styles.messageForm}>
                 <input
                   type="text"
@@ -276,7 +295,10 @@ export default function ChatPage() {
         </div>
       </aside>
 
-      <div className={"rightSidebar" + (hamberMenu ? " show" : "")}></div>
+      <div className={"rightSidebar" + (hamberMenu ? " show" : "")}>
+        <div style={{ fontSize: "18px", fontWeight: "bold" }}>Private Chat</div>
+        <UsersFollowing userID={window.userState.id} route={"/chat"} />
+      </div>
     </>
   );
 }

@@ -603,3 +603,26 @@ a:hover {
   text-decoration: none;
   color: inherit;
 }
+
+/* Message link styles */
+.message-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background-color: #0078d7; /* Blue color */
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+  margin-bottom: 5px;
+}
+
+.message-link:hover {
+  background-color: #0063b1;
+  color: white;
+}
+
+.message-link i {
+  margin-right: 8px;
+}

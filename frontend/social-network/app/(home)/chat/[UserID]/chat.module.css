@@ -185,3 +185,23 @@
     height: calc(100vh - 250px);
   }
 }
+
+
+.emojiPicker {
+  display: flex;
+  gap: 5px;
+  padding: 5px;
+  border-top: 1px solid #ddd;
+  background: #fff;
+}
+
+.emojiButton {
+  border: none;
+  background: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.emojiButton:hover {
+  transform: scale(1.2);
+}

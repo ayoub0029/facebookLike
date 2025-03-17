@@ -199,7 +199,7 @@ function User({ data, route }) {
         <div>No followers found</div>
       ) : (
         data.map((item, index) => (
-          <Link href={`${route}/${item.Id}`} key={item.id || index}>
+          <Link href={`${route}/${item.Id}?fullname=${item.FirstName} ${item.LastName}`} key={item.id || index}>
             <div className={style["cont_user_list"]}>
               <img
                 src={
