@@ -465,8 +465,12 @@ func GetFollowing(w http.ResponseWriter, r *http.Request) {
 				global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": err.Error()})
 				return
 			}
+			if err == ErrCantFindRelationId {
+				global.JsonResponse(w, http.StatusOK, nil)
+				return
+			}
 			if err != nil {
-				global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error3": global.ErrServer.Error()})
+				global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error3": global.ErrServer.Error()})
 				return
 			}
 		}

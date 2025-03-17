@@ -87,18 +87,20 @@ func getAllGroups(page int) []group_data {
 
 func isMember(groupId, userId int) bool {
 	query := `
-    SELECT
-        COALESCE(
-            (
-                SELECT gm.user_id
-                FROM group_members gm
-                INNER JOIN groups g ON gm.group_id = g.id
-                WHERE g.owner_id = $1
-                OR (gm.status = 'accept' AND gm.group_id = $2 AND gm.user_id = $1)
-                LIMIT 1
-            ),
-            0
-        ) AS id;`
+SELECT
+  CASE WHEN EXISTS (
+    SELECT 1
+    FROM groups g
+    WHERE g.id = $2 AND (
+      g.owner_id = $1  -- User is the owner
+      OR EXISTS (
+        SELECT 1
+        FROM group_members gm
+        WHERE gm.group_id = g.id AND gm.user_id = $1 AND gm.status = 'accept'
+      )
+    )
+  )
+  THEN $1 ELSE 0 END AS id;`
 	res, err := d.SelectOneRow(query, userId, groupId)
 	if err != nil {
 		return false
@@ -213,8 +215,8 @@ func getPeopleToInvite(userID, groupID, page int) []profiles.Profile {
 			WHERE (f.followed_id = ? OR f.follower_id = ?) AND f.status = 'accept' AND u.id != ? 
 			AND u.id NOT in (SELECT gm.user_id AS UserID FROM group_members gm
 			WHERE gm.group_id = ?) AND u.id != (SELECT g.owner_id FROM groups g 
-			WHERE g.id = ?) GROUP BY u.id LIMIT 10 OFFSET ?;`;
-	data_Rows, err := d.SelectQuery(query, userID,userID,userID,groupID,groupID, page);
+			WHERE g.id = ?) GROUP BY u.id LIMIT 10 OFFSET ?;`
+	data_Rows, err := d.SelectQuery(query, userID, userID, userID, groupID, groupID, page)
 	if err != nil {
 		return nil
 	}
