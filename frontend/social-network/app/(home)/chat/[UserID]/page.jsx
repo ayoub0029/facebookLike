@@ -1,65 +1,93 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useRef, useCallback } from "react"
-import { useWebSocket } from "@/hooks/websocket-context.jsx"
-import styles from "./chat.module.css"
-import { useParams } from "next/navigation"
-import { fetchApi } from "@/api/fetchApi"
-import { useToast } from "@/hooks/toast-context"
+import { useState, useEffect, useRef, useCallback } from "react";
+import { useWebSocket } from "@/hooks/websocket-context.jsx";
+import styles from "./chat.module.css";
+import { useParams } from "next/navigation";
+import { fetchApi } from "@/api/fetchApi";
+import { useToast } from "@/hooks/toast-context";
 
 export default function ChatPage() {
-  const params = useParams()
-  const UserID = params.UserID
+  const params = useParams();
+  const UserID = params.UserID;
 
-  const [messages, setMessages] = useState([])
-  const [inputMessage, setInputMessage] = useState("")
-  const messagesEndRef = useRef(null)
-  const containerRef = useRef()
-  const { isConnected, sendMessage, setMessageHandler } = useWebSocket()
+  const [messages, setMessages] = useState([]);
+  const [inputMessage, setInputMessage] = useState("");
+  const messagesEndRef = useRef(null);
+  const containerRef = useRef();
+  const { isConnected, sendMessage, setMessageHandler } = useWebSocket();
   const [hamberMenu, setHamberMenu] = useState(false);
-  const { showToast } = useToast()
+  const { showToast } = useToast();
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const isFetching = useRef(false);
   const [loading, setLoading] = useState(false);
-  const [positionScroll, setPositionScroll] = useState(1200)
+  const [positionScroll, setPositionScroll] = useState(1200);
 
-  const fetchMoreData = useCallback(async (currPage) => {
-    if (isFetching.current || !hasMore) return
-    isFetching.current = true
-    setLoading(true)
+  // ayoub ---
+  const [scrollBackId, setScrollBackId] = useState(0);
+  const scrollToMessage = useCallback((messageId) => {
+    if (!messageId) return;
 
-    try {
-      const data = await fetchApi(`/chats/private?receiver_id=${UserID}&page=${currPage}`, "GET")
-      console.log(data);
-      if (!data || !Array.isArray(data)) {
-        setHasMore(false);
-        return;
+    setTimeout(() => {
+      const element = document.getElementById("msg" + messageId);
+      if (element) {
+        element.scrollIntoView({ behavior: "auto" });
       }
-      let dataParse = data.map((itm) => {
-        return {
-          sender_id: itm.senderid,
-          message: itm.message,
-          timestamp: itm.createdDate,
+    }, 0);
+  }, []);
+
+  const fetchMoreData = useCallback(
+    async (currPage) => {
+      if (isFetching.current || !hasMore) return;
+      isFetching.current = true;
+      setLoading(true);
+
+      try {
+        const data = await fetchApi(
+          `/chats/private?receiver_id=${UserID}&page=${currPage}`,
+          "GET"
+        );
+        console.log(data);
+        if (!data || !Array.isArray(data)) {
+          setHasMore(false);
+          return;
         }
-      })
 
-      setMessages((prev) => [...dataParse, ...prev])
-      if (data.length < 15) {
+        let lastMessageId = 0;
+        let dataParse = data.map((itm, index) => {
+          // ayoub ---
+          if (index === data.length - 3) lastMessageId = itm.messageid;
+
+          return {
+            sender_id: itm.senderid,
+            message: itm.message,
+            timestamp: itm.createdDate,
+            messageid: itm.messageid,
+          };
+        });
+
+        setMessages((prev) => [...dataParse, ...prev]);
+
+        setScrollBackId(lastMessageId);
+
+        if (data.length < 15) {
+          setHasMore(false);
+        }
+      } catch (err) {
+        showToast("error", "failed to get messages");
         setHasMore(false);
+      } finally {
+        setLoading(false);
+        isFetching.current = false;
       }
-    } catch (err) {
-      showToast("error", "failed to get messages")
-      setHasMore(false)
-    } finally {
-      setLoading(false)
-      isFetching.current = false
-    }
-  }, [UserID]);
+    },
+    [UserID, setScrollBackId]
+  );
 
   useEffect(() => {
-    fetchMoreData(page)
-  }, [page, fetchMoreData])
+    fetchMoreData(page);
+  }, [page, fetchMoreData]);
 
   // handel scroll
   useEffect(() => {
@@ -67,10 +95,9 @@ export default function ChatPage() {
       if (!containerRef.current || !hasMore) return;
 
       const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
-      if (scrollTop === 0 && (scrollHeight !== clientHeight)) {
+      if (scrollTop === 0 && scrollHeight !== clientHeight) {
         // const prevHeight = scrollHeight;
         setPage((prev) => prev + 15);
-
         // containerRef.current.scrollTop = containerRef.current.scrollHeight - (prevHeight - scrollTop);
         // setPositionScroll(containerRef.current.scrollHeight - prevHeight)
       }
@@ -79,41 +106,46 @@ export default function ChatPage() {
     chatContainer.addEventListener("scroll", handleScroll);
 
     return () => chatContainer.removeEventListener("scroll", handleScroll);
+  }, [hasMore, scrollBackId]);
 
-  }, []);
+  // ayoub ---
+  useEffect(() => {
+    if (scrollBackId) {
+      scrollToMessage(scrollBackId);
+    }
+  }, [scrollBackId, scrollToMessage]);
 
   useEffect(() => {
     if (containerRef.current) {
-      containerRef.current.scrollTop = positionScroll
+      containerRef.current.scrollTop = positionScroll;
     }
-  }, [messages])
+  }, [messages]);
 
   // Handle incoming messages
   useEffect(() => {
     setMessageHandler((data) => {
-
       try {
-        const parsedData = JSON.parse(data)
+        const parsedData = JSON.parse(data);
 
         if (parsedData.sender_id === Number.parseInt(UserID)) {
-          setMessages((prev) => [...prev, parsedData])
-          setPositionScroll(containerRef.current.scrollHeight)
+          setMessages((prev) => [...prev, parsedData]);
+          setPositionScroll(containerRef.current.scrollHeight);
         }
       } catch (error) {
-        console.error("Error parsing message:", error)
+        console.error("Error parsing message:", error);
       }
-    })
+    });
 
     return () => {
-      setMessageHandler(null)
-    }
-  }, [setMessageHandler, UserID])
+      setMessageHandler(null);
+    };
+  }, [setMessageHandler, UserID]);
 
   // handel send message
   function handleSendMessage(e) {
-    e.preventDefault()
+    e.preventDefault();
 
-    if (!inputMessage.trim() || !isConnected) return
+    if (!inputMessage.trim() || !isConnected) return;
 
     const messageObj = {
       type: "privateChat",
@@ -122,32 +154,34 @@ export default function ChatPage() {
         message: inputMessage,
         timestamp: new Date(),
       },
-    }
+    };
 
-    sendMessage(JSON.stringify(messageObj))
-
+    sendMessage(JSON.stringify(messageObj));
 
     const localMessageObj = {
       receiver_id: UserID,
       message: inputMessage,
       timestamp: new Date(),
       _isOutgoing: true,
-    }
+    };
 
-    setMessages((prev) => [...prev, localMessageObj])
-    setInputMessage("")
-    setPositionScroll(containerRef.current.scrollHeight)
+    setMessages((prev) => [...prev, localMessageObj]);
+    setInputMessage("");
+    setPositionScroll(containerRef.current.scrollHeight);
   }
 
   function formatTime(timestamp) {
-    if (!timestamp) return ""
-    const d = new Date(timestamp)
-    return `${d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} ${d.getDate()}-${d.getMonth() + 1}-${d.getFullYear()}`
+    if (!timestamp) return "";
+    const d = new Date(timestamp);
+    return `${d.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    })} ${d.getDate()}-${d.getMonth() + 1}-${d.getFullYear()}`;
   }
 
   function isCurrentUser(msg) {
-    if (msg._isOutgoing) return true
-    return msg.sender_id === window.userState.id
+    if (msg._isOutgoing) return true;
+    return msg.sender_id === window.userState.id;
   }
   const toggleMenu = () => {
     if (hamberMenu) {
@@ -157,69 +191,92 @@ export default function ChatPage() {
     }
   };
 
-  return (<>
-    <button onClick={toggleMenu} className="rightMenuToggle">
-      <i className="fas fa-bars"></i>
-    </button>
+  return (
+    <>
+      <button onClick={toggleMenu} className="rightMenuToggle">
+        <i className="fas fa-bars"></i>
+      </button>
 
-    <aside className="feed" style={{ backgroundColor: '#f5f5f5' }} >
-      <div className={styles.chatContainer}>
-        <div className={styles.chatCard}>
-          <div className={styles.chatHeader}>
-            <h2 className={styles.chatTitle}>Chat with {UserID}</h2>
-            {/* <span className={isConnected ? styles.statusConnected : styles.statusDisconnected}>
+      <aside className="feed" style={{ backgroundColor: "#f5f5f5" }}>
+        <div className={styles.chatContainer}>
+          <div className={styles.chatCard}>
+            <div className={styles.chatHeader}>
+              <h2 className={styles.chatTitle}>Chat with {UserID}</h2>
+              {/* <span className={isConnected ? styles.statusConnected : styles.statusDisconnected}>
             {isConnected ? "you Connected" : "you Disconnected"}
           </span> */}
-          </div>
+            </div>
 
-          <div className={styles.chatContent} ref={containerRef}>
-            {messages.length === 0 && (
-              <div className={styles.emptyState}>
-                <p>No messages yet. Start the conversation!</p>
-              </div>
-            )}
-            {(!hasMore && messages.length !== 0) && <div className={styles.emptyState}>
-              <p>No more messages</p>
-            </div>}
-
-            {messages.map((msg, index) => (
-              <div
-                key={index}
-                className={`${styles.messageRow} ${isCurrentUser(msg) ? styles.outgoing : styles.incoming}`}
-              >
-                <div className={isCurrentUser(msg) ? styles.outgoingMessage : styles.incomingMessage}>
-                  {!isCurrentUser(msg) && <div className={styles.messageSender}>{msg.sender_id}</div>}
-                  <div className={styles.messageContent}>{msg.message}</div>
-                  <div className={styles.messageTime}>{formatTime(msg.timestamp)}</div>
+            <div className={styles.chatContent} ref={containerRef}>
+              {messages.length === 0 && (
+                <div className={styles.emptyState}>
+                  <p>No messages yet. Start the conversation!</p>
                 </div>
-              </div>
-            ))}
+              )}
+              {!hasMore && messages.length !== 0 && (
+                <div className={styles.emptyState}>
+                  <p>No more messages</p>
+                </div>
+              )}
 
-            <div ref={messagesEndRef} />
-          </div>
+              {messages.map((msg, index) => (
+                // ayoub --- msg id
+                <div
+                  id={`msg${msg.messageid}`}
+                  key={index}
+                  className={`${styles.messageRow} ${
+                    isCurrentUser(msg) ? styles.outgoing : styles.incoming
+                  }`}
+                >
+                  <div
+                    className={
+                      isCurrentUser(msg)
+                        ? styles.outgoingMessage
+                        : styles.incomingMessage
+                    }
+                  >
+                    {!isCurrentUser(msg) && (
+                      <div className={styles.messageSender}>
+                        {msg.sender_id}
+                      </div>
+                    )}
+                    <div className={styles.messageContent}>{msg.message}</div>
+                    <div className={styles.messageTime}>
+                      {formatTime(msg.timestamp)}
+                    </div>
+                  </div>
+                </div>
+              ))}
 
-          <div className={styles.chatFooter}>
-            <form onSubmit={handleSendMessage} className={styles.messageForm}>
-              <input
-                type="text"
-                placeholder={isConnected ? "Type a message..." : "Connecting..."}
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                disabled={!isConnected}
-                className={styles.messageInput}
-              />
-              <button type="submit" disabled={!isConnected || !inputMessage.trim()} className={styles.sendButton}>
-                <i className="fa-solid fa-paper-plane"></i>
-              </button>
-            </form>
+              <div ref={messagesEndRef} />
+            </div>
+
+            <div className={styles.chatFooter}>
+              <form onSubmit={handleSendMessage} className={styles.messageForm}>
+                <input
+                  type="text"
+                  placeholder={
+                    isConnected ? "Type a message..." : "Connecting..."
+                  }
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
+                  disabled={!isConnected}
+                  className={styles.messageInput}
+                />
+                <button
+                  type="submit"
+                  disabled={!isConnected || !inputMessage.trim()}
+                  className={styles.sendButton}
+                >
+                  <i className="fa-solid fa-paper-plane"></i>
+                </button>
+              </form>
+            </div>
           </div>
         </div>
-      </div>
-    </aside>
+      </aside>
 
-    <div className={"rightSidebar" + (hamberMenu ? " show" : "")}>
-
-    </div>
-  </>)
+      <div className={"rightSidebar" + (hamberMenu ? " show" : "")}></div>
+    </>
+  );
 }
-

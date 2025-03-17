@@ -80,8 +80,7 @@
   flex: 1;
   overflow-y: auto;
   padding: 16px;
-  scroll-behavior: smooth;
-  /* Add smooth scrolling to the container */
+  /* scroll-behavior: smooth; */
 }
 
 .emptyState {
