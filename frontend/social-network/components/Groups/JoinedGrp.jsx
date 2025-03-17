@@ -7,7 +7,7 @@ import groupImage from '../../Img/group.png'
 import Image from "next/image";
 import Link from 'next/link'
 
-const fetchJoinedGrp = async (page) => {    
+const fetchJoinedGrp = async (page) => {
     try {
         const data = await fetchApi(`groups/JoinedBy?page=${page}`, 'GET', null, false)
         if (data.status !== undefined) {
@@ -33,13 +33,14 @@ const JoinedGrp = () => {
         nextPage,
     } = useLazyLoad(fetchJoinedGrp)
 
+    const [leavingGroup, setLeavingGroup] = useState(false)
+    const [leaveError, setLeaveError] = useState(null)
+    const [groupsData, setGroupsData] = useState(data)
+
     useEffect(() => {
         setGroupsData(data)
     }, [data])
 
-    const [leavingGroup, setLeavingGroup] = useState(false)
-    const [leaveError, setLeaveError] = useState(null)
-    const [groupsData, setGroupsData] = useState(data)
     const leaveTheGroup = async (groupId) => {
         try {
             setLeavingGroup(true)
@@ -51,7 +52,15 @@ const JoinedGrp = () => {
                 setLeaveError(`Error: ${response.error || 'Unknown error'} (Status: ${response.status})`);
                 return;
             }
-            setGroupsData(groupsData.filter(group => !(group.id === groupId)))
+            console.log(groupsData, groupId);
+            for (let index = 0; index < groupsData.length; index++) {
+                const element = groupsData[index];
+                console.log(element.id, groupId);
+                if (element.id === groupId) {
+                    console.log("hello");
+                    groupsData.splice(index, 1);
+                }
+            }
         } catch (err) {
             console.error('Error leaving group:', err)
             setLeaveError('Failed to leave the group')
@@ -91,12 +100,12 @@ const JoinedGrp = () => {
                             <div className='groupInfo'>
                                 <button className='btn'>
                                     <Link href={`/groups/${group.id}`}>
-                                    <Image
-                                        src={groupImage}
-                                        alt='Group Image'
-                                        width={200}
-                                        height={150}>
-                                    </Image>
+                                        <Image
+                                            src={groupImage}
+                                            alt='Group Image'
+                                            width={200}
+                                            height={150}>
+                                        </Image>
                                         <h3 id={`group-name-${group.id}`}>{group.name}</h3>
                                         <p>{group.description}</p>
                                     </Link>
