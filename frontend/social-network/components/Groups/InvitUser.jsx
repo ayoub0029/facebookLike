@@ -70,7 +70,7 @@ export default function InvitUser({ userID }) {
             <div
                 className="scrollable-container"
                 style={{
-                    maxHeight: '100%',
+                    maxHeight: '400px',
                     overflowY: 'auto',
                     padding: '10px',
                     border: '1px solid #eee',

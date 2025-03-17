@@ -43,9 +43,3 @@ export default function Groups() {
     </>
   );
 }
-/* import { useState, useEffect, useCallback } from 'react'
-
-  const handleReload = useCallback(() => {
-    setReloadKey((key) => key + 1);
-  }, []);
-onSuccess={handleReload} */

@@ -155,10 +155,7 @@ export default function DisplayEvents({ reloadKey }) {
                         <div
                             className="eventsCard"
                             key={`${event.id}`}
-                            aria-labelledby={`event-name-${event.id}`}
-                            role="article"
                         >
-                            {/* {console.log(event)} */}
                             <div className="event">
                                 <h4 id={`event-name-${event.id}`}>{event.title}</h4>
                                 <p>{event.description}</p>
