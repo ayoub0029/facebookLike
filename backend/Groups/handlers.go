@@ -7,6 +7,7 @@ import (
 
 	global "socialNetwork/Global"
 	middleware "socialNetwork/Middlewares"
+	notifications "socialNetwork/Notifications"
 )
 
 func Routes(mux *http.ServeMux) {
@@ -126,6 +127,8 @@ func CreateEvent_handler(res http.ResponseWriter, req *http.Request) {
 	}
 	myevent := NewEvent(group, int(owner.ID), title, description, start, end, "")
 	myevent.Create()
+	var notif = notifications.NewNotification("", uint64(owner.ID), 0, uint64(group))
+	notif.Event()
 	global.JsonResponse(res, 200, "event created succesfuly")
 }
 
@@ -158,6 +161,12 @@ func JoinGroup_handler(res http.ResponseWriter, req *http.Request) {
 	status := RequestToJoin(groupId, int(member.ID))
 	if !status {
 		global.JsonResponse(res, 500, "Enternal Server 500")
+		return
+	}
+	var notif = notifications.NewNotification("", uint64(member.ID), 0, uint64(groupId))
+	err := notif.RequestJoinGroupToLeader()
+	if err != nil {
+		global.JsonResponse(res, 500, "Internal Server 500")
 		return
 	}
 	global.JsonResponse(res, 200, "Request have sent succesfuly")
@@ -238,6 +247,12 @@ func InviteMember_handler(res http.ResponseWriter, req *http.Request) {
 		global.JsonResponse(res, 500, "Internal Server 500")
 		return
 	}
+	var notif = notifications.NewNotification("", Inviter.ID, uint64(member), uint64(group))
+	err := notif.GroupInvitation()
+	if err != nil {
+		global.JsonResponse(res, 500, "Internal Server 500")
+		return
+	}
 	global.JsonResponse(res, 200, "data saved succesfuly")
 }
 
@@ -268,6 +283,7 @@ func GetGroupRequsts_handler(res http.ResponseWriter, req *http.Request) {
 		global.JsonResponse(res, 404, "data Not Found")
 		return
 	}
+
 	global.JsonResponse(res, 200, groupRequestsArray)
 }
 
