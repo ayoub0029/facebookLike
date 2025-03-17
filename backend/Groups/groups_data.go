@@ -87,21 +87,19 @@ func getAllGroups(page int) []group_data {
 
 func isMember(groupId, userId int) bool {
 	query := `
-SELECT
-  CASE WHEN EXISTS (
-    SELECT 1
-    FROM groups g
-    WHERE g.id = $2 AND (
-      g.owner_id = $1  -- User is the owner
-      OR EXISTS (
-        SELECT 1
-        FROM group_members gm
-        WHERE gm.group_id = g.id AND gm.user_id = $1 AND gm.status = 'accept'
-      )
-    )
-  )
-  THEN $1 ELSE 0 END AS id;`
-	res, err := d.SelectOneRow(query, userId, groupId)
+    SELECT
+        COALESCE(
+            (
+                SELECT gm.user_id
+                FROM group_members gm
+                INNER JOIN groups g ON gm.group_id = g.id
+                WHERE g.owner_id = ?
+                OR (gm.status = 'accept' AND gm.group_id = ? AND gm.user_id = ?)
+                LIMIT 1
+            ),
+            0
+        ) AS id;`
+	res, err := d.SelectOneRow(query, userId, groupId, userId)
 	if err != nil {
 		return false
 	} else {
