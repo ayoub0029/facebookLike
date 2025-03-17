@@ -17,6 +17,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export function FetchPosts({ endpoint, lastId }) {
   const [editVisible, setEditVisible] = useState(null);
+  const [editCommentVisible, setEditCommentVisible] = useState(null);
   const menuRef = useRef(null);
   const [openCommentsPostId, setOpenCommentsPostId] = useState(null);
 
@@ -75,6 +76,9 @@ export function FetchPosts({ endpoint, lastId }) {
   const toggleMenu = (postId) => {
     setEditVisible(editVisible === postId ? null : postId);
   };
+  const togglecommentMenu = (commentId) => {
+    setEditCommentVisible(editVisible === commentId ? null : commentId);
+  };
 
   const handleEditPost = async (e) => {
     e.preventDefault();
@@ -90,7 +94,7 @@ export function FetchPosts({ endpoint, lastId }) {
     // success
     closeModal("editPost")();
     setEditVisible(null);
-
+    
     setPosts((allPosts) =>
       allPosts.map((post) =>
         post.id == e.target.post_id.value
@@ -103,6 +107,39 @@ export function FetchPosts({ endpoint, lastId }) {
       )
     );
 
+    e.target.reset();
+  };
+
+  const handleEditComment = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const newContent = e.target.newContent.value;
+    const response = await fetchApi(
+      "/posts/comments/update",
+      "PUT",
+      formData,
+      true
+    );
+
+    if (response.status != undefined) {
+      alert(`Error: ${response.error} Status: ${response.status}`);
+      return;
+    }
+
+    // success
+    closeModal("editPost")();
+    setEditVisible(null);
+    setComments((allComments) =>
+      allComments.map((comment) =>
+        comment.id == e.target.comment_id.value
+          ? {
+              ...comment,
+              content: `${newContent}`,
+              updated_at_at: `${new Date()}`,
+            }
+          : comment
+      )
+    );
     e.target.reset();
   };
 
@@ -129,12 +166,34 @@ export function FetchPosts({ endpoint, lastId }) {
     e.target.reset();
   };
 
+  const handleDeleteComment = async (e) => {
+    e.preventDefault();
+    const CommentIdToDelete = e.target.comment_id.value;
+
+    const response = await fetchApi(
+      `/posts/comments/delete?comment_id=${CommentIdToDelete}`,
+      "DELETE"
+    );
+
+    if (response.status != undefined) {
+      alert(`Error: ${response.error} Status: ${response.status}`);
+      return;
+    }
+
+    // success
+    setComments((allComments) =>
+      allComments.filter((comment) => comment.id != CommentIdToDelete)
+    );
+    closeModal("deletePost")();
+    setEditVisible(null);
+    e.target.reset();
+  };
+
   const handleCreateComment = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const response = await fetchApi("posts/comments", "POST", formData, true);
     const postId = e.target.post_id.value;
-    console.log(postId);
 
     if (response.status !== undefined) {
       alert(`Error: ${response.error} Status: ${response.status}`);
@@ -168,7 +227,7 @@ export function FetchPosts({ endpoint, lastId }) {
 
   if (error && posts.length === 0) return <div className="error">{error}</div>;
   // if (posts.length === 0 && loading) return <div>Loading posts...</div>;
-  if (posts.length === 0 && loading) return <SkeletonLoaderPosts />
+  if (posts.length === 0 && loading) return <SkeletonLoaderPosts />;
 
   return (
     <div>
@@ -388,6 +447,96 @@ export function FetchPosts({ endpoint, lastId }) {
                       />
                     </Link>
                     <div className="commentContent">
+                      <div
+                        className="editPointContainer"
+                        onClick={() => togglecommentMenu(comment.id)}
+                      >
+                        <div className="editPoint">•••</div>
+                        {editCommentVisible === comment.id && (
+                          <div className="editMenu" ref={menuRef}>
+                            <div>
+                              <button
+                                className="editBtn"
+                                onClick={openModal("editPost")}
+                              >
+                                Update
+                              </button>
+                              <Modal
+                                isOpen={modals.editPost}
+                                onClose={closeModal("editPost")}
+                                title="Edit comment"
+                              >
+                                <form
+                                  className="newPost"
+                                  onSubmit={handleEditComment}
+                                >
+                                  <input
+                                    type="hidden"
+                                    name="comment_id"
+                                    value={comment.id}
+                                  />
+                                  <textarea
+                                    placeholder="Write something here..."
+                                    name="newContent"
+                                    defaultValue={comment.comment_content}
+                                  ></textarea>
+                                  <button
+                                    type="submit"
+                                    className="btn btnGreen"
+                                  >
+                                    Edit
+                                  </button>
+                                </form>
+                              </Modal>
+                            </div>
+                            <button
+                              className="editBtn"
+                              onClick={openModal("deletePost")}
+                            >
+                              Delete
+                            </button>
+                            <Modal
+                              isOpen={modals.deletePost}
+                              onClose={closeModal("deletePost")}
+                              title="Delete Comment"
+                            >
+                              <form
+                                className="newPost"
+                                onSubmit={handleDeleteComment}
+                              >
+                                <label>
+                                  Do you want to delete comment : "
+                                  {comment.comment_content.slice(0, 50)}..."
+                                </label>
+                                <input
+                                  type="hidden"
+                                  name="comment_id"
+                                  value={comment.id}
+                                />
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    gap: "10px",
+                                    alignItems: "end",
+                                    direction: "rtl",
+                                  }}
+                                >
+                                  <button
+                                    type="button"
+                                    onClick={closeModal("deletePost")}
+                                    className="btn btnGray"
+                                  >
+                                    Cancel
+                                  </button>
+                                  <button type="submit" className="btn btnRed">
+                                    Delete
+                                  </button>
+                                </div>
+                              </form>
+                            </Modal>
+                          </div>
+                        )}
+                      </div>
                       <span className="commentName">
                         {comment.first_name + " " + comment.last_name}
                       </span>

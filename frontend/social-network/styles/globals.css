@@ -217,6 +217,19 @@ body {
   cursor: pointer;
 }
 
+.editPointContainer {
+  position: relative;
+}
+
+.editPoint{
+  position: absolute;
+  right: 10px;
+  top: 0;
+  font-size: 12px;
+  font-weight: bolder;
+  cursor: pointer;
+}
+
 .editMenu {
   position: absolute;
   background: var(--background);

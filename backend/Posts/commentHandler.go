@@ -262,7 +262,8 @@ func commentUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	comment_content := r.FormValue("content")
+	comment_content := r.FormValue("newContent")
+	fmt.Println(comment_content)
 	if comment_content == "" || len(comment_content) >= 1100 {
 		global.JsonResponse(w, http.StatusBadRequest, "Something is wrong")
 		return
