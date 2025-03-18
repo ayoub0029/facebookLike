@@ -26,7 +26,7 @@ export default function HomeLayout({ children }) {
     const fetchUser = async () => {
       const user = await checkIfLoggedIn();
 
-      if (!user || user.id === null || user.state === 401 || user.id === undefined) {
+      if (!user || user.id === null || user.status === 401 || user.id === undefined) {
         router.push("/auth/login");
       } else {
         setIsLoading(false);

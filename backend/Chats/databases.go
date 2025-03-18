@@ -94,15 +94,35 @@ func AddmessageGrpToDB(senderId uint64, groupid uint64, message string) error {
 }
 
 func GetUsersIchatWith(userID, item_id int, r *http.Request) ([]User, error) {
+	if item_id == 0 {
+		item_id = 999999999999999999
+	}
 	var users []User
-	query := `SELECT u.id, CONCAT(u.first_name, ' ', u.last_name) AS full_name
-              FROM users u
-              WHERE u.id IN (SELECT DISTINCT pch.sender_id 
-			  FROM private_chat pch WHERE pch.receiver_id = ? AND pch.id = ?)
-              OR u.id IN (SELECT DISTINCT pch.receiver_id FROM private_chat pch 
-              WHERE pch.sender_id = ? AND pch.id = ?);`
+	query := `SELECT
+    pch.last_id,
+    u.id,
+    u.avatar,
+    CONCAT(u.first_name, ' ', u.last_name) AS full_name
+	FROM
+		users u
+		JOIN (
+			SELECT
+				MAX(id) AS last_id,
+				CASE 
+					WHEN sender_id = $1 THEN receiver_id
+					ELSE sender_id
+				END AS user_id
+			FROM private_chat
+			WHERE sender_id = $1 OR receiver_id = $1
+			GROUP BY user_id
+		) pch ON u.id = pch.user_id
+	WHERE
+		pch.last_id < $2
+	ORDER BY
+		pch.last_id DESC
+	LIMIT 10;`
 
-	rows, err := database.SelectQuery(query, userID, item_id, userID, item_id)
+	rows, err := database.SelectQuery(query, userID, item_id)
 	if err != nil {
 		log.Println("Getting data from db error: ", err)
 		return nil, err
@@ -111,7 +131,7 @@ func GetUsersIchatWith(userID, item_id int, r *http.Request) ([]User, error) {
 
 	for rows.Next() {
 		user := User{}
-		err := rows.Scan(&user.ID, &user.FullName)
+		err := rows.Scan(&user.Last_id, &user.ID, &user.Avatar, &user.FullName)
 		if err != nil {
 			log.Println("Scan error: ", err)
 			return nil, err

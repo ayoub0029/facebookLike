@@ -20,11 +20,10 @@ type groupMsg struct {
 	Message     string `json:"message"`
 	CreatedDate string `json:"createdDate"`
 	MessageID   uint64 `json:"messageid"`
-
 }
 
 type ChatPrvMessage struct {
-	Sender_id 	int    	`json:"sender_id"`
+	Sender_id   int       `json:"sender_id"`
 	Receiver_id uint64    `json:"receiver_id"`
 	Message     string    `json:"message"`
 	Timestamp   time.Time `json:"timestamp"`
@@ -37,6 +36,8 @@ type ChatGrpMessage struct {
 }
 
 type User struct {
+	Last_id  string `json:"last_id"`
 	ID       uint64 `json:"id"`
 	FullName string `json:"fullname"`
+	Avatar   string `json:"avatar"`
 }

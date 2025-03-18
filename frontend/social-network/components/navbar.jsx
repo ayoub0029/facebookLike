@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation"; 
 import { fetchApi } from "@/api/fetchApi";
+import { clearUserState } from "@/api/isLoggedIn";
 
 export function Navigation() {
   const router = useRouter();
@@ -13,6 +14,7 @@ export function Navigation() {
       if (response.error) {
         throw new Error(response.error || 'Logout failed');
       }
+      clearUserState()
       router.push("/auth/login")
     } catch (error) {
       console.log(error)
