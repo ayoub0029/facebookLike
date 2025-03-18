@@ -299,7 +299,6 @@ func CheckFollowStatus(w http.ResponseWriter, r *http.Request) {
 		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": ErrUnauthorized.Error()})
 		return
 	}
-
 	Param := r.FormValue("user_id")
 	if Param == "" {
 		global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": ErrInvalidParams.Error()})
@@ -313,7 +312,11 @@ func CheckFollowStatus(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(global.ErrInvalidRequest.Error())
 		return
 	}
+	Rev := r.FormValue("rev")
 	NewFollowRequest := NewFollowRequest(CurrentUserID, FollowedID)
+	if Rev == "true" {
+		NewFollowRequest.followerId, NewFollowRequest.followedId = FollowedID, CurrentUserID
+	}
 
 	Status, StatusCode, err := NewFollowRequest.CheckFollowStatus()
 	if err != nil {

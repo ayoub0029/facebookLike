@@ -143,20 +143,16 @@ func (req *Follow_Request) CheckFollowStatus() (string, int, error) {
 
 // Accept the follow request and return the status code, along with any errors encountered.
 func (req *Follow_Request) AccepteRequest() (int, error) {
-	_, err := GetStatus(req.followedId, req.followerId)
+	Status, err := GetStatus(req.followedId, req.followerId)
 	if err == ErrFollowYourself || err == ErrUserNotExist || err == ErrCantFindRelationId {
 		return http.StatusBadRequest, err
 	}
+	
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}
 
-	Status, StatusCode, err := req.CheckFollowStatus()
-	if err != nil {
-		return StatusCode, err
-	}
-
-	if Status != FollowerStatus[Follower_Pending] {
+	if Status == FollowerStatus[Follower_Accept] {
 		return http.StatusBadRequest, ErrUserAlreadyFollowedYou
 	}
 
@@ -176,12 +172,11 @@ func (req *Follow_Request) AccepteRequest() (int, error) {
 // Reject the follow request and Remove them From the database
 // return the status code, along with any errors encountered.
 func (req *Follow_Request) RejectRequest() (int, error) {
-	Id, err := IsFollowed(req.followedId, req.followerId)
-
+	Id, err := FindRolation(req.followedId, req.followerId)
+	
 	if err == ErrFollowYourself || err == ErrUserNotExist || err == ErrCantFindRelationId {
 		return http.StatusBadRequest, err
 	}
-
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}
@@ -208,7 +203,7 @@ func (req *Follow_Request) RejectRequest() (int, error) {
 
 func (Params *FollowersParams) GetFollowing() ([]Following, error) {
 	if Params.Page < 1 {
-		
+
 		Params.Page = 1
 	}
 

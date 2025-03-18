@@ -8,7 +8,11 @@ import (
 
 type DataNotif struct {
 	Id        uint64 `json:"id"`
-	Sender    string `json:"seneder"`
+	UserID    uint64
+	RefId     string
+	FirstName string
+	LastName  string
+	Avatar    string
 	Type      string `json:"type"`
 	Message   string `json:"message"`
 	CreatedAt string `json:"creatat"`
@@ -78,29 +82,41 @@ func getIdsUsersOfGroup(groupId uint64) ([]uint64, error) {
 }
 
 func selectNotifications(user, lastNotif string) ([]DataNotif, error) {
+
 	var rows *sql.Rows
 	var err error
-
-	query := `SELECT
+	query := `
+	SELECT
     	notifications.id,
-    	users.nickname,
+		notifications.reference_id,
+		users.id,
+    	users.first_name,
+    	users.last_name,
+    	users.avatar,
     	notifications.content,
     	notifications.type,
     	notifications.created_at
 	FROM
     	notifications
-    	LEFT JOIN users ON notifications.sender_id = users.id
+    	LEFT JOIN users ON notifications.user_id = users.id
 	WHERE
-    	user_id = ?`
+    	notifications.sender_id = ?
+    	AND notifications.id < ?
+	ORDER BY
+    	notifications.id DESC
+	LIMIT 15;
+	`
 
 	if lastNotif != "" {
-		query += " AND notifications.id > ?"
 		rows, err = database.SelectQuery(query, user, lastNotif)
 	} else {
-		rows, err = database.SelectQuery(query, user)
+		var lastid int64
+		row, _ := database.SelectOneRow("SELECT id FROM notifications ORDER BY id DESC LIMIT 1")
+		if err := row.Scan(&lastid); err != nil {
+			return nil, err
+		}
+		rows, err = database.SelectQuery(query, user, lastid-1)
 	}
-
-	query += ` ORDER BY id DESC LIMIT 10;`
 
 	if err != nil {
 		return nil, err
@@ -108,11 +124,15 @@ func selectNotifications(user, lastNotif string) ([]DataNotif, error) {
 
 	var nf DataNotif
 	var notifications []DataNotif
-
+	var RefID *string
 	for rows.Next() {
 		err = rows.Scan(
 			&nf.Id,
-			&nf.Sender,
+			&RefID,
+			&nf.UserID,
+			&nf.FirstName,
+			&nf.LastName,
+			&nf.Avatar,
 			&nf.Message,
 			&nf.Type,
 			&nf.CreatedAt,
@@ -120,7 +140,7 @@ func selectNotifications(user, lastNotif string) ([]DataNotif, error) {
 		if err != nil {
 			return nil, err
 		}
-
+		nf.RefId = PointerValidation(RefID)
 		notifications = append(notifications, nf)
 	}
 
@@ -152,4 +172,11 @@ func GetNameOfGroupById(id uint) (string, error) {
 		return "", err
 	}
 	return nm, nil
+}
+
+func PointerValidation(str *string) string {
+	if str == nil {
+		return ""
+	}
+	return *str
 }

@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	global "socialNetwork/Global"
+	middleware "socialNetwork/Middlewares"
 )
 
 var logger = global.NewLogger()
@@ -20,8 +21,12 @@ func getNotifications(res http.ResponseWriter, req *http.Request) {
 	lastNotif := req.FormValue("last_notif_id")
 
 	if user == "" {
-		global.JsonResponse(res, http.StatusBadRequest, "data nul")
-		return
+		User, ok := req.Context().Value(middleware.UserContextKey).(middleware.User)
+		if !ok {
+			global.JsonResponse(res, 400, "data Error")
+			return
+		}
+		user = strconv.Itoa(int(User.ID))
 	}
 
 	data, err := selectNotifications(user, lastNotif)
@@ -47,7 +52,7 @@ func SeenNotifications(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 	err = MarkSenn(id)
-	if(err != nil){
+	if err != nil {
 		global.JsonResponse(res, http.StatusInternalServerError, "server side error")
 		return
 	}

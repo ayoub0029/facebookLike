@@ -35,7 +35,7 @@ const NotificationsTypes = {
 }
 
 function GetNotification(LastNotifId) {
-    return LastNotifId >= 0 ? fetchApi(`${NotificationEndpoint}?last_notif_id=${LastNotifId}`): fetchApi(NotificationEndpoint)
+    return LastNotifId >= 0 ? fetchApi(`${NotificationEndpoint}?last_notif_id=${LastNotifId}`) : fetchApi(NotificationEndpoint)
 }
 
 function CheckStatus(UserID) {
@@ -121,12 +121,14 @@ function NotificationResault({ Data }) {
         }
     }, [Data?.UserID]);
 
+    // if (document.getElementById(`notif-${Data.id}`)) return null
+
     let ImageUrl = Data.Avatar !== "undefined" && Data.Avatar
         ? Data.Avatar.startsWith("http") ? Data.Avatar : `${process.env.NEXT_PUBLIC_API_BASE_URL}/public/${Data.Avatar}`
         : process.env.NEXT_PUBLIC_GLOBAL_IMG;
 
     return (
-        <div className="notificationcontainer">
+        <div className="notificationcontainer" id={`notif-${Data.id}`}>
             <Link href={NotificationsTypes[Data.type].type === "group" ? "/groups/" + Data.RefId : "/profile/" + Data.UserID} className="notification">
                 <div>
                     <img src={ImageUrl} alt={`${Data.FirstName} ${Data.LastName}`} />
@@ -134,7 +136,7 @@ function NotificationResault({ Data }) {
                 </div>
                 <h5>{formatTime(Data.creatat)}</h5>
             </Link>
-            {(status === "pending" && Data.type === "request_following") ? <Buttons UserID={Data.UserID} /> : null}
+            {(status === "pending" && Data.type === "request_following") && !document.getElementById(`Button-${Data.UserID}`) ? <Buttons UserID={Data.UserID} /> : null}
         </div>
     );
 }
@@ -154,11 +156,9 @@ function RejectFollowRequest(UserID, setInvisible) {
 }
 
 function Buttons({ UserID }) {
+    if (document.getElementById(`Button-${UserID}`)) return null
     const [isVisible, setInvisible] = useState(true);
     if (!isVisible) return null;
-    if (document.getElementById(`Button-${UserID}`)) {
-        return null
-    }
     return (
         <div id={`Button-${UserID}`} className="buttons">
             <button onClick={() => AccepteFollowRequest(UserID, setInvisible)} className="accepte">
