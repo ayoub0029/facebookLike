@@ -43,7 +43,7 @@ func (nf *NotifService) GroupInvitation() error {
 
 func (nf *NotifService) RequestJoinGroupToLeader() error {
 	nf.Type = AcceptRequest
-	leaderID, err := getLaderbyIdGroup(nf.GroupID)
+	leaderID, err := global.GetLaderbyIdGroup(nf.GroupID)
 	if err != nil {
 		return err
 	}
@@ -89,7 +89,7 @@ func (nf *NotifService) sendNotificationWithSenderAndGroupName() error {
 	if err != nil {
 		return err
 	}
-	groupName, err := GetNameOfGroupById(uint(nf.GroupID))
+	groupName, err := global.GetNameOfGroupById(uint(nf.GroupID))
 	if err != nil {
 		return err
 	}

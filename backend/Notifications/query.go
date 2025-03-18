@@ -49,18 +49,6 @@ func MarkSenn(id int) error {
 	return err
 }
 
-func getLaderbyIdGroup(GroupId uint64) (uint64, error) {
-	row, err := database.SelectOneRow("SELECT owner_id FROM groups WHERE id = ?", GroupId)
-	if err != nil {
-		return 0, err
-	}
-	var ownerId uint64
-	if err := row.Scan(&ownerId); err != nil {
-		return 0, err
-	}
-	return ownerId, nil
-}
-
 /* func GetIdsUsersOfGroup(groupId uint64) ([]uint64, error) {
 	rows, err := database.SelectQuery("SELECT user_id FROM group_members WHERE group_id = ?", groupId)
 	if err != nil {
@@ -150,17 +138,6 @@ func selectNotifications(user, lastNotif string) ([]DataNotif, error) {
 	return notifications, nil
 }
 
-func GetNameOfGroupById(id uint) (string, error) {
-	row, err := database.SelectOneRow("SELECT name FROM groups WHERE id = ?", id)
-	if err != nil {
-		return "", err
-	}
-	var nm string
-	if err := row.Scan(&nm); err != nil {
-		return "", err
-	}
-	return nm, nil
-}
 
 func PointerValidation(str *string) string {
 	if str == nil {

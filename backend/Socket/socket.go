@@ -97,7 +97,7 @@ func handlePrvChatMessage(wsMessage WebSocketMessage, userID uint64, fullName st
 	return nil
 }
 
-func handleGrpChatMessage(wsMessage WebSocketMessage, userID uint64) error {
+func handleGrpChatMessage(wsMessage WebSocketMessage) error {
 	var grpChatMsg chats.ChatGrpMessage
 	data, err := json.Marshal(wsMessage.Content)
 	if err != nil {
@@ -106,23 +106,36 @@ func handleGrpChatMessage(wsMessage WebSocketMessage, userID uint64) error {
 	if err := json.Unmarshal(data, &grpChatMsg); err != nil {
 		return fmt.Errorf("error unmarshaling chat message: %v", err)
 	}
-	chats.HandleChatGrpMessage(grpChatMsg)
+	err = chats.HandleChatGrpMessage(grpChatMsg)
+	if err != nil{
+		fmt.Println("111; socket",err)
+	}
 	userIDs, err := global.GetIdsUsersOfGroup(grpChatMsg.GroupID)
 	if err != nil {
 		return err
 	}
+	groupName, err := global.GetNameOfGroupById(uint(grpChatMsg.GroupID))
+	if err != nil {
+		return err
+	}
+	laderGroup, err := global.GetLaderbyIdGroup(grpChatMsg.GroupID)
+	if err != nil {
+		return err
+	}
+	userIDs = append(userIDs, laderGroup)
+	grpChatMsg.GroupName = groupName
+	grpChatMsg.Type = "Group_message"
 	/* grpMembers broadcasting */
 	for _, member := range userIDs {
-		fmt.Println("id,", member, "   conn", Clients[uint64(member)])
-		if Clients[member] != nil {
+		conn, ok := Clients[uint64(member)]
+		if ok {
 			fullName, err := global.GetFullNameById(uint(member))
 			if err != nil {
-				return SendMessage(Clients[userID], map[string]string{"Error": "user not following"})
+				continue
 			}
-			grpChatMsg.Type = "Group_message"
 			grpChatMsg.FullName = fullName
 
-			return SendMessage(Clients[uint64(member)], grpChatMsg)
+			SendMessage(conn, grpChatMsg)
 		}
 	}
 	return nil
@@ -148,7 +161,7 @@ func SocketListner(client *global.Client, r *http.Request) {
 				log.Printf("Error handling %s message: %v", wsMessage.Type, err)
 			}
 		} else if wsMessage.Type == "groupChat" {
-			if err := handleGrpChatMessage(wsMessage, user.ID); err != nil {
+			if err := handleGrpChatMessage(wsMessage); err != nil {
 				log.Printf("Error handling %s message: %v", wsMessage.Type, err)
 			}
 		}

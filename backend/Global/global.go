@@ -87,6 +87,30 @@ func GetFullNameById(id uint) (string, error) {
 	return fn + " " + ln, nil
 }
 
+func GetNameOfGroupById(id uint) (string, error) {
+	row, err := database.SelectOneRow("SELECT name FROM groups WHERE id = ?", id)
+	if err != nil {
+		return "", err
+	}
+	var nm string
+	if err := row.Scan(&nm); err != nil {
+		return "", err
+	}
+	return nm, nil
+}
+
+func GetLaderbyIdGroup(GroupId uint64) (uint64, error) {
+	row, err := database.SelectOneRow("SELECT owner_id FROM groups WHERE id = ?", GroupId)
+	if err != nil {
+		return 0, err
+	}
+	var ownerId uint64
+	if err := row.Scan(&ownerId); err != nil {
+		return 0, err
+	}
+	return ownerId, nil
+}
+
 // how to use
 //
 //	var logger = NewLogger()
