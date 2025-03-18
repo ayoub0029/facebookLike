@@ -1,5 +1,75 @@
-.notcontainer {}
+:root {
+    --NotificationHoverColor:#a1a1a1;
+    --NotificationColor:#e6e6e6;
+    --AccepteButtonColor: green;
+    --RejectButtonColor: red;
+}
+.notifications {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    max-height: 100vh;
+}
+.notificationcontainer {
+    padding: 5px;
+    width: 100%;
+    margin: 10px;
+    border-radius: 2px;
+    box-shadow: 0 0 50px var(--NotificationColor);
+    max-width: 95%;
+}
+.notificationcontainer:hover {
+    transition: all 0.5s linear;
+    transform: scale(1.02);
+    box-shadow: 0 0 50px var(--NotificationHoverColor);
+}
+.notification {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    word-wrap: break-word; 
+    overflow-wrap: break-word; 
+    cursor: pointer;
+    max-width: 100%;
+}
 
-.title {}
+.notification div {
+    word-break: break-all;
+    display: flex;
+    gap: 10px;
+}
+.notificationcontainer img {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+}
+.notification h5 {
+    color: gray;
+    min-width: 100px;
+}
+.notification p {
+    font-size: 14px;
+    font-weight: bold;
+}
 
-.notificationdata {}
+.buttons {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+}
+.buttons button {
+    width: fit-content;
+    padding: 10px;
+    color: white;
+    font-weight: bold; 
+    border-radius: 20px;
+    border: none;
+    cursor: pointer;
+}
+.accepte {
+    background-color: var(--AccepteButtonColor);
+}
+.reject {
+    background-color: var(--RejectButtonColor);
+}
