@@ -80,9 +80,11 @@ func handlePrvChatMessage(wsMessage WebSocketMessage, userID uint64, fullName st
 	if err := json.Unmarshal(data, &chatMsg); err != nil {
 		return fmt.Errorf("error unmarshaling chat message: %v", err)
 	}
-	is_followed, err := IsFollowed(int(chatMsg.Receiver_id), int(userID))
+	is_followed, _ := IsFollowed(int(chatMsg.Receiver_id), int(userID))
 	if is_followed == -1 {
-		log.Println(err)
+		if Clients[userID] != nil {
+			return SendMessage(Clients[userID], map[string]string{"Error": "user not following"})
+		}
 		return nil
 	}
 	chats.HandleChatPrvMessage(chatMsg, userID)
@@ -95,7 +97,7 @@ func handlePrvChatMessage(wsMessage WebSocketMessage, userID uint64, fullName st
 	return nil
 }
 
-func handleGrpChatMessage(wsMessage WebSocketMessage) error {
+func handleGrpChatMessage(wsMessage WebSocketMessage, userID uint64) error {
 	var grpChatMsg chats.ChatGrpMessage
 	data, err := json.Marshal(wsMessage.Content)
 	if err != nil {
@@ -105,12 +107,24 @@ func handleGrpChatMessage(wsMessage WebSocketMessage) error {
 		return fmt.Errorf("error unmarshaling chat message: %v", err)
 	}
 	chats.HandleChatGrpMessage(grpChatMsg)
+	userIDs, err := global.GetIdsUsersOfGroup(grpChatMsg.GroupID)
+	if err != nil {
+		return err
+	}
 	/* grpMembers broadcasting */
-	/* for member := range members {
-		if clients[member] != nil {
-			return SendMessage(clients[member], grpChatMsg)
+	for _, member := range userIDs {
+		fmt.Println("id,", member, "   conn", Clients[uint64(member)])
+		if Clients[member] != nil {
+			fullName, err := global.GetFullNameById(uint(member))
+			if err != nil {
+				return SendMessage(Clients[userID], map[string]string{"Error": "user not following"})
+			}
+			grpChatMsg.Type = "Group_message"
+			grpChatMsg.FullName = fullName
+
+			return SendMessage(Clients[uint64(member)], grpChatMsg)
 		}
-	} */
+	}
 	return nil
 }
 
@@ -128,14 +142,13 @@ func SocketListner(client *global.Client, r *http.Request) {
 			log.Println(err)
 			break
 		}
-		fmt.Println(wsMessage.Type)
 		if wsMessage.Type == "privateChat" {
 			fmt.Println(wsMessage.Content)
 			if err := handlePrvChatMessage(wsMessage, user.ID, user.Name); err != nil {
 				log.Printf("Error handling %s message: %v", wsMessage.Type, err)
 			}
 		} else if wsMessage.Type == "groupChat" {
-			if err := handleGrpChatMessage(wsMessage); err != nil {
+			if err := handleGrpChatMessage(wsMessage, user.ID); err != nil {
 				log.Printf("Error handling %s message: %v", wsMessage.Type, err)
 			}
 		}
@@ -158,7 +171,7 @@ func IsFollowed(a, b int) (int, error) {
 
 	var RelationID int
 
-	Query := `SELECT id FROM followers WHERE follower_id = ? AND followed_id = ? AND status = 'accept'`
+	Query := `SELECT id FROM followers WHERE (follower_id = $1 AND followed_id = $2) OR (follower_id = $2 AND followed_id = $1) AND status = 'accept'`
 	row, err := database.SelectOneRow(Query, a, b)
 	if err != nil {
 		return -1, err

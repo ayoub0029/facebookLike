@@ -61,7 +61,7 @@ func getLaderbyIdGroup(GroupId uint64) (uint64, error) {
 	return ownerId, nil
 }
 
-func getIdsUsersOfGroup(groupId uint64) ([]uint64, error) {
+/* func GetIdsUsersOfGroup(groupId uint64) ([]uint64, error) {
 	rows, err := database.SelectQuery("SELECT user_id FROM group_members WHERE group_id = ?", groupId)
 	if err != nil {
 		return nil, err
@@ -79,7 +79,7 @@ func getIdsUsersOfGroup(groupId uint64) ([]uint64, error) {
 		return nil, err
 	}
 	return ids, nil
-}
+} */
 
 func selectNotifications(user, lastNotif string) ([]DataNotif, error) {
 
@@ -150,18 +150,6 @@ func selectNotifications(user, lastNotif string) ([]DataNotif, error) {
 	return notifications, nil
 }
 
-func GetFullNameById(id uint) (string, error) {
-	row, err := database.SelectOneRow("SELECT first_name, last_name FROM users WHERE id = ?", id)
-	if err != nil {
-		return "", err
-	}
-	var fn string
-	var ln string
-	if err := row.Scan(&fn, &ln); err != nil {
-		return "", err
-	}
-	return fn + " " + ln, nil
-}
 func GetNameOfGroupById(id uint) (string, error) {
 	row, err := database.SelectOneRow("SELECT name FROM groups WHERE id = ?", id)
 	if err != nil {

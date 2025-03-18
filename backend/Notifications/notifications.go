@@ -1,6 +1,9 @@
 package notifications
 
-import socket "socialNetwork/Socket"
+import (
+	global "socialNetwork/Global"
+	socket "socialNetwork/Socket"
+)
 
 type NotifService struct {
 	Message, Type                 string
@@ -50,7 +53,7 @@ func (nf *NotifService) RequestJoinGroupToLeader() error {
 
 func (nf *NotifService) Event() error {
 	nf.Type = Event
-	userIDs, err := getIdsUsersOfGroup(nf.GroupID)
+	userIDs, err := global.GetIdsUsersOfGroup(nf.GroupID)
 	if err != nil {
 		logger.Error("Error getting user IDs of group: %v", err)
 		return err
@@ -65,7 +68,7 @@ func (nf *NotifService) Event() error {
 }
 
 func (nf *NotifService) sendNotificationWithSenderName() error {
-	senderName, err := GetFullNameById(uint(nf.SenderID))
+	senderName, err := global.GetFullNameById(uint(nf.SenderID))
 	if err != nil {
 		return err
 	}
@@ -82,7 +85,7 @@ func (nf *NotifService) sendNotificationWithSenderName() error {
 }
 
 func (nf *NotifService) sendNotificationWithSenderAndGroupName() error {
-	senderName, err := GetFullNameById(uint(nf.SenderID))
+	senderName, err := global.GetFullNameById(uint(nf.SenderID))
 	if err != nil {
 		return err
 	}

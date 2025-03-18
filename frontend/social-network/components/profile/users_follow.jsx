@@ -1,8 +1,11 @@
-// "use-cliant"
-import React, { useState, useEffect, useRef, useCallback } from "react";
+"use client"
+import { useState, useEffect, useRef, useCallback } from "react";
 import { fetchApi } from "@/api/fetchApi";
+import { debounce } from "@/utiles/Debounce";
+import { fetchBylastId } from "../Posts/func_fetchposts";
 import style from "../../styles/profile.module.css";
 import Link from "next/link";
+import { useToast } from "@/hooks/toast-context";
 
 export function UsersFollowers({ userID, showToast }) {
   const [data, setData] = useState([]);
@@ -199,7 +202,14 @@ function User({ data, route }) {
         <div>No followers found</div>
       ) : (
         data.map((item, index) => (
-          <Link href={`${route}/${item.Id}?fullname=${item.FirstName} ${item.LastName}`} key={item.id || index}>
+          <Link
+            href={`${route}/${item.Id}?fullname=${
+              item.fullname
+                ? item.fullname
+                : item.FirstName + " " + item.LastName
+            }`}
+            key={item.id || index}
+          >
             <div className={style["cont_user_list"]}>
               <img
                 src={
@@ -212,11 +222,76 @@ function User({ data, route }) {
                 alt={item.Nickname}
               />
               <span>
-                {item.FirstName} {item.LastName}
+                {item.fullname
+                  ? item.fullname
+                  : item.FirstName + " " + item.LastName}
               </span>
             </div>
           </Link>
         ))
+      )}
+    </div>
+  );
+}
+
+export function TalkedUser() {
+
+  const [data, setData] = useState([]);
+  const [lastId, setLastId] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const containerRef = useRef(null);
+
+  const {showToast} = useToast()
+
+  async function fetchUsers(lastid) {
+     const newData = await fetchBylastId(lastid,"chats/userIchatWith?item_id=")
+     setData(newData.items)
+     setLastId(newData.items[newData.items.length - 1].id);
+     if(newData.status !== undefined){
+        showToast("error", newData.error)
+        return
+     }
+   }
+
+  useEffect(()=>{
+    fetchUsers(0)
+  },[])
+
+  const HandleScroll = useCallback(
+    debounce(async (e) => {
+        const bottom = e.target.scrollTop + e.target.clientHeight >= e.target.scrollHeight - 1;
+        if (bottom && lastId && !loading) {
+          setLoading(true);
+          const newData = fetchUsers(lastId)
+
+          if (newData.items) {
+              if (newData.items.length > 0) {
+                  setData((prev) => [...prev, ...newData.items]);
+                  setLastId(newData.items[newData.items.length - 1].id);
+              }
+              setLoading(false);
+          }
+        }
+    }, 400),
+    [lastId, loading]
+);
+
+useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    container.addEventListener("scroll", HandleScroll);
+
+    return () => {
+        container.removeEventListener("scroll", HandleScroll);
+    };
+}, [HandleScroll]);
+
+  return (
+    <div ref={containerRef} className="talked-user-container" style={{height:"300px",overflow:"auto"}}>
+      {data.length > 0 ? (
+        <User data={data} route="/chat" />
+      ) : (
+        <div>No user found</div>
       )}
     </div>
   );

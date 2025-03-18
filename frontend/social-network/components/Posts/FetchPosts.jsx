@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { fetchApi } from "@/api/fetchApi";
 import { formatTime } from "@/utiles/dateFormat";
-import { fetchPosts } from "./func_fetchposts";
+import { fetchBylastId } from "./func_fetchposts";
 import { handleLike } from "./func_handleLike";
 import { PrivacyText } from "./func_privateText";
 import { fetchComments } from "./func_fetchcomments";
@@ -28,7 +28,7 @@ export function FetchPosts({ endpoint, lastId }) {
     loading,
     error,
     hasMore,
-  } = useLazyLoadById(fetchPosts, parseInt(lastId), endpoint, "");
+  } = useLazyLoadById(fetchBylastId, parseInt(lastId), endpoint, "");
 
   const {
     data: comments,
@@ -94,7 +94,7 @@ export function FetchPosts({ endpoint, lastId }) {
     // success
     closeModal("editPost")();
     setEditVisible(null);
-    
+
     setPosts((allPosts) =>
       allPosts.map((post) =>
         post.id == e.target.post_id.value
@@ -422,7 +422,7 @@ export function FetchPosts({ endpoint, lastId }) {
                 </div>
               </form>
 
-              <div className="comments">                
+              <div className="comments">
                 {comments.map((comment) => (
                   <div key={comment.id} className="comment commentWithImage">
                     <Link

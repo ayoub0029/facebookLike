@@ -136,7 +136,7 @@ export default function ProfileGrp({ onSuccess }) {
                     {(groupProfile.status === "accept" || groupProfile.owner === window.userState.id) && (
                         <div className='groupCard'>
                             <button className='btn btnGreen'>
-                                <Link href={`/chats/group?group_id=${pathname}&page=0`} style={{ textDecoration: 'none' }}>
+                                <Link href={`/chat/group/${pathname}`} style={{ textDecoration: 'none' }}>
                                     Group Chat
                                 </Link>
                             </button>

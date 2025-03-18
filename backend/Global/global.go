@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"runtime"
+	database "socialNetwork/Database"
 
 	"github.com/gorilla/websocket"
 )
@@ -50,6 +51,40 @@ const (
 type Logger struct {
 	InfoLogger  *log.Logger
 	errorLogger *log.Logger
+}
+
+func GetIdsUsersOfGroup(groupId uint64) ([]uint64, error) {
+	rows, err := database.SelectQuery("SELECT user_id FROM group_members WHERE group_id = ?", groupId)
+	if err != nil {
+		return nil, err
+	}
+	var id uint64
+	var ids []uint64
+	for rows.Next() {
+		err = rows.Scan(&id)
+		if err != nil {
+			return nil, err
+		}
+		ids = append(ids, id)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return ids, nil
+}
+
+
+func GetFullNameById(id uint) (string, error) {
+	row, err := database.SelectOneRow("SELECT first_name, last_name FROM users WHERE id = ?", id)
+	if err != nil {
+		return "", err
+	}
+	var fn string
+	var ln string
+	if err := row.Scan(&fn, &ln); err != nil {
+		return "", err
+	}
+	return fn + " " + ln, nil
 }
 
 // how to use

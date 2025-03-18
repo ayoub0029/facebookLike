@@ -49,7 +49,7 @@ export default function ChatPage() {
 
       try {
         const data = await fetchApi(
-          `/chats/private?receiver_id=${GroupID}&page=${currPage}`,
+          `/chats/group?group_id=${GroupID}&page=${currPage}`,
           "GET"
         );
         console.log(data);
@@ -129,6 +129,8 @@ export default function ChatPage() {
   // Handle incoming messages
   useEffect(() => {
     setMessageHandler((data) => {
+      console.log(data);
+      
       try {
         const parsedData = JSON.parse(data);
 
@@ -153,11 +155,12 @@ export default function ChatPage() {
     if (!inputMessage.trim() || !isConnected) return;
 
     const messageObj = {
-      type: "privateChat",
+      type: "groupChat",
       content: {
-        receiver_id: Number.parseInt(GroupID),
+        GroupID: Number.parseInt(GroupID),
+        SenderID: window.userState.id,
         message: inputMessage,
-        timestamp: new Date(),
+        // timestamp: new Date(),
       },
     };
 
@@ -295,8 +298,8 @@ export default function ChatPage() {
       </aside>
 
       <div className={"rightSidebar" + (hamberMenu ? " show" : "")}>
-        <div style={{ fontSize: "18px", fontWeight: "bold" }}>Private Chat</div>
-        <UsersFollowing GroupID={window.userState.id} route={"/chat"} />
+        {/* <div style={{ fontSize: "18px", fontWeight: "bold" }}>Private Chat</div>
+        <UsersFollowing GroupID={window.userState.id} route={"/chat"} /> */}
       </div>
     </>
   );

@@ -28,10 +28,15 @@ export function WebSocketProvider({ children }) {
 
     socket.onmessage = (event) => {
       console.log("Message from server:", event.data)
+      const data = JSON.parse(event.data)
+      if (data.Error) {
+        showToast("error", data.Error)
+        return
+      }
+
       if (messageHandlerRef.current) {
         messageHandlerRef.current(event.data)
       } else {
-        const data = JSON.parse(event.data)
         if (data.Type === 'message') {
           showToast("message", data.message, data.fullname)
         } else {

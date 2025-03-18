@@ -8,6 +8,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { fetchApi } from '@/api/fetchApi'
 import "../../../../styles/globals.css"
 import GroupById from '@/components/Groups/grpPost'
+import NotFound404 from '@/components/404'
 export default function Profile() {
   const fullPath = usePathname()
   const pathParts = fullPath.split("/")
@@ -66,7 +67,7 @@ export default function Profile() {
   }
 
   if (error) {
-    return <div>Error: {error}</div>
+    return <NotFound404 />
   }
 
   if (groupProfile && (groupProfile.status === "accept" || groupProfile.owner === window.userState.id)) {
@@ -120,8 +121,8 @@ export default function Profile() {
   if (groupProfile && groupProfile.status !== "accept" && groupProfile.owner !== window.userState.id) {
     return (
       <>
-          <ProfileGrp onSuccess={handleReload} />
+        <ProfileGrp onSuccess={handleReload} />
       </>
     )
   }
-} 
+}
