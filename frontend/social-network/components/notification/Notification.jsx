@@ -111,6 +111,7 @@ export function Notification() {
 }
 function NotificationResault({ Data }) {
     const [status, setStatus] = useState("");
+
     useEffect(() => {
         async function GetStatus(userid) {
             const Status = await CheckStatus(userid);
@@ -155,18 +156,33 @@ function RejectFollowRequest(UserID, setInvisible) {
     fetchApi(RejectReqEndpoint, "POST", formData, true)
 }
 
+const visibilityTracker = {};
+
 function Buttons({ UserID }) {
-    if (document.getElementById(`Button-${UserID}`)) return null
-    const [isVisible, setInvisible] = useState(true);
-    if (!isVisible) return null;
-    return (
-        <div id={`Button-${UserID}`} className="buttons">
-            <button onClick={() => AccepteFollowRequest(UserID, setInvisible)} className="accepte">
-                Accept
-            </button>
-            <button onClick={() => RejectFollowRequest(UserID, setInvisible)} className="reject">
-                Reject
-            </button>
-        </div>
-    );
+  const [isVisible, setInvisible] = useState(() => {
+    if (visibilityTracker[UserID] === undefined) {
+      visibilityTracker[UserID] = true;
+      return true;
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    visibilityTracker[UserID] = isVisible;
+
+    return () => {
+      if (!isVisible) {
+        delete visibilityTracker[UserID];
+      }
+    };
+  }, [isVisible, UserID]);
+
+  if (!isVisible) return null;
+
+  return (
+    <div id={`Button-${UserID}`} className="buttons">
+      <button onClick={() => AccepteFollowRequest(UserID, setInvisible)} className="accepte">Accept</button>
+      <button onClick={() => RejectFollowRequest(UserID, setInvisible)} className="reject">Reject</button>
+    </div>
+  );
 }
