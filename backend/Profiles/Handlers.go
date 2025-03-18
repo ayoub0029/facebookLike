@@ -9,6 +9,7 @@ import (
 
 	auth "socialNetwork/Authentication"
 	global "socialNetwork/Global"
+	middleware "socialNetwork/Middlewares"
 	notifications "socialNetwork/Notifications"
 )
 
@@ -22,11 +23,11 @@ var logger = global.NewLogger()
 // GET /profiles?user_id=123 → Get user profile
 // GET /profiles → Get Your user profile Info
 func GetProfile(w http.ResponseWriter, r *http.Request) {
-	CurrentUserID, err := auth.IsLoggedIn(r, "token")
-	if err != nil {
-		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": global.ErrServer.Error()})
+	user, ok := r.Context().Value(middleware.UserContextKey).(middleware.User)
+	if !ok {
 		return
 	}
+	CurrentUserID := int(user.ID)
 
 	if CurrentUserID == 0 {
 		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": ErrUnauthorized.Error()})
@@ -94,11 +95,11 @@ func GetProfile(w http.ResponseWriter, r *http.Request) {
 
 // POST /profiles/update → Update profile details
 func UpdateProfile(w http.ResponseWriter, r *http.Request) {
-	CurrentUserID, err := auth.IsLoggedIn(r, "token")
-	if err != nil {
-		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": global.ErrServer.Error()})
+	user, ok := r.Context().Value(middleware.UserContextKey).(middleware.User)
+	if !ok {
 		return
 	}
+	CurrentUserID := int(user.ID)
 
 	if CurrentUserID == 0 {
 		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": ErrUnauthorized.Error()})
@@ -110,7 +111,7 @@ func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 
 	if strings.Contains(contentType, "multipart/form-data") {
 		auth.ParseFormSize(w, r)
-		_, _, err = r.FormFile("avatar")
+		_, _, err := r.FormFile("avatar")
 		if err != http.ErrMissingFile {
 			if NewProfile.UpdateProfileInfo(w, r, "avatar", "avatar") {
 				global.JsonResponse(w, http.StatusOK, map[string]string{"Message": "Profile Updated Successfully"})
@@ -132,11 +133,11 @@ func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 
 // POST /profiles/follow → Send follow request
 func Follow(w http.ResponseWriter, r *http.Request) {
-	CurrentUserID, err := auth.IsLoggedIn(r, "token")
-	if err != nil {
-		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": global.ErrServer.Error()})
+	user, ok := r.Context().Value(middleware.UserContextKey).(middleware.User)
+	if !ok {
 		return
 	}
+	CurrentUserID := int(user.ID)
 
 	if CurrentUserID == 0 {
 		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": ErrUnauthorized.Error()})
@@ -184,11 +185,11 @@ func Follow(w http.ResponseWriter, r *http.Request) {
 
 // POST /profiles/unfollow → Unfollow a user
 func Unfollow(w http.ResponseWriter, r *http.Request) {
-	CurrentUserID, err := auth.IsLoggedIn(r, "token")
-	if err != nil {
-		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": global.ErrServer.Error()})
+	user, ok := r.Context().Value(middleware.UserContextKey).(middleware.User)
+	if !ok {
 		return
 	}
+	CurrentUserID := int(user.ID)
 
 	if CurrentUserID == 0 {
 		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": ErrUnauthorized.Error()})
@@ -220,11 +221,11 @@ func Unfollow(w http.ResponseWriter, r *http.Request) {
 
 // POST /profiles/follow/accept?user_id=123 → Accept follow request
 func AcceptFollowRequest(w http.ResponseWriter, r *http.Request) {
-	CurrentUserID, err := auth.IsLoggedIn(r, "token")
-	if err != nil {
-		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": global.ErrServer.Error()})
+	user, ok := r.Context().Value(middleware.UserContextKey).(middleware.User)
+	if !ok {
 		return
 	}
+	CurrentUserID := int(user.ID)
 
 	if CurrentUserID == 0 {
 		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": ErrUnauthorized.Error()})
@@ -254,11 +255,11 @@ func AcceptFollowRequest(w http.ResponseWriter, r *http.Request) {
 
 // POST /profiles/follow/reject?user_id=123 → reject follow request
 func RejectFollowRequest(w http.ResponseWriter, r *http.Request) {
-	CurrentUserID, err := auth.IsLoggedIn(r, "token")
-	if err != nil {
-		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": global.ErrServer.Error()})
+	user, ok := r.Context().Value(middleware.UserContextKey).(middleware.User)
+	if !ok {
 		return
 	}
+	CurrentUserID := int(user.ID)
 
 	if CurrentUserID == 0 {
 		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": ErrUnauthorized.Error()})
@@ -289,11 +290,11 @@ func RejectFollowRequest(w http.ResponseWriter, r *http.Request) {
 
 // GET /profiles/follow/status?user_id=123 → Check follow status
 func CheckFollowStatus(w http.ResponseWriter, r *http.Request) {
-	CurrentUserID, err := auth.IsLoggedIn(r, "token")
-	if err != nil {
-		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": global.ErrServer.Error()})
+	user, ok := r.Context().Value(middleware.UserContextKey).(middleware.User)
+	if !ok {
 		return
 	}
+	CurrentUserID := int(user.ID)
 
 	if CurrentUserID == 0 {
 		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": ErrUnauthorized.Error()})
@@ -334,12 +335,12 @@ func CheckFollowStatus(w http.ResponseWriter, r *http.Request) {
 
 // GET /profiles/followers?user_id=123&page=1 → Get followers of a user
 func GetFollowers(w http.ResponseWriter, r *http.Request) {
-	CurrentUserID, err := auth.IsLoggedIn(r, "token")
-	if err != nil {
-		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": global.ErrServer.Error()})
-		logger.Error("%v", err)
+	user, ok := r.Context().Value(middleware.UserContextKey).(middleware.User)
+	if !ok {
 		return
 	}
+
+	CurrentUserID := int(user.ID)
 
 	if CurrentUserID == 0 {
 		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": ErrUnauthorized.Error()})
@@ -417,11 +418,11 @@ func GetFollowers(w http.ResponseWriter, r *http.Request) {
 
 // GET /profiles/following?user_id=123&page=1 → Get users the user follows
 func GetFollowing(w http.ResponseWriter, r *http.Request) {
-	CurrentUserID, err := auth.IsLoggedIn(r, "token")
-	if err != nil {
-		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": global.ErrServer.Error()})
+	user, ok := r.Context().Value(middleware.UserContextKey).(middleware.User)
+	if !ok {
 		return
 	}
+	CurrentUserID := int(user.ID)
 
 	if CurrentUserID == 0 {
 		global.JsonResponse(w, http.StatusUnauthorized, map[string]string{"Error": ErrUnauthorized.Error()})

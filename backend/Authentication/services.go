@@ -254,35 +254,37 @@ func UpdateUuidExp(uuid, emailOrGithubID string, exp time.Time) error {
 // It takes an HTTP request and the session cookie name as input.
 // Returns the user ID if logged in, or 0 if not authenticated.
 // Returns an error if a database or parsing issue occurs.
-func IsLoggedIn(req *http.Request, sessionName string) (int, error) {
+func IsLoggedIn(req *http.Request, sessionName string) (int, string, error) {
 	cookie, err := req.Cookie(sessionName)
 	if errors.Is(err, http.ErrNoCookie) {
-		return 0, nil
+		return 0, "", nil
 	} else if err != nil {
-		return 0, err
+		return 0, "", err
 	}
 	var userID int
 	var exp string
-	row, errQuery := database.SelectOneRow("SELECT id, exp FROM users WHERE uuid = ?", cookie.Value)
+	var frn string
+	var lsn string
+	row, errQuery := database.SelectOneRow("SELECT id, first_name, last_name, exp FROM users WHERE uuid = ?", cookie.Value)
 	if errQuery != nil {
-		return 0, errQuery
+		return 0, "", errQuery
 	}
 
-	if err := row.Scan(&userID, &exp); err != nil {
+	if err := row.Scan(&userID, &frn, &lsn, &exp); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return 0, nil
+			return 0, "", nil
 		}
-		return 0, err
+		return 0, "", err
 	}
 
 	// expiration time
 	parsedTime, err := time.Parse("2006-01-02T15:04:05.999999999Z", exp)
 	if err != nil || parsedTime.Before(time.Now()) {
 		ResetUuidToNull(cookie.Value)
-		return 0, nil
+		return 0, "", nil
 	}
 
-	return userID, nil
+	return userID, frn + " " + lsn, nil
 }
 
 // ----------------------------------------------------------------------------------

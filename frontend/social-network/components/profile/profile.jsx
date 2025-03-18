@@ -6,6 +6,7 @@ import { Modal, Alert } from "./popup.jsx";
 import { UsersFollowers, UsersFollowing } from "./users_follow.jsx";
 import FollowButton from "./follow-button.jsx";
 import { fetchApi } from "@/api/fetchApi";
+import Link from "next/link";
 
 const typeData = {
   false: "follow",
@@ -143,6 +144,16 @@ export default function ProfileComponent({ profile, setProfile, showToast }) {
           <span> Following</span>
         </div>
       </div>
+
+      {(!profile.isOwner && profile.Status === 'accept') && (
+      <Link 
+        className="message-link" 
+        href={`/chat/${profile.Id}?fullname=${profile.First_Name} ${profile.Last_Name}`}
+      >
+        <i className="fa-solid fa-message"></i> Message
+      </Link>
+    )}
+
       {isShowEditeProfile(profile.isOwner, openModal)}
       {!profile.isOwner ? (
         <FollowButton
@@ -178,7 +189,7 @@ export default function ProfileComponent({ profile, setProfile, showToast }) {
       >
         <UsersFollowing
           userID={profile.Id}
-          route={"profile"}
+          route={"/profile"}
           showToast={showToast}
         />
       </Modal>

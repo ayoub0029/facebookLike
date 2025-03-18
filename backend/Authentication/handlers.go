@@ -52,7 +52,7 @@ func signUp(w http.ResponseWriter, r *http.Request) {
 		global.JsonResponse(w, http.StatusInternalServerError, "failed to hash password")
 		return
 	}
-	
+
 	newUser.Password = string(hashPass)
 
 	if newUser.Avatar == "" {
@@ -126,7 +126,7 @@ func logOut(w http.ResponseWriter, r *http.Request) {
 // status checks if a user is logged in by verifying their session token
 // and returns the user's ID or NULL or an authentication failure message.
 func status(w http.ResponseWriter, r *http.Request) {
-	userID, errLogin := IsLoggedIn(r, "token")
+	userID,_, errLogin := IsLoggedIn(r, "token")
 
 	if errLogin != nil && userID <= 0 {
 		global.JsonResponse(w, http.StatusUnauthorized, "Authentication failed")

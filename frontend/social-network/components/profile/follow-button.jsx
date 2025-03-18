@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import styles from "../../styles/follow-button.module.css"
 import { fetchApi } from "@/api/fetchApi"
+import Link from "next/link"
 
 export default function FollowButton({ statusFollow, profileType, setProfile, userID, showToast }) {
   const [loading, setLoading] = useState(true)

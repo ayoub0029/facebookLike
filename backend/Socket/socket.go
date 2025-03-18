@@ -71,7 +71,7 @@ func WsHandling(w http.ResponseWriter, r *http.Request) {
 	go SocketListner(client, r)
 }
 
-func handlePrvChatMessage(wsMessage WebSocketMessage, userID uint64) error {
+func handlePrvChatMessage(wsMessage WebSocketMessage, userID uint64, fullName string) error {
 	var chatMsg chats.ChatPrvMessage
 	data, err := json.Marshal(wsMessage.Content)
 	if err != nil {
@@ -88,6 +88,8 @@ func handlePrvChatMessage(wsMessage WebSocketMessage, userID uint64) error {
 	chats.HandleChatPrvMessage(chatMsg, userID)
 	if Clients[chatMsg.Receiver_id] != nil {
 		chatMsg.Sender_id = int(userID)
+		chatMsg.Type = "message"
+		chatMsg.FullName = fullName
 		return SendMessage(Clients[chatMsg.Receiver_id], chatMsg)
 	}
 	return nil
@@ -129,7 +131,7 @@ func SocketListner(client *global.Client, r *http.Request) {
 		fmt.Println(wsMessage.Type)
 		if wsMessage.Type == "privateChat" {
 			fmt.Println(wsMessage.Content)
-			if err := handlePrvChatMessage(wsMessage, user.ID); err != nil {
+			if err := handlePrvChatMessage(wsMessage, user.ID, user.Name); err != nil {
 				log.Printf("Error handling %s message: %v", wsMessage.Type, err)
 			}
 		} else if wsMessage.Type == "groupChat" {

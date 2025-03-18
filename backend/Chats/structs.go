@@ -23,6 +23,8 @@ type groupMsg struct {
 }
 
 type ChatPrvMessage struct {
+	Type        string
+	FullName    string    `json:"fullname"`
 	Sender_id   int       `json:"sender_id"`
 	Receiver_id uint64    `json:"receiver_id"`
 	Message     string    `json:"message"`

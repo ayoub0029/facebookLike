@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useWebSocket } from "@/hooks/websocket-context.jsx";
-import styles from "../chat.module.css";
+import styles from "../../chat.module.css";
 import { useParams, useSearchParams } from "next/navigation";
 import { fetchApi } from "@/api/fetchApi";
 import { useToast } from "@/hooks/toast-context";
@@ -10,7 +10,7 @@ import { UsersFollowing } from "@/components/profile/users_follow";
 
 export default function ChatPage() {
   const params = useParams();
-  const UserID = params.UserID;
+  const GroupID = params.GroupID;
 
   const searchParams = useSearchParams();
   const fullName = searchParams.get("fullname");
@@ -49,7 +49,7 @@ export default function ChatPage() {
 
       try {
         const data = await fetchApi(
-          `/chats/private?receiver_id=${UserID}&page=${currPage}`,
+          `/chats/private?receiver_id=${GroupID}&page=${currPage}`,
           "GET"
         );
         console.log(data);
@@ -87,7 +87,7 @@ export default function ChatPage() {
         isFetching.current = false;
       }
     },
-    [UserID, setScrollBackId]
+    [GroupID, setScrollBackId]
   );
 
   useEffect(() => {
@@ -132,7 +132,7 @@ export default function ChatPage() {
       try {
         const parsedData = JSON.parse(data);
 
-        if (parsedData.sender_id === Number.parseInt(UserID)) {
+        if (parsedData.sender_id === Number.parseInt(GroupID)) {
           setMessages((prev) => [...prev, parsedData]);
           setPositionScroll(containerRef.current.scrollHeight);
         }
@@ -144,7 +144,7 @@ export default function ChatPage() {
     return () => {
       setMessageHandler(null);
     };
-  }, [setMessageHandler, UserID]);
+  }, [setMessageHandler, GroupID]);
 
   // handel send message
   function handleSendMessage(e) {
@@ -155,7 +155,7 @@ export default function ChatPage() {
     const messageObj = {
       type: "privateChat",
       content: {
-        receiver_id: Number.parseInt(UserID),
+        receiver_id: Number.parseInt(GroupID),
         message: inputMessage,
         timestamp: new Date(),
       },
@@ -164,7 +164,7 @@ export default function ChatPage() {
     sendMessage(JSON.stringify(messageObj));
 
     const localMessageObj = {
-      receiver_id: UserID,
+      receiver_id: GroupID,
       message: inputMessage,
       timestamp: new Date(),
       _isOutgoing: true,
@@ -209,7 +209,7 @@ export default function ChatPage() {
           <div className={styles.chatCard}>
             <div className={styles.chatHeader}>
               <h2 className={styles.chatTitle}>
-                Chat with {fullName ? fullName : UserID}
+                Chat with {fullName ? fullName : GroupID}
               </h2>
               {/* <span className={isConnected ? styles.statusConnected : styles.statusDisconnected}>
             {isConnected ? "you Connected" : "you Disconnected"}
@@ -296,7 +296,7 @@ export default function ChatPage() {
 
       <div className={"rightSidebar" + (hamberMenu ? " show" : "")}>
         <div style={{ fontSize: "18px", fontWeight: "bold" }}>Private Chat</div>
-        <UsersFollowing userID={window.userState.id} route={"/chat"} />
+        <UsersFollowing GroupID={window.userState.id} route={"/chat"} />
       </div>
     </>
   );

@@ -8,10 +8,10 @@ import { debounce } from "@/utiles/Debounce";
 const NotificationEndpoint = "notifications" // GET user_id && last_notif_id
 const AccepteReqEndpoint = "profiles/follow/accept" // POST user_id
 const RejectReqEndpoint = "profiles/follow/reject" // POST user_id
-const StatusEndpoint = "profiles/follow/status" // GET user_id 
+const StatusEndpoint = "profiles/follow/status" // GET user_id
 // const SeenEndpoint = "notifications/seen" // POST id
 
-const NotificationsTypes = {
+export const NotificationsTypes = {
     "request_following": {
         message: "New Follow Request",
         type: "follow"
@@ -57,6 +57,9 @@ export function Notification() {
                 setLoading(false);
                 return;
             }
+
+            console.log(result);
+
             setData(result);
             setLoading(false);
 

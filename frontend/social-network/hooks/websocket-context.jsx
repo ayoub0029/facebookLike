@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, useRef } from "react"
 import { useToast } from "./toast-context.jsx"
+import { NotificationsTypes } from "@/components/notification/Notification.jsx"
 
 const WebSocketContext = createContext({
   socket: null,
@@ -30,7 +31,12 @@ export function WebSocketProvider({ children }) {
       if (messageHandlerRef.current) {
         messageHandlerRef.current(event.data)
       } else {
-        showToast("information", event.data)
+        const data = JSON.parse(event.data)
+        if (data.Type === 'message') {
+          showToast("message", data.message, data.fullname)
+        } else {
+          showToast("information", `${NotificationsTypes[data.Type].message} from ${data.Sender}`, NotificationsTypes[data.Type].type, 5000)
+        }
       }
     }
 

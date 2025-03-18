@@ -44,7 +44,7 @@ func Auth(next http.Handler) http.Handler {
 			return
 		}
 
-		id, err := auth.IsLoggedIn(req, "token")
+		id, fullName, err := auth.IsLoggedIn(req, "token")
 		if err != nil {
 			logger.Error("Message: %v", err)
 			global.JsonResponse(res, http.StatusInternalServerError, "server side error")
@@ -63,7 +63,7 @@ func Auth(next http.Handler) http.Handler {
 			return
 		}
 
-		user := User{Name: "", ID: uint64(id)}
+		user := User{Name: fullName, ID: uint64(id)}
 		ctx := context.WithValue(req.Context(), UserContextKey, user)
 		req = req.WithContext(ctx)
 		next.ServeHTTP(res, req)

@@ -20,6 +20,7 @@
       success: <i className="fa-solid fa-check"></i>,
       information: <i className="fa-solid fa-info-circle"></i>,
       error: <i className="fa-solid fa-exclamation-circle"></i>,
+      message: <i className="fa-solid fa-comment"></i>
     }
 
     const [isActive, setIsActive] = useState(false)
@@ -36,6 +37,10 @@
         case "error":
           setIcon(typesIcon.error)
           setColor("red")
+          break
+        case "message":
+          setIcon(typesIcon.message)
+          setColor("lightseagreen")
           break
         default:
           setIcon(typesIcon.success)
