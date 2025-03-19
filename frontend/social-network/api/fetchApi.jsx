@@ -20,7 +20,7 @@ export async function fetchApi(endpoint, method = "GET", body = null, isFormData
 
         if (!response.ok) {
             if (response.status === 500 && typeof window !== 'undefined') {
-                window.location.href = '/500';
+                window.location.href = '/internal-server-error';
                 return { error: result, status: response.status };
             }
             return { error: result, status: response.status };
@@ -29,7 +29,7 @@ export async function fetchApi(endpoint, method = "GET", body = null, isFormData
     } catch (error) {
         console.error("Fetch error:", error);
         if (typeof window !== 'undefined') {
-            window.location.href = '/500'; 
+            window.location.href = '/internal-server-error'; 
         }
         return { error: error.message + " catch error", status: 500 };
     }

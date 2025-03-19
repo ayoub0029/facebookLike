@@ -40,8 +40,7 @@ export default function Home() {
         <div style={{ fontSize: "18px", fontWeight: "bold" }}>
           Users Following
         </div>
-        {/* <TalkedUser /> */}
-        <UsersFollowing userID={window.userState.id} route={"/chat"} />
+        <UsersFollowing userID={window.userState.id} route={"/profile"} />
       </div>
     </>
   );

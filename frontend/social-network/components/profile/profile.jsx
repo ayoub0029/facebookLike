@@ -413,7 +413,7 @@ export default function ProfileComponent({ profile, setProfile, showToast }) {
 
 function isShowEditeProfile(isOwner, openModal) {
   if (isOwner)
-    return <div onClick={() => openModal("editProfile")}>Edit profile</div>;
+    return <div className="message-link" style={{cursor:"pointer"}} onClick={() => openModal("editProfile")}>Edit profile</div>;
 }
 
 function formateDOB(date, char) {

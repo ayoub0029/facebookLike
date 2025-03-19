@@ -22,7 +22,6 @@ export default function ChatPage() {
 
       <aside className="feed">
         <div style={{ fontSize: "18px", fontWeight: "bold" }}>Private Chat Users</div>
-        {/* <UsersFollowing userID={window.userState.id} route={"/chat"} />*/}
         <TalkedUser />
       </aside>
       <div className={"rightSidebar" + (hamberMenu ? " show" : "")}>

@@ -75,9 +75,11 @@ export function FetchPosts({ endpoint, lastId }) {
 
   const toggleMenu = (postId) => {
     setEditVisible(editVisible === postId ? null : postId);
+    setEditCommentVisible(null)
   };
   const togglecommentMenu = (commentId) => {
     setEditCommentVisible(editVisible === commentId ? null : commentId);
+    setEditVisible(null)
   };
 
   const handleEditPost = async (e) => {

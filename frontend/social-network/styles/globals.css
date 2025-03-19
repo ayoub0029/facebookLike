@@ -20,6 +20,25 @@
   --wahitev2: #ffffff;
   --mainColor: rgb(104, 164, 0);
 }
+/* 
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #121212;
+    --primary-color: #ffffff;
+    --secondary-color: #b0b0b0;
+    --secondary-hover: #888888;
+    --third-color: #333333;
+    --lightGray-color: #444444;
+    --btn-color: #81BE1C;
+    --danger-color: #ee5459;
+    --grenv2: #e9fc6e;
+    --gr: #c3f832;
+    --blackv2: #292929;
+    --primaryv2: #f8f8f8;
+    --wahitev2: #ffffff;
+    --mainColor: rgb(104, 164, 0);
+  }
+} */
 
 body {
   background-color: var(--background);
@@ -50,9 +69,11 @@ body {
   margin-top: 10px;
   gap: 10px;
 }
+
 .grpContainer {
   margin-left: 10px;
 }
+
 .grpContainer .feedTabs .tab {
   padding: 10px 20px;
   border: 1px solid var(--third-color);
@@ -221,7 +242,7 @@ body {
   position: relative;
 }
 
-.editPoint{
+.editPoint {
   position: absolute;
   right: 10px;
   top: 0;
@@ -496,6 +517,7 @@ body {
 
   .leftSidebar {
     height: 100%;
+    z-index: 1;
   }
 
   .nav,
@@ -571,7 +593,7 @@ body {
 
 
 
-.pop_up{
+.pop_up {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -589,7 +611,8 @@ body {
   flex-direction: column;
   align-items: center;
 }
-.pop_up h2{
+
+.pop_up h2 {
   display: flex;
   justify-content: center;
   font-size: 25px;
@@ -597,7 +620,7 @@ body {
   margin-bottom: 10px;
 }
 
-.fullscreen{
+.fullscreen {
   position: fixed;
   top: 0;
   left: 0;
@@ -615,4 +638,28 @@ a {
 a:hover {
   text-decoration: none;
   color: inherit;
+}
+
+/* Message link styles */
+.message-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background-color: #0078d7;
+  /* Blue color */
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+  margin-bottom: 5px;
+}
+
+.message-link:hover {
+  background-color: #0063b1;
+  color: white;
+}
+
+.message-link i {
+  margin-right: 8px;
 }

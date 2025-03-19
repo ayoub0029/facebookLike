@@ -3,17 +3,16 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useWebSocket } from "@/hooks/websocket-context.jsx";
 import styles from "../../chat.module.css";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { fetchApi } from "@/api/fetchApi";
 import { useToast } from "@/hooks/toast-context";
 import Link from "next/link";
+import NotFound404 from "@/components/404";
 
 export default function ChatPage() {
   const params = useParams();
   const GroupID = params.GroupID;
 
-  const searchParams = useSearchParams();
-  const fullName = searchParams.get("fullname");
 
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
@@ -40,9 +39,10 @@ export default function ChatPage() {
           false
         );
         if (response.error || response.status >= 400) {
-          setError(404);
+          setGroupProfile(404)
         } else {
           setGroupProfile(response);
+          setLoading(false)
         }
       } catch (err) {
         console.error('Error fetching Group Profile:', err);
@@ -73,14 +73,12 @@ export default function ChatPage() {
     async (currPage) => {
       if (isFetching.current || !hasMore) return;
       isFetching.current = true;
-      setLoading(true);
 
       try {
         const data = await fetchApi(
           `/chats/group?group_id=${GroupID}&page=${currPage}`,
           "GET"
         );
-        console.log(data);
         if (!data || !Array.isArray(data)) {
           setHasMore(false);
           return;
@@ -111,7 +109,6 @@ export default function ChatPage() {
         showToast("error", "failed to get messages");
         setHasMore(false);
       } finally {
-        setLoading(false);
         isFetching.current = false;
       }
     },
@@ -226,6 +223,8 @@ export default function ChatPage() {
 
   const commonEmojis = ['😊', '😂', '❤️', '👍', '🙏', '🔥', '✨', '😎', '🤔', '😢'];
   if (!groupProfile) return <div> Loading... </div>;
+  if (groupProfile === 404) return <NotFound404/>
+
 
   return (
     <>

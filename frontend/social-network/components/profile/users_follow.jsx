@@ -284,7 +284,7 @@ useEffect(() => {
 
   return (
     <div ref={containerRef} className="talked-user-container" style={{height:"300px",overflow:"auto"}}>
-      {data.length > 0 ? (
+      {data && data.length > 0 ? (
         <User data={data} route="/chat" />
       ) : (
         <div>No user found</div>
