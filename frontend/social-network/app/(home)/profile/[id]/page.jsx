@@ -48,15 +48,15 @@ export default function Profile() {
           "GET"
         );
         if (response.hasOwnProperty("error")) {
-          if (response.error.Error) {
-            setIsfollow(404);
-            return;
-          } else if (
+          if (
             response.error.Error === "you cant follow or unfollow youself"
           ) {
             redirect("/profile");
+          } else if (response.error.Error) {
+            setIsfollow(404);
+            return;
           }
-          showToast("error", response.error.Error || "Unknown error")
+          // showToast("error", response.error.Error || "Unknown error")
         } else {
           setIsfollow(response);
         }

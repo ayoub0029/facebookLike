@@ -16,6 +16,9 @@ docker network prune -f
 echo "Removing all dangling images..."
 docker image prune -f
 
+echo "Removing All Volumes..."
+docker-compose down -v
+
 echo "Checking if docker-compose.yml exists..."
 if [ ! -f "docker-compose.yml" ]; then
   echo "Error: docker-compose.yml not found in current directory!"

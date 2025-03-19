@@ -8,8 +8,8 @@ import (
 	"strings"
 
 	auth "socialNetwork/App/Authentication"
-	database "socialNetwork/Database"
 	global "socialNetwork/App/Global"
+	database "socialNetwork/Database"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -39,8 +39,11 @@ var (
 	Profile_Private int8 = 0 // Index Of Privat in ProfileStatus Array
 	Profile_Public  int8 = 1 // Index Of Public in ProfileStatus Array
 )
-var ImagesUrl = "backend/Assets/"
-var ErrInvalidField = errors.New("disallowed field name")
+
+var (
+	ImagesUrl       = "backend/Assets/"
+	ErrInvalidField = errors.New("disallowed field name")
+)
 
 func NewProfile(Id int) (*Profile, error) {
 	if !UserExists(Id) {
@@ -215,6 +218,10 @@ func (p *Profile) UpdateProfileInfo(w http.ResponseWriter, r *http.Request, Fiel
 		Value = string(hashPass)
 	}
 	if _, err := database.ExecQuery(query, Value, p.Id); err != nil {
+		if err.Error() == "EXEC ERROR: UNIQUE constraint failed: users.email" {
+			global.JsonResponse(w, http.StatusBadRequest, map[string]string{"Error": "email already exist"})
+			return false
+		}
 		global.JsonResponse(w, http.StatusInternalServerError, map[string]string{"Error": global.ErrServer.Error()})
 		return false
 	}
