@@ -1,29 +1,29 @@
 "use client"
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { fetchApi } from '@/api/fetchApi'
 import '../../styles/GroupRequests.css'
 import useLazyLoad from '@/hooks/lazyload'
 
-const fetchRqsts = async (page) => {
-    try {
-        const data = await fetchApi(`group/applications?page=${page}`, 'GET', null, false)
-
-        if (data.status !== undefined) {
-            return { error: data.error, status: data.status }
-        }
-        const request = Array.isArray(data) ? data : []
-        return {
-            items: request,
-            nextPage: request.length > 0 ? page + 5 : null
-        }
-    } catch (err) {
-        console.error('Error fetching group requests:', err)
-        return { items: [], nextPage: null }
-    }
-}
 
 const GroupRequests = () => {
     const [requests, setRequests] = useState([])
+    const fetchRqsts = async (page) => {
+        try {
+            const data = await fetchApi(`group/applications?page=${page}`, 'GET', null, false)
+
+            if (data.status !== undefined) {
+                return { error: data.error, status: data.status }
+            }
+            const request = Array.isArray(data) ? data : []
+            return {
+                items: request,
+                nextPage: request.length > 0 ? page + 5 : null
+            }
+        } catch (err) {
+            console.error('Error fetching group requests:', err)
+            return { items: [], nextPage: null }
+        }
+    }
     const {
         data,
         loaderRef,
@@ -31,11 +31,6 @@ const GroupRequests = () => {
         error,
         nextPage
     } = useLazyLoad(fetchRqsts)
-    useEffect(() => {
-        if (data) {
-            setRequests(data)
-        }
-    }, [data])
 
     const handleAccept = async (grpID, usrID) => {
         const formData = new FormData()
@@ -44,9 +39,16 @@ const GroupRequests = () => {
 
         try {
             await fetchApi(`group/accepte`, 'POST', formData, true)
-            setRequests(prevRequests =>
-                prevRequests.filter(req => !(req.groupID === grpID && req.userID === usrID))
-            )
+            for (let index = 0; index < requests.length; index++) {
+                const elem = requests[index]
+                if (elem.groupID === grpID && elem.userID === usrID) {
+                    requests.splice(index, 1)
+                }
+            }
+            setRequests([...requests])
+            // setRequests(prevRequests =>
+            //     prevRequests.filter(req => !(req.groupID === grpID && req.userID === usrID))
+            // )
         } catch (err) {
             console.error('Error accepting group request:', err)
         }
@@ -58,14 +60,26 @@ const GroupRequests = () => {
         formData.append("group", grpID)
         try {
             await fetchApi(`group/reject`, 'POST', formData, true)
-            setRequests(prevRequests =>
-                prevRequests.filter(req => !(req.groupID === grpID && req.userID === usrID))
-            )
+            for (let index = 0; index < requests.length; index++) {
+                const elem = requests[index]
+                if (elem.groupID === grpID && elem.userID === usrID) {
+                    requests.splice(index, 1)
+                }
+            }
+            setRequests([...requests])
+            // setRequests(prevRequests =>
+            //     prevRequests.filter(req => !(req.groupID === grpID && req.userID === usrID))
+            // )
         } catch (err) {
             console.error('Error declining group request:', err)
         }
     }
 
+    useEffect(() => {
+        if (data) {
+            setRequests(data)
+        }
+    }, [data])
     return (
         <div className="group-invitations-container">
             <h2 className="group-invitations-title">
@@ -76,53 +90,53 @@ const GroupRequests = () => {
             <div
                 className="scrollable-container"
                 style={{
-                    maxHeight: '600px',
+                    maxHeight: '300px',
                     overflowY: 'auto',
                     padding: '10px',
                     border: '1px solid #eee',
                     borderRadius: '8px'
                 }}
             >
-                {!loading && !error && requests.length === 0 ? (
-                    <p>No pending group invitations</p>
-                ) : (
-                    <div className="invitationRequests">
-                        {requests.map(request => (
-                            <div key={request.id} className="invitationCard">
-                                {request.state === "request" &&
-                                    < div className="invitation-details">
-                                        <h3 className="group-name">Request from {request.fullName}</h3>
-                                    </div>
-                                }
-                                {request.state === "pending" &&
-                                    < div className="invitation-details">
-                                        <h3 className="group-name">Invitation from {request.name}</h3>
-                                    </div>
-                                }
-                                <div className="invitation-actions">
-                                    <button
-                                        onClick={() => handleAccept(request.groupID, request.userID)}
-                                        className="btn btnGreen"
-                                        title="Accept invitation"
-                                    >
-                                        Accept
-                                    </button>
-                                    <button
-                                        onClick={() => handleDecline(request.groupID, request.userID)}
-                                        className="btn btnRed"
-                                        title="Decline invitation"
-                                    >
-                                        Decline
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-                        {loading && nextPage !== null && (
-                            <p className="loading-more">Loading more groups...</p>
-                        )}
-                        <div ref={loaderRef}></div>
-                    </div>
+                {loading && requests.length === 0 && (<p className="loading-message">Loading requests...</p>)}
+                {!error && requests.length === 0 && !loading && (
+                    <p className="no-invitaion">No invitation found</p>
                 )}
+                <div>
+                    {requests.map(request => (
+                        <div key={request.id} className="invitationCard">
+                            {request.state === "request" &&
+                                < div className="invitation-details">
+                                    <h3 className="group-name">Request from {request.fullName}</h3>
+                                </div>
+                            }
+                            {request.state === "pending" &&
+                                < div className="invitation-details">
+                                    <h3 className="group-name">Invitation from {request.name}</h3>
+                                </div>
+                            }
+                            <div className="invitation-actions">
+                                <button
+                                    onClick={() => handleAccept(request.groupID, request.userID)}
+                                    className="btn btnGreen"
+                                    title="Accept invitation"
+                                >
+                                    Accept
+                                </button>
+                                <button
+                                    onClick={() => handleDecline(request.groupID, request.userID)}
+                                    className="btn btnRed"
+                                    title="Decline invitation"
+                                >
+                                    Decline
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                    {loading && nextPage !== null && (
+                        <p className="loading-more">Loading more groups...</p>
+                    )}
+                    <div ref={loaderRef}></div>
+                </div>
             </div>
         </div >
     )

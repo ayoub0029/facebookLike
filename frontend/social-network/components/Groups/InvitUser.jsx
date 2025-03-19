@@ -7,7 +7,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation"
 import useLazyLoad from "@/hooks/lazyload"
 
-export default function InvitUser({ userID }) {
+export default function InvitUser() {
     const [errorInvit, setErrorInvite] = useState(null)
     const [invitations, setInvitations] = useState([])
     const fullPath = usePathname();
