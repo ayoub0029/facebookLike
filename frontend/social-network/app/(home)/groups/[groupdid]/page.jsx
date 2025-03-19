@@ -106,14 +106,14 @@ export default function Profile() {
               </div>
               {hamberMenu === true && <div className={"rightSidebar" + (hamberMenu ? " show" : "")}>
                 <ProfileGrp />
-                <InvitUser userID={window.userState.id} />
+                <InvitUser />
               </div>}
             </>
           )}
         </div >
         <div className="rightSidebar">
           <ProfileGrp />
-          <InvitUser userID={window.userState.id} />
+          <InvitUser />
         </div>
       </>
     )

@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from "react"
 
-export default function useLazyLoad(fetchData) {
-
+export default function useLazyLoad(fetchData) {    
     const [data, setData] = useState([])
     const [page, setPage] = useState(0)
     const [nextPage, setNextPage] = useState(0)

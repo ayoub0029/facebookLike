@@ -7,7 +7,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation"
 import useLazyLoad from "@/hooks/lazyload"
 
-export default function InvitUser({ userID }) {
+export default function InvitUser() {
     const [errorInvit, setErrorInvite] = useState(null)
     const [invitations, setInvitations] = useState([])
     const fullPath = usePathname();
@@ -29,6 +29,14 @@ export default function InvitUser({ userID }) {
             return { items: [], nextPage: null }
         }
     }
+    const {
+        data,
+        loaderRef,
+        loading,
+        error,
+        nextPage,
+    } = useLazyLoad(fetchUserToInvite)
+
     const Invit = async (id) => {
         const formData = new FormData();
         formData.append("group", groupID);
@@ -40,22 +48,20 @@ export default function InvitUser({ userID }) {
                 setErrorInvite(response.error?.message || `Error: ${response.status}`);
                 return { error: response.error?.message || `Error: ${response.status}`, status: "error" };
             }
-            setInvitations(prvInvats =>
-                prvInvats.filter(Inv => !(Inv.Id === id))
-            )
+            for (let index = 0; index < invitations.length; index++) {
+                const element = invitations[index];
+                if (element.Id === id) {
+                    invitations.splice(index, 1);
+                }
+                setInvitations([...invitations]);
+            }
         } catch (error) {
             console.error("Invitation error:", error);
             setErrorInvite("Failed to process invitation")
             return { status: 500, error: "Failed to process invitation" };
         }
     }
-    const {
-        data,
-        loaderRef,
-        loading,
-        error,
-        nextPage,
-    } = useLazyLoad(fetchUserToInvite)
+
 
     useEffect(() => {
         if (data) {
@@ -70,7 +76,7 @@ export default function InvitUser({ userID }) {
             <div
                 className="scrollable-container"
                 style={{
-                    maxHeight: '400px',
+                    maxHeight: '300px',
                     overflowY: 'auto',
                     padding: '10px',
                     border: '1px solid #eee',

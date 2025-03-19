@@ -32,7 +32,8 @@ const JoinedGrp = () => {
         error,
         nextPage,
     } = useLazyLoad(fetchJoinedGrp)
-
+    console.log("joined:",data);
+    
     const [leavingGroup, setLeavingGroup] = useState(false)
     const [leaveError, setLeaveError] = useState(null)
     const [groupsData, setGroupsData] = useState(data)

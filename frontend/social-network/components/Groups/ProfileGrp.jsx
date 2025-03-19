@@ -21,6 +21,10 @@ export default function ProfileGrp({ onSuccess }) {
             try {
                 setLoading(true)
                 const data = await fetchApi(`/group?group=${pathname}`, 'GET', null, false)
+                if (data && data.status >= 400) {
+                    setError(`Error: ${data.error || 'Unknown error'} (Status: ${data.status})`);
+                    return;
+                }
                 setGroupProfile(data || null)
                 setError(null)
             } catch (err) {
