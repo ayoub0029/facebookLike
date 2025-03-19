@@ -1,0 +1,82 @@
+package chats
+
+import (
+	"fmt"
+	"log"
+	"net/http"
+	middleware "socialNetwork/App/Middlewares"
+	"strconv"
+)
+
+func GetAllPrivateMsg(r *http.Request) (any, error) {
+	receiverID, err := strconv.Atoi(r.URL.Query().Get("receiver_id"))
+	if err != nil {
+		return nil, fmt.Errorf("parseGusery")
+	}
+	pageNum, err := strconv.Atoi(r.URL.Query().Get("page"))
+	if err != nil {
+		return nil, fmt.Errorf("parseGusery")
+	}
+	message, err := GetMsgFromPrvChatDB(receiverID, pageNum, r)
+	if err != nil {
+		return nil, err
+	}
+	return message, nil
+}
+
+func GetAllGroupMsg(r *http.Request) (any, error) {
+	groupID, err := strconv.Atoi(r.URL.Query().Get("group_id"))
+	fmt.Println(groupID)
+	if err != nil {
+		return nil, fmt.Errorf("parseGusery")
+	}
+	pageNum, err := strconv.Atoi(r.URL.Query().Get("page"))
+	if err != nil {
+		return nil, fmt.Errorf("parseGusery")
+	}
+	message, err := GetMsgFromGrpChatDB(groupID, pageNum, r)
+	if err != nil {
+		return nil, err
+	}
+	return message, nil
+}
+
+func HandleChatPrvMessage(msg ChatPrvMessage, SenderID uint64) error {
+	if msg.Message != "" {
+		err := AddmessageToPrvDB(SenderID, msg.Message, msg.Receiver_id)
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+	}
+	return nil
+}
+
+func HandleChatGrpMessage(msg ChatGrpMessage) error {
+	if msg.Message != "" {
+		err := AddmessageGrpToDB(msg.SenderID, msg.GroupID, msg.Message)
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+	}
+	return nil
+}
+
+func GetUserIchatWith(r *http.Request) (any, error) {
+	user, ok := r.Context().Value(middleware.UserContextKey).(middleware.User)
+	if !ok {
+		return nil, fmt.Errorf("user not login")
+	}
+	item_id, err := strconv.Atoi(r.URL.Query().Get("item_id"))
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	message, err := GetUsersIchatWith(int(user.ID), item_id, r)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	return message, nil
+}

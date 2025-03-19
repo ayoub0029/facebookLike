@@ -32,7 +32,7 @@ export default function ChatPage() {
     async function fetchProfile() {
       const response = await fetchApi(`profiles?user_id=${UserID}`, "GET");
       if (response.hasOwnProperty("error")) {
-        if (response.error.Error === "user does not exist") {
+        if (response.error.Error) {
           setProfile(404);
           return;
         }

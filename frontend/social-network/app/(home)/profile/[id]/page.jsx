@@ -30,11 +30,7 @@ export default function Profile() {
     async function fetchProfile() {
       const response = await fetchApi(`profiles?user_id=${params.id}`, "GET");
       if (response.hasOwnProperty("error")) {
-        if (response.error.Error === "user does not exist") {
-          setProfile(404);
-          return;
-        }
-        showToast("error", response.error.Error || "Unknown error")
+        setProfile(404);
       } else {
         setProfile(response);
       }
@@ -52,7 +48,7 @@ export default function Profile() {
           "GET"
         );
         if (response.hasOwnProperty("error")) {
-          if (response.error.Error === "user does not exist") {
+          if (response.error.Error) {
             setIsfollow(404);
             return;
           } else if (

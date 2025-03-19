@@ -1,20 +1,14 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
-import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { fetchApi } from "@/api/fetchApi.jsx";
 import { FetchPosts } from "@/components/Posts/FetchPosts";
 import ProfileComponent from "@/components/profile/profile.jsx";
-import ToastNotification from "@/components/profile/toast.jsx";
 import { SkeletonLoaderPosts } from "@/components/skeletons/profile_skel";
+import { useToast } from "@/hooks/toast-context";
 
 export default function Profile() {
-  const [open, setOpen] = useState(false);
-  const [variant, setVariant] = useState("success");
-  const [message, setMessage] = useState(
-    "Your message has been sent successfully!"
-  );
+  const { showToast } = useToast();
   const [hamberMenu, setHamberMenu] = useState(false);
-  const params = useParams();
 
   const [profile, setProfile] = useState({
     Id: 0,
@@ -35,7 +29,7 @@ export default function Profile() {
     async function fetchProfile() {
       const response = await fetchApi("profiles", "GET");
       if (response.hasOwnProperty("error")) {
-        alert(`Error: ${response.error} Status: ${response.status}`);
+        showToast("error",`${response.error} Status: ${response.status}`);
       } else {
         setProfile(response);
       }
@@ -64,12 +58,6 @@ export default function Profile() {
     }
   };
 
-  const showToast = (type, msg) => {
-    setVariant(type);
-    setMessage(msg);
-    setOpen(true);
-  };
-
   return (
     <>
       <button onClick={toggleMenu} className="rightMenuToggle">
@@ -77,13 +65,6 @@ export default function Profile() {
       </button>
 
       <aside className="feed">
-        <ToastNotification
-          open={open}
-          onClose={setOpen}
-          variant={variant}
-          message={message}
-          duration={3000}
-        />
         <FetchPosts
           endpoint={`posts/profile?user_id=${profile.Id}&last_id=`}
           lastId={0}

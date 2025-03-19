@@ -1,14 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { fetchApi } from "@/api/fetchApi";
 import Modal from "../model";
 import { CheckBoxUsersFollowers } from "./CheckBoxFollowers";
+import { useToast } from "@/hooks/toast-context";
 
 export function CreatePost({ onSuccess, onGroup = false, groupId = 0 }) {
   const [modals, setModals] = useState({
     private: false,
   });
+  const { showToast } = useToast()
   const [selectedPrivacy, setSelectedPrivacy] = useState("public");
   const [selectedUsers, setSelectedUsers] = useState([]);
 
@@ -45,7 +47,7 @@ export function CreatePost({ onSuccess, onGroup = false, groupId = 0 }) {
     const response = await fetchApi("posts", "POST", formData, true);
 
     if (response.status !== undefined) {
-      alert(`Error: ${response.error} Status: ${response.status}`);
+      showToast("error", `${response.error} Status: ${response.status}`);
       return;
     }
 

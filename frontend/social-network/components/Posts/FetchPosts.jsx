@@ -12,10 +12,12 @@ import { fetchComments } from "./func_fetchcomments";
 import Modal from "../model";
 import useLazyLoadById from "@/hooks/lazyloadById";
 import { SkeletonLoaderPosts } from "@/components/skeletons/profile_skel.jsx";
+import { useToast } from "@/hooks/toast-context";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export function FetchPosts({ endpoint, lastId }) {
+  const { showToast } = useToast()
   const [editVisible, setEditVisible] = useState(null);
   const [editCommentVisible, setEditCommentVisible] = useState(null);
   const menuRef = useRef(null);
@@ -89,7 +91,7 @@ export function FetchPosts({ endpoint, lastId }) {
     const response = await fetchApi("/posts/update", "PUT", formData, true);
 
     if (response.status != undefined) {
-      alert(`Error: ${response.error} Status: ${response.status}`);
+      showToast("error", ` ${response.error} Status: ${response.status}`);
       return;
     }
 
@@ -124,7 +126,7 @@ export function FetchPosts({ endpoint, lastId }) {
     );
 
     if (response.status != undefined) {
-      alert(`Error: ${response.error} Status: ${response.status}`);
+      showToast("error", ` ${response.error} Status: ${response.status}`);
       return;
     }
 
@@ -154,7 +156,7 @@ export function FetchPosts({ endpoint, lastId }) {
     );
 
     if (response.status != undefined) {
-      alert(`Error: ${response.error} Status: ${response.status}`);
+      showToast("error", ` ${response.error} Status: ${response.status}`);
       return;
     }
 
@@ -177,7 +179,7 @@ export function FetchPosts({ endpoint, lastId }) {
     );
 
     if (response.status != undefined) {
-      alert(`Error: ${response.error} Status: ${response.status}`);
+      showToast("error", ` ${response.error} Status: ${response.status}`);
       return;
     }
 
@@ -197,7 +199,7 @@ export function FetchPosts({ endpoint, lastId }) {
     const postId = e.target.post_id.value;
 
     if (response.status !== undefined) {
-      alert(`Error: ${response.error} Status: ${response.status}`);
+      showToast("error", ` ${response.error} Status: ${response.status}`);
       return;
     }
 

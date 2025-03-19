@@ -5,17 +5,17 @@ import (
 	"net/http"
 	"os"
 
-	auth "socialNetwork/Authentication"
-	chats "socialNetwork/Chats"
+	auth "socialNetwork/App/Authentication"
+	chats "socialNetwork/App/Chats"
+	global "socialNetwork/App/Global"
+	groups "socialNetwork/App/Groups"
+	middleware "socialNetwork/App/Middlewares"
+	notifications "socialNetwork/App/Notifications"
+	posts "socialNetwork/App/Posts"
+	profiles "socialNetwork/App/Profiles"
+	search "socialNetwork/App/Search"
+	socket "socialNetwork/App/Socket"
 	database "socialNetwork/Database/Sqlite"
-	global "socialNetwork/Global"
-	groups "socialNetwork/Groups"
-	middleware "socialNetwork/Middlewares"
-	notifications "socialNetwork/Notifications"
-	posts "socialNetwork/Posts"
-	profiles "socialNetwork/Profiles"
-	search "socialNetwork/Search"
-	socket "socialNetwork/Socket"
 )
 
 func main() {
@@ -50,7 +50,7 @@ func main() {
 
 func handleStaticFile(w http.ResponseWriter, r *http.Request) {
 	filePath := r.URL.Path[len("/public/"):]
-	fullPath := "Assets/" + filePath
+	fullPath := "App/Assets/" + filePath
 	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
 		http.Error(w, "404 File not found ----", http.StatusNotFound)
 		return
