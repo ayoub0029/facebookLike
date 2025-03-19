@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  backend:
+    container_name: social-network-backend
+    build: ./backend
+    ports:
+      - "8080:8080"
+    volumes:
+      - backend-data:/backend/Database
+    environment:
+      - DB_PATH=/backend/Database/socialNetwork.db
+    working_dir: /backend
+    restart: unless-stopped
+    # No command override here - let it use the CMD from the Dockerfile
+
+  frontend:
+    container_name: social-network-frontend
+    build: ./frontend/social-network
+    ports:
+      - "3000:3000"
+    volumes:
+      - /frontend/node_modules
+    depends_on:
+      - backend
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8080
+      - NEXT_PUBLIC_GLOBAL_IMG=/images/lmodir.png
+      - NEXT_PUBLIC_WS_URL=ws://localhost:8080/ws
+    working_dir: /frontend
+    restart: unless-stopped
+
+volumes:
+  backend-data:
+    name: social-network-backend-data
