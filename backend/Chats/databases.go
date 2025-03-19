@@ -16,14 +16,15 @@ func GetMsgFromPrvChatDB(receiverID, page int, r *http.Request) ([]privateMsg, e
 	if !ok {
 		return nil, fmt.Errorf("user not login")
 	}
-	query := `SELECT * from (SELECT COALESCE((SELECT u.avatar
-						FROM users u WHERE u.id = pch.sender_id), './images/profile.jpeg') AS avatar ,(SELECT CONCAT(u.first_name, ' ', u.last_name)
-						FROM users u WHERE u.id = pch.sender_id) AS full_name,pch.id,pch.sender_id,pch.receiver_id,pch.message,pch.created_at
-						FROM private_chat pch
-						WHERE (pch.sender_id = ? AND pch.receiver_id = ?)
-						or (pch.sender_id = ? AND pch.receiver_id = ?)
-						ORDER BY pch.created_at DESC LIMIT 10 OFFSET ?) AS t
-						ORDER BY t.created_at ASC; `
+	query := `SELECT * from (SELECT COALESCE(
+				(SELECT u.avatar
+					FROM users u WHERE u.id = pch.sender_id), './images/profile.jpeg') AS avatar ,(SELECT CONCAT(u.first_name, ' ', u.last_name)
+					FROM users u WHERE u.id = pch.sender_id) AS full_name,pch.id,pch.sender_id,pch.receiver_id,pch.message,pch.created_at
+					FROM private_chat pch
+					WHERE (pch.sender_id = ? AND pch.receiver_id = ?)
+					or (pch.sender_id = ? AND pch.receiver_id = ?)
+					ORDER BY pch.id DESC LIMIT 10 OFFSET ?) AS t
+				ORDER BY t.id ASC;`
 	rows, err := database.SelectQuery(query, user.ID, receiverID, receiverID, user.ID, page)
 	if err != nil {
 		log.Println("Getting data from db error: ", err)
@@ -47,10 +48,17 @@ func GetMsgFromPrvChatDB(receiverID, page int, r *http.Request) ([]privateMsg, e
 
 func GetMsgFromGrpChatDB(groupID, page int, r *http.Request) ([]groupMsg, error) {
 	var msgs []groupMsg
-	query := `SELECT u.avatar, CONCAT(u.first_name, ' ', u.last_name) AS full_name,m.id, m.sender_id, m.group_id, m.message, m.created_at FROM group_chat m
-			  join users u
-			  on m.sender_id = u.id
-			  WHERE m.group_id = ? LIMIT 10 OFFSET ?;`
+	query := `SELECT avatar, full_name, id, sender_id, group_id, message, created_at
+				FROM (
+						SELECT u.avatar, CONCAT(u.first_name, ' ', u.last_name) AS full_name,
+									m.id, m.sender_id, m.group_id, m.message, m.created_at
+						FROM group_chat m
+						JOIN users u ON m.sender_id = u.id
+						WHERE m.group_id = ?
+						ORDER BY m.id DESC
+						LIMIT 10 OFFSET ?
+				) AS t
+				ORDER BY id ASC;`
 	rows, err := database.SelectQuery(query, groupID, page)
 	if err != nil {
 		log.Println("Getting data from db error: ", err)
