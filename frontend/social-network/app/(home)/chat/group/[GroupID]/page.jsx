@@ -6,7 +6,7 @@ import styles from "../../chat.module.css";
 import { useParams, useSearchParams } from "next/navigation";
 import { fetchApi } from "@/api/fetchApi";
 import { useToast } from "@/hooks/toast-context";
-import { UsersFollowing } from "@/components/profile/users_follow";
+import Link from "next/link";
 
 export default function ChatPage() {
   const params = useParams();
@@ -27,6 +27,34 @@ export default function ChatPage() {
   const isFetching = useRef(false);
   const [loading, setLoading] = useState(false);
   const [positionScroll, setPositionScroll] = useState(1200);
+  const [groupProfile, setGroupProfile] = useState(null)
+
+  useEffect(() => {
+    const fetchGroupProfile = async () => {
+      setLoading(true)
+      try {
+        const response = await fetchApi(
+          `/group?group=${GroupID}`,
+          'GET',
+          null,
+          false
+        );
+        if (response.error || response.status >= 400) {
+          setError(404);
+        } else {
+          setGroupProfile(response);
+        }
+      } catch (err) {
+        console.error('Error fetching Group Profile:', err);
+        showToast("error", err || "Unknown error")
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchGroupProfile()
+  }, [GroupID])
+  console.log(groupProfile);
+
 
   // ayoub ---
   const [scrollBackId, setScrollBackId] = useState(0);
@@ -76,7 +104,7 @@ export default function ChatPage() {
 
         setScrollBackId(lastMessageId);
 
-        if (data.length < 15) {
+        if (data.length < 10) {
           setHasMore(false);
         }
       } catch (err) {
@@ -101,16 +129,15 @@ export default function ChatPage() {
 
       const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
       if (scrollTop === 0 && scrollHeight !== clientHeight) {
-        // const prevHeight = scrollHeight;
-        setPage((prev) => prev + 15);
-        // containerRef.current.scrollTop = containerRef.current.scrollHeight - (prevHeight - scrollTop);
-        // setPositionScroll(containerRef.current.scrollHeight - prevHeight)
+        setPage((prev) => prev + 10);
       }
     };
     const chatContainer = containerRef.current;
-    chatContainer.addEventListener("scroll", handleScroll);
+    if (chatContainer) {
+      chatContainer.addEventListener("scroll", handleScroll);
+      return () => chatContainer.removeEventListener("scroll", handleScroll);
+    }
 
-    return () => chatContainer.removeEventListener("scroll", handleScroll);
   }, [hasMore, scrollBackId]);
 
   // ayoub ---
@@ -130,12 +157,10 @@ export default function ChatPage() {
   useEffect(() => {
     setMessageHandler((data) => {
       console.log(data);
-      
+      // Type: 'Group_message', fullname: 'sss sss', groupname: 'sssrrr', groupid: 5, senderid: 26, …}
       try {
-        const parsedData = JSON.parse(data);
-
-        if (parsedData.sender_id === Number.parseInt(GroupID)) {
-          setMessages((prev) => [...prev, parsedData]);
+        if (data.groupid === Number.parseInt(GroupID)) {
+          setMessages((prev) => [...prev, data]);
           setPositionScroll(containerRef.current.scrollHeight);
         }
       } catch (error) {
@@ -200,6 +225,7 @@ export default function ChatPage() {
   };
 
   const commonEmojis = ['😊', '😂', '❤️', '👍', '🙏', '🔥', '✨', '😎', '🤔', '😢'];
+  if (!groupProfile) return <div> Loading... </div>;
 
   return (
     <>
@@ -211,12 +237,12 @@ export default function ChatPage() {
         <div className={styles.chatContainer}>
           <div className={styles.chatCard}>
             <div className={styles.chatHeader}>
-              <h2 className={styles.chatTitle}>
-                Chat with {fullName ? fullName : GroupID}
-              </h2>
-              {/* <span className={isConnected ? styles.statusConnected : styles.statusDisconnected}>
-            {isConnected ? "you Connected" : "you Disconnected"}
-          </span> */}
+              <Link href={`/group/${groupProfile.Id}`}
+                key={groupProfile.id}>
+                <h2 className={styles.chatTitle}>
+                  Group : {groupProfile.name}
+                </h2>
+              </Link>
             </div>
 
             <div className={styles.chatContent} ref={containerRef}>
@@ -230,6 +256,7 @@ export default function ChatPage() {
                   <p>No more messages</p>
                 </div>
               )}
+              {loading && <p>loading...</p>}
 
               {messages.map((msg, index) => (
                 // ayoub --- msg id

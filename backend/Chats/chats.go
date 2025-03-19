@@ -11,17 +11,14 @@ import (
 func GetAllPrivateMsg(r *http.Request) (any, error) {
 	receiverID, err := strconv.Atoi(r.URL.Query().Get("receiver_id"))
 	if err != nil {
-		log.Println(err)
-		return nil, err
+		return nil, fmt.Errorf("parseGusery")
 	}
 	pageNum, err := strconv.Atoi(r.URL.Query().Get("page"))
 	if err != nil {
-		log.Println(err)
-		return nil, err
+		return nil, fmt.Errorf("parseGusery")
 	}
 	message, err := GetMsgFromPrvChatDB(receiverID, pageNum, r)
 	if err != nil {
-		log.Println(err)
 		return nil, err
 	}
 	return message, nil
@@ -31,17 +28,14 @@ func GetAllGroupMsg(r *http.Request) (any, error) {
 	groupID, err := strconv.Atoi(r.URL.Query().Get("group_id"))
 	fmt.Println(groupID)
 	if err != nil {
-		log.Println(err)
-		return nil, err
+		return nil, fmt.Errorf("parseGusery")
 	}
 	pageNum, err := strconv.Atoi(r.URL.Query().Get("page"))
 	if err != nil {
-		log.Println(err)
-		return nil, err
+		return nil, fmt.Errorf("parseGusery")
 	}
 	message, err := GetMsgFromGrpChatDB(groupID, pageNum, r)
 	if err != nil {
-		log.Println(err)
 		return nil, err
 	}
 	return message, nil

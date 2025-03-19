@@ -32,12 +32,13 @@ type ChatPrvMessage struct {
 }
 
 type ChatGrpMessage struct {
-	Type     string
-	FullName string `json:"fullname"`
-	GroupName string `json:"groupname"`
-	GroupID  uint64 `json:"groupid"`
-	SenderID uint64 `json:"senderid"`
-	Message  string `json:"message"`
+	Type      string
+	FullName  string    `json:"fullname"`
+	GroupName string    `json:"groupname"`
+	GroupID   uint64    `json:"groupid"`
+	SenderID  uint64    `json:"senderid"`
+	Message   string    `json:"message"`
+	Timestamp time.Time `json:"timestamp"`
 }
 
 type User struct {

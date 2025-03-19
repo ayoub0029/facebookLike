@@ -35,12 +35,20 @@ export function WebSocketProvider({ children }) {
       }
 
       if (messageHandlerRef.current) {
-        messageHandlerRef.current(event.data)
+        messageHandlerRef.current(data)
       } else {
-        if (data.Type === 'message') {
-          showToast("message", data.message, data.fullname)
-        } else {
-          showToast("information", `${NotificationsTypes[data.Type].message} from ${data.Sender}`, NotificationsTypes[data.Type].type, 5000)
+        switch (data.Type) {
+          case 'message':
+            showToast("message", data.message, data.fullname)
+            break;
+
+          case 'Group_message':
+            showToast("message", `${data.fullname}: ${data.message}`, `Group: ${data.groupname}`)
+            break;
+
+          default:
+            showToast("information", `${NotificationsTypes[data.Type].message} from ${data.Sender}`, NotificationsTypes[data.Type].type, 5000)
+            break;
         }
       }
     }

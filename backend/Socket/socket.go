@@ -97,7 +97,7 @@ func handlePrvChatMessage(wsMessage WebSocketMessage, userID uint64, fullName st
 	return nil
 }
 
-func handleGrpChatMessage(wsMessage WebSocketMessage) error {
+func handleGrpChatMessage(wsMessage WebSocketMessage, userID uint64,fullname string) error {
 	var grpChatMsg chats.ChatGrpMessage
 	data, err := json.Marshal(wsMessage.Content)
 	if err != nil {
@@ -107,8 +107,8 @@ func handleGrpChatMessage(wsMessage WebSocketMessage) error {
 		return fmt.Errorf("error unmarshaling chat message: %v", err)
 	}
 	err = chats.HandleChatGrpMessage(grpChatMsg)
-	if err != nil{
-		fmt.Println("111; socket",err)
+	if err != nil {
+		fmt.Println("111; socket", err)
 	}
 	userIDs, err := global.GetIdsUsersOfGroup(grpChatMsg.GroupID)
 	if err != nil {
@@ -128,13 +128,9 @@ func handleGrpChatMessage(wsMessage WebSocketMessage) error {
 	/* grpMembers broadcasting */
 	for _, member := range userIDs {
 		conn, ok := Clients[uint64(member)]
-		if ok {
-			fullName, err := global.GetFullNameById(uint(member))
-			if err != nil {
-				continue
-			}
-			grpChatMsg.FullName = fullName
-
+		if ok  && member != userID{
+			grpChatMsg.FullName = fullname
+			fmt.Println(grpChatMsg)
 			SendMessage(conn, grpChatMsg)
 		}
 	}
@@ -161,7 +157,7 @@ func SocketListner(client *global.Client, r *http.Request) {
 				log.Printf("Error handling %s message: %v", wsMessage.Type, err)
 			}
 		} else if wsMessage.Type == "groupChat" {
-			if err := handleGrpChatMessage(wsMessage); err != nil {
+			if err := handleGrpChatMessage(wsMessage, user.ID, user.Name); err != nil {
 				log.Printf("Error handling %s message: %v", wsMessage.Type, err)
 			}
 		}

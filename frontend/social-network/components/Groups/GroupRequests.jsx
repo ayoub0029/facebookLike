@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import { fetchApi } from '@/api/fetchApi'
 import '../../styles/GroupRequests.css'
 import useLazyLoad from '@/hooks/lazyload'
@@ -46,9 +46,6 @@ const GroupRequests = () => {
                 }
             }
             setRequests([...requests])
-            // setRequests(prevRequests =>
-            //     prevRequests.filter(req => !(req.groupID === grpID && req.userID === usrID))
-            // )
         } catch (err) {
             console.error('Error accepting group request:', err)
         }
@@ -67,9 +64,6 @@ const GroupRequests = () => {
                 }
             }
             setRequests([...requests])
-            // setRequests(prevRequests =>
-            //     prevRequests.filter(req => !(req.groupID === grpID && req.userID === usrID))
-            // )
         } catch (err) {
             console.error('Error declining group request:', err)
         }

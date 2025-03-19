@@ -195,7 +195,7 @@ export function UsersFollowing({ userID, route, showToast }) {
   );
 }
 
-function User({ data, route }) {
+export function User({ data, route }) {
   return (
     <div>
       {data.length === 0 ? (
@@ -203,11 +203,7 @@ function User({ data, route }) {
       ) : (
         data.map((item, index) => (
           <Link
-            href={`${route}/${item.Id}?fullname=${
-              item.fullname
-                ? item.fullname
-                : item.FirstName + " " + item.LastName
-            }`}
+            href={`${route}/${item.Id}`}
             key={item.id || index}
           >
             <div className={style["cont_user_list"]}>

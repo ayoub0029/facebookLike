@@ -1,14 +1,16 @@
 "use client";
 import { fetchApi } from "@/api/fetchApi.jsx";
 import { FetchPosts } from "@/components/Posts/FetchPosts";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import ProfileComponent from "@/components/profile/profile.jsx";
 import { useParams, redirect } from "next/navigation";
+import NotFound404 from "@/components/404";
+import { useToast } from "@/hooks/toast-context";
 
 export default function Profile() {
   const [hamberMenu, setHamberMenu] = useState(false);
   const params = useParams();
-
+  const { showToast } = useToast()
   const [profile, setProfile] = useState({
     Id: 0,
     ProfileStatus: "",
@@ -32,11 +34,7 @@ export default function Profile() {
           setProfile(404);
           return;
         }
-        alert(
-          `Error get profile: ${
-            response.error.Error || "Unknown error"
-          } Status: ${response.status}`
-        );
+        showToast("error", response.error.Error || "Unknown error")
       } else {
         setProfile(response);
       }
@@ -62,11 +60,7 @@ export default function Profile() {
           ) {
             redirect("/profile");
           }
-          alert(
-            `Error get profile: ${response.error || "Unknown error"} Status: ${
-              response.status
-            }`
-          );
+          showToast("error", response.error.Error || "Unknown error")
         } else {
           setIsfollow(response);
         }
@@ -77,7 +71,7 @@ export default function Profile() {
   }, [profile, params.id]);
 
   if (profile.Id === 0) return <div> Loading... </div>;
-  else if (profile === 404 || isFollow === 404) return <div>not found</div>;
+  else if (profile === 404 || isFollow === 404) return <NotFound404 />;
 
   profile["Status"] = isFollow.Status;
 

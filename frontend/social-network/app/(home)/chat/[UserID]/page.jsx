@@ -3,18 +3,18 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useWebSocket } from "@/hooks/websocket-context.jsx";
 import styles from "../chat.module.css";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { fetchApi } from "@/api/fetchApi";
 import { useToast } from "@/hooks/toast-context";
 import { UsersFollowing } from "@/components/profile/users_follow";
+import NotFound404 from "@/components/404";
+import { User } from "@/components/profile/users_follow";
 
 export default function ChatPage() {
   const params = useParams();
   const UserID = params.UserID;
 
-  const searchParams = useSearchParams();
-  const fullName = searchParams.get("fullname");
-
+  const [profile, setProfile] = useState()
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
   const messagesEndRef = useRef(null);
@@ -27,6 +27,24 @@ export default function ChatPage() {
   const isFetching = useRef(false);
   const [loading, setLoading] = useState(false);
   const [positionScroll, setPositionScroll] = useState(1200);
+
+  useEffect(() => {
+    async function fetchProfile() {
+      const response = await fetchApi(`profiles?user_id=${UserID}`, "GET");
+      if (response.hasOwnProperty("error")) {
+        if (response.error.Error === "user does not exist") {
+          setProfile(404);
+          return;
+        }
+        showToast("error", response.error.Error || "Unknown error")
+      } else {
+        setProfile(response);
+      }
+    }
+    fetchProfile();
+  }, [UserID]);
+
+  console.log(profile);
 
   // ayoub ---
   const [scrollBackId, setScrollBackId] = useState(0);
@@ -76,7 +94,7 @@ export default function ChatPage() {
 
         setScrollBackId(lastMessageId);
 
-        if (data.length < 15) {
+        if (data.length < 10) {
           setHasMore(false);
         }
       } catch (err) {
@@ -101,16 +119,14 @@ export default function ChatPage() {
 
       const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
       if (scrollTop === 0 && scrollHeight !== clientHeight) {
-        // const prevHeight = scrollHeight;
-        setPage((prev) => prev + 15);
-        // containerRef.current.scrollTop = containerRef.current.scrollHeight - (prevHeight - scrollTop);
-        // setPositionScroll(containerRef.current.scrollHeight - prevHeight)
+        setPage((prev) => prev + 10);
       }
     };
     const chatContainer = containerRef.current;
-    chatContainer.addEventListener("scroll", handleScroll);
-
-    return () => chatContainer.removeEventListener("scroll", handleScroll);
+    if (chatContainer) {
+      chatContainer.addEventListener("scroll", handleScroll);
+      return () => chatContainer.removeEventListener("scroll", handleScroll);
+    }
   }, [hasMore, scrollBackId]);
 
   // ayoub ---
@@ -130,10 +146,9 @@ export default function ChatPage() {
   useEffect(() => {
     setMessageHandler((data) => {
       try {
-        const parsedData = JSON.parse(data);
 
-        if (parsedData.sender_id === Number.parseInt(UserID)) {
-          setMessages((prev) => [...prev, parsedData]);
+        if (data.sender_id === Number.parseInt(UserID)) {
+          setMessages((prev) => [...prev, data]);
           setPositionScroll(containerRef.current.scrollHeight);
         }
       } catch (error) {
@@ -197,7 +212,8 @@ export default function ChatPage() {
   };
 
   const commonEmojis = ['😊', '😂', '❤️', '👍', '🙏', '🔥', '✨', '😎', '🤔', '😢'];
-
+  if (!profile) return <div> Loading... </div>;
+  if (profile === 404) return <NotFound404 />
   return (
     <>
       <button onClick={toggleMenu} className="rightMenuToggle">
@@ -208,12 +224,7 @@ export default function ChatPage() {
         <div className={styles.chatContainer}>
           <div className={styles.chatCard}>
             <div className={styles.chatHeader}>
-              <h2 className={styles.chatTitle}>
-                Chat with {fullName ? fullName : UserID}
-              </h2>
-              {/* <span className={isConnected ? styles.statusConnected : styles.statusDisconnected}>
-            {isConnected ? "you Connected" : "you Disconnected"}
-          </span> */}
+              <User data={[{Id: profile.Id, Avatar: profile.Avatar, FirstName: profile.First_Name, LastName: profile.Last_Name }]} route={"/profile"} />
             </div>
 
             <div className={styles.chatContent} ref={containerRef}>
@@ -227,7 +238,7 @@ export default function ChatPage() {
                   <p>No more messages</p>
                 </div>
               )}
-
+              {loading && <p>loading...</p>}
               {messages.map((msg, index) => (
                 // ayoub --- msg id
                 <div
