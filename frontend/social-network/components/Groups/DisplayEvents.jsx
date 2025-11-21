@@ -72,7 +72,6 @@ export default function DisplayEvents({ reloadKey }) {
     };
 
     const deleteVote = async (id) => {
-        // console.log("Deleting vote for event:", id);
         const formData = new FormData();
         formData.append("event", id);
         try {

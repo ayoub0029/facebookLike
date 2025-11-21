@@ -241,11 +241,14 @@ export function TalkedUser() {
 
   async function fetchUsers(lastid) {
      const newData = await fetchBylastId(lastid,"chats/userIchatWith?item_id=")
-     setData(newData.items)
-     setLastId(newData.items[newData.items.length - 1].id);
-     if(newData.status !== undefined){
-        showToast("error", newData.error)
-        return
+     
+     if (newData?.items !== null) {
+       setData(newData.items)
+       setLastId(newData.items[newData.items.length - 1].id);
+       if(newData.status !== undefined){
+          showToast("error", newData.error)
+          return
+       }
      }
    }
 

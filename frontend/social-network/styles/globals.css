@@ -5,12 +5,12 @@
 }
 
 :root {
-  --background: #ffffff;
+  --background: #f3f5f7;
   --primary-color: #000000;
-  --secondary-color: #808080;
+  --secondary-color: #6e6e6e;
   --secondary-hover: #afafaf;
   --third-color: #e4e4e4;
-  --lightGray-color: #f4f4f4;
+  --lightGray-color: #ececec;
   --btn-color: #81BE1C;
   --danger-color: #ee5459;
   --grenv2: #e9fc6e;
@@ -95,8 +95,8 @@ body {
 .nav .menuItem {
   display: flex;
   align-items: center;
-  padding: 10px;
-  font-size: 15px;
+  padding: 10px 30px;
+  font-size: 16px;
   cursor: pointer;
   margin-bottom: 10px;
   text-decoration: none;
@@ -108,6 +108,7 @@ body {
 
 .secondary {
   color: var(--secondary-color);
+  font-size: 16px;
 }
 
 .primary {
@@ -130,8 +131,8 @@ body {
   outline: 0;
   border-bottom: 1px solid var(--third-color);
   border-radius: 8px;
-  margin-bottom: 20px;
   font-family: 'Poppins', FontAwesome, sans-serif;
+  background: var(--lightGray-color);
 }
 
 .imageUpload {
@@ -147,6 +148,7 @@ body {
   border-bottom: 1px solid var(--third-color);
   border-radius: 8px;
   resize: none;
+  background-color: var(--lightGray-color);
 }
 
 .newPost {
@@ -178,7 +180,7 @@ body {
 
 .newPost button {
   align-self: flex-end;
-  margin-bottom: 20px;
+  /* margin-bottom: 20px; */
 }
 
 .btn {

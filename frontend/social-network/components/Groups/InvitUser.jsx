@@ -88,30 +88,32 @@ export default function InvitUser() {
                     <p className="no-invitaion">No invitation found</p>
                 )}
                 <div className="Invitaion-loop">
-                    {invitations.map(inviteCard => (
-                        <div key={inviteCard.Id} className="inviters">
-                            <Link href={`/profile/${inviteCard.Id}`}>
-                                <div className={style["cont_user_list"]}>
-                                    <img
-                                        src={
-                                            inviteCard.Avatar?.startsWith("http")
-                                                ? inviteCard.ProfileData.Avatar
-                                                : inviteCard.ProfileData.Avatar && inviteCard.ProfileData.Avatar !== "undefined"
-                                                    ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/public/${inviteCard.Avatar}`
-                                                    : "/images/test.jpg"
-                                        }
-                                        alt={inviteCard.ProfileData.Nickname}
-                                    />
-                                    <span>
-                                        {inviteCard.ProfileData.First_Name} {inviteCard.ProfileData.Last_Name}
-                                    </span>
-                                </div>
-                            </Link>
-                            <button onClick={() => Invit(inviteCard.Id)}>
-                                <i className="fas fa-plus"></i>invite
-                            </button>
-                        </div>
-                    ))}
+                    {invitations.map(inviteCard => {
+                        return (
+                            <div key={inviteCard.Id} className="inviters">
+                                <Link href={`/profile/${inviteCard.Id}`}>
+                                    <div className={style["cont_user_list"]}>
+                                        <img
+                                            src={
+                                                inviteCard.ProfileData.Avatar?.startsWith("http")
+                                                    ? inviteCard.ProfileData.Avatar
+                                                    : inviteCard.ProfileData.Avatar && inviteCard.ProfileData.Avatar !== "undefined"
+                                                        ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/public/${inviteCard.ProfileData.Avatar}`
+                                                        : "/images/example.png"
+                                            }
+                                            alt={inviteCard.ProfileData.Nickname}
+                                        />
+                                        <span>
+                                            {inviteCard.ProfileData.First_Name} {inviteCard.ProfileData.Last_Name}
+                                        </span>
+                                    </div>
+                                </Link>
+                                <button onClick={() => Invit(inviteCard.Id)}>
+                                    <i className="fas fa-plus"></i>invite
+                                </button>
+                            </div>
+                        )
+                    })}
                     {loading && nextPage !== null && (
                         <p className="loading-more">Loading more events...</p>
                     )}

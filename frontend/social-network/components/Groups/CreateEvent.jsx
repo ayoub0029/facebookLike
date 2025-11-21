@@ -24,7 +24,6 @@ export default function EventContainer({onSuccess}) {
 
     const createEvent = async (event) => {
         event.preventDefault()
-        console.log("event dates: ",event.target.start.value, event.target.end.value);
         if (new Date(event.target.start.value) > new Date(event.target.end.value)) {
             setError('End date must be after start date')
             return

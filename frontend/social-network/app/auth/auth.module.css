@@ -13,7 +13,7 @@
   justify-content: space-between;
   max-width: 980px;
   width: 100%;
-  height: 100vh;
+  /* height: 100vh; */
 }
 
 .split2 {
@@ -37,7 +37,7 @@
 
 .brand_section {
   flex: 1;
-  padding-right: 32px;
+  padding: 32px;
   max-width: 500px;
 }
 
@@ -60,7 +60,7 @@
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.1);
-  padding: 11px;
+  padding: 34px;
 }
 
 .loginform {

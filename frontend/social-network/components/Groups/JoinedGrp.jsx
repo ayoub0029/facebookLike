@@ -32,7 +32,6 @@ const JoinedGrp = () => {
         error,
         nextPage,
     } = useLazyLoad(fetchJoinedGrp)
-    console.log("joined:",data);
     
     const [leavingGroup, setLeavingGroup] = useState(false)
     const [leaveError, setLeaveError] = useState(null)
@@ -53,12 +52,9 @@ const JoinedGrp = () => {
                 setLeaveError(`Error: ${response.error || 'Unknown error'} (Status: ${response.status})`);
                 return;
             }
-            console.log(groupsData, groupId);
             for (let index = 0; index < groupsData.length; index++) {
                 const element = groupsData[index];
-                console.log(element.id, groupId);
                 if (element.id === groupId) {
-                    console.log("hello");
                     groupsData.splice(index, 1);
                 }
             }

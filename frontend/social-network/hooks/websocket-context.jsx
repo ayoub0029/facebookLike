@@ -17,48 +17,60 @@ export function WebSocketProvider({ children }) {
   const messageHandlerRef = useRef(null)
   const { showToast } = useToast()
 
+  // Function to fix server timestamps
+  const fixServerTimestamp = (data) => {
+    if (data.Type === 'Group_message' && data.timestamp === "0001-01-01T00:00:00Z") {
+      return {
+        ...data,
+        timestamp: new Date().toISOString() // Replace invalid timestamp with current time
+      }
+    }
+    return data
+  }
+
   useEffect(() => {
     const socket = new WebSocket(process.env.NEXT_PUBLIC_WS_URL)
     socketRef.current = socket
 
     socket.onopen = () => {
-      console.log("WebSocket Connected")
       setIsConnected(true)
     }
 
     socket.onmessage = (event) => {
-      console.log("Message from server:", event.data)
       const data = JSON.parse(event.data)
+      
       if (data.Error) {
         showToast("error", data.Error)
         return
       }
 
+      // Fix the timestamp before passing to handler or toast
+      const fixedData = fixServerTimestamp(data)
+
       if (messageHandlerRef.current) {
-        messageHandlerRef.current(data)
+        messageHandlerRef.current(fixedData) // Pass the fixed data
       } else {
-        switch (data.Type) {
+        switch (fixedData.Type) {
           case 'message':
-            showToast("message", data.message, data.fullname)
+            showToast("message", fixedData.message, fixedData.fullname)
             break;
 
           case 'Group_message':
-            showToast("message", `${data.fullname}: ${data.message}`, `Group: ${data.groupname}`)
+            showToast("message", `${fixedData.fullname}: ${fixedData.message}`, `Group: ${fixedData.groupname}`)
             break;
 
           default:
-            showToast("information", `${NotificationsTypes[data.Type].message} from ${data.Sender}`, NotificationsTypes[data.Type].type, 5000)
+            showToast("information", `${NotificationsTypes[fixedData.Type].message} from ${fixedData.Sender}`, NotificationsTypes[fixedData.Type].type, 5000)
             break;
         }
       }
     }
 
     socket.onclose = () => {
-      console.log("WebSocket Disconnected")
       setIsConnected(false)
 
       setTimeout(() => {
-
+        // Optional: Add reconnection logic here
       }, 3000);
     }
 

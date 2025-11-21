@@ -19,7 +19,7 @@
   width: 160px;
   height: 160px;
   border: 2px solid #fff;
-  outline: 3px solid var(--gr);
+  outline: 3px solid var(--secondary-color);
 }
 
 .profiletHeader .nickname,
@@ -69,6 +69,7 @@
 
 .profiletHeader .about {
   margin-top: 25px;
+  text-align: center;
 }
 
 .profiletHeader .about span {
@@ -78,6 +79,7 @@
 .profiletHeader .about p {
   color: #666;
   font-size: 0.7rem;
+  margin: 0 20%;
 }
 
 .btn_follow button {
@@ -360,7 +362,7 @@
   width: 60px;
   height: 60px;
   border: 2px solid #fff;
-  outline: 1.5px solid var(--gr);
+  outline: 1.5px solid var(--secondary-color);
 }
 
 .cont_user_list span {

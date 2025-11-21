@@ -134,7 +134,6 @@ export default function Registerform() {
       }
       router.push("/auth/login");
     } catch (error) {
-      console.log(error);
       setErrorContent(error);
       setShowErrorPopup(true);
     }

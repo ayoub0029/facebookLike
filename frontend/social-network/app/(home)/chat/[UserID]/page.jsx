@@ -44,8 +44,6 @@ export default function ChatPage() {
     fetchProfile();
   }, [UserID]);
 
-  console.log(profile);
-
   // ayoub ---
   const [scrollBackId, setScrollBackId] = useState(0);
   const scrollToMessage = useCallback((messageId) => {
@@ -70,7 +68,6 @@ export default function ChatPage() {
           `/chats/private?receiver_id=${UserID}&page=${currPage}`,
           "GET"
         );
-        console.log(data);
         if (!data || !Array.isArray(data)) {
           setHasMore(false);
           return;

@@ -23,7 +23,7 @@ export default function Groups() {
   };
   return (
     <>
-      <div>
+      <div style={{padding: "20px"}}>
           <SearchInput FetchGroups={true} />
         <div>
           <button onClick={toggleMenu} className="rightMenuToggle">

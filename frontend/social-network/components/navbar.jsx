@@ -17,7 +17,6 @@ export function Navigation() {
       clearUserState()
       router.push("/auth/login")
     } catch (error) {
-      console.log(error)
       router.push("/auth/login")
     }
   }
@@ -27,10 +26,10 @@ export function Navigation() {
       <div className="logo">
         <a href="/">
           <Image
-            style={{ maxWidth: "300px" }}
+            style={{ maxWidth: "220px" }}
             width={200}
             height={100}
-            src={process.env.NEXT_PUBLIC_API_BASE_URL + "/public/logo.png"}
+            src={"http://localhost:3000/images/logo.png"}
             alt="logo"
             unoptimized={true}
             layout="responsive" />

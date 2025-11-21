@@ -58,8 +58,6 @@ export function Notification() {
                 return;
             }
 
-            console.log(result);
-
             setData(result);
             setLoading(false);
 

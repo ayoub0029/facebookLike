@@ -53,7 +53,6 @@ export default function ChatPage() {
     }
     fetchGroupProfile()
   }, [GroupID])
-  console.log(groupProfile);
 
 
   // ayoub ---
@@ -153,7 +152,6 @@ export default function ChatPage() {
   // Handle incoming messages
   useEffect(() => {
     setMessageHandler((data) => {
-      console.log(data);
       // Type: 'Group_message', fullname: 'sss sss', groupname: 'sssrrr', groupid: 5, senderid: 26, …}
       try {
         if (data.groupid === Number.parseInt(GroupID)) {
@@ -200,12 +198,37 @@ export default function ChatPage() {
     setPositionScroll(containerRef.current.scrollHeight);
   }
 
+  // Handle incoming messages
+  useEffect(() => {
+    setMessageHandler((data) => {
+      try {
+        if (data.groupid === Number.parseInt(GroupID)) {
+          setMessages((prev) => [...prev, data]);
+          setPositionScroll(containerRef.current.scrollHeight);
+        }
+      } catch (error) {
+      }
+    });
+
+    return () => {
+      setMessageHandler(null);
+    };
+  }, [setMessageHandler, GroupID]);
+
   function formatTime(timestamp) {
     if (!timestamp) return "";
+
+
     const d = new Date(timestamp);
+
+    if (isNaN(d.getTime())) {
+      return "Invalid Date";
+    }
+
     return `${d.toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
+      hour12: true
     })} ${d.getDate()}-${d.getMonth() + 1}-${d.getFullYear()}`;
   }
 
@@ -223,7 +246,7 @@ export default function ChatPage() {
 
   const commonEmojis = ['😊', '😂', '❤️', '👍', '🙏', '🔥', '✨', '😎', '🤔', '😢'];
   if (!groupProfile) return <div> Loading... </div>;
-  if (groupProfile === 404) return <NotFound404/>
+  if (groupProfile === 404) return <NotFound404 />
 
 
   return (

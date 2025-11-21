@@ -33,7 +33,6 @@ export default function FollowButton({ statusFollow, profileType, setProfile, us
       setState("follow")
       return false
     }
-    console.log(resp)
     return true
   }
 
@@ -47,7 +46,6 @@ export default function FollowButton({ statusFollow, profileType, setProfile, us
       setState(state === "follow" ? "unfollow" : "waiting")
       return false
     }
-    console.log(resp)
     return true
   }
 

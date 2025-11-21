@@ -88,11 +88,11 @@ export function CreatePost({ onSuccess, onGroup = false, groupId = 0 }) {
         ></textarea>
 
         {imagePreview && (
-          <div style={{ maxHeight: "200px", display: "flex", gap: "10px" }}>
+          <div style={{ maxWidth: "400px", maxHeight:"200px", display: "flex", gap: "10px" }}>
             <img
               src={imagePreview}
               alt="Preview"
-              style={{ maxHeight: "100%" }}
+              style={{ maxHeight: "100%", maxWidth: "400px" }}
             />
             <button
               type="button"

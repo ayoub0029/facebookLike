@@ -57,7 +57,7 @@ export default function Loginform() {
         </button>
       </form>
       <p className={style.redirect}>
-        don't have account <Link href={"/auth/register"}> register</Link>
+        <Link href={"/auth/register"}>don't have account register</Link>
       </p>
       <Link href={process.env.NEXT_PUBLIC_API_BASE_URL + "/auth/githublogin"}>
         <button className={style.github_button}>

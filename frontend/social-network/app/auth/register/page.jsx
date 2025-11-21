@@ -78,7 +78,6 @@ export default function Registerform() {
       }
       router.push("/auth/login");
     } catch (error) {
-      console.log(error);
       setErrorContent(error);
       setShowErrorPopup(true);
     }
@@ -93,7 +92,7 @@ export default function Registerform() {
               style={{
                 backgroundImage: previewImage
                   ? `url('${previewImage}')`
-                  : `url('http://localhost:3000/images/lmodir.png')`,
+                  : `url('http://localhost:3000/images/example.png')`,
               }}
             ></div>
           </div>
@@ -183,7 +182,7 @@ export default function Registerform() {
         />
       </form>
       <p className={style.redirect}>
-        already have account <Link href={"/auth/login"}> log in</Link>
+        <Link href={"/auth/login"}>already have account log in</Link>
       </p>
       <Link href={process.env.NEXT_PUBLIC_API_BASE_URL + "/auth/githublogin"}>
         <button className={style.github_button}>

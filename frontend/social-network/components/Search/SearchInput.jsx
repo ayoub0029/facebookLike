@@ -114,7 +114,7 @@ function SearchResultItem({ data }) {
         <Link href={`${data.name ? "/groups/" + data.id : "/profile/" + data.id}`} className="res">
             <div>
                 <img
-                    src={`${data.name ? "/images/group.jpg" : data.Avatar ? ImageUrl : "/images/test.jpg"}`}
+                    src={`${data.name ? "/images/group.jpg" : data.Avatar ? ImageUrl : "/images/example.png"}`}
                     alt="profile"
                 />
                 <p>{(data.firstName + data.lastName) || data.name}</p>

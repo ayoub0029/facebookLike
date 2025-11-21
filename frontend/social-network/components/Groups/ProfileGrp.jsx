@@ -103,12 +103,11 @@ export default function ProfileGrp({ onSuccess }) {
                     height={150}
                 />
                 <div className="groupInfos">
-                    <h1>{groupProfile.name || 'Unknown Group'}</h1>
-                    <h3 className="GroupDescription">
+                    <h2>{groupProfile.name || 'Unknown Group'}</h2>
+                    <h4 className="GroupDescription">
                         {groupProfile.description || 'No description available'}
-                    </h3>
+                    </h4><br />
                     <p className="MemberCount">
-                        {console.log(groupProfile)}
                         {`${groupProfile.members} Members`}
                     </p>
                     {groupProfile.status === "nothing" && groupProfile.owner != window.userState.id && (
@@ -120,7 +119,6 @@ export default function ProfileGrp({ onSuccess }) {
                     )}
                     {groupProfile.status === "pending" && (
                         <div className="invitation-actions">
-                            {console.log(groupProfile)}
                             <button
                                 onClick={() => handleAccept(groupProfile.id, window.userState.id)}
                                 className="btn btnGreen"

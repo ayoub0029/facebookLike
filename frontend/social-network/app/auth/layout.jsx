@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"; // Correct import for Next.js App R
 import "../../styles/globals.css";
 import style from "./auth.module.css";
 import { checkIfLoggedIn } from "@/api/isLoggedIn";
+import Image from "next/image";
 
 export default function AuthLayout({ children }) {
   const [isLoading, setIsLoading] = useState(true);
@@ -14,8 +15,6 @@ export default function AuthLayout({ children }) {
     const fetchUser = async () => {
       const user = await checkIfLoggedIn();
 
-      console.log(user.status);
-      
       if (user && user.status !== 401 && user.id !== undefined) {
         router.push("/");
       } else {
@@ -47,7 +46,14 @@ export default function AuthLayout({ children }) {
 function Lmodir() {
   return (
     <div className={style.brand_section}>
-      <h1 className={style.brand_logo}>lmodir</h1>
+      <Image
+        style={{ maxWidth: "300px" }}
+        width={200}
+        height={100}
+        src={"http://localhost:3000/images/logo.png"}
+        alt="logo"
+        unoptimized={true}
+        layout="responsive" />
       <h2 className={style.brand_tag_line}>
         make it easy to communicate with the world
       </h2>
